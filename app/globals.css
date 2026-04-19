@@ -5,17 +5,64 @@
 :root {
   --foreground: #1a1a1a;
   --background: #ffffff;
+  --primary: #53D1F9;
+  --primary-light: #d4f4ff;
+  
+  /* Apple Design System - Light */
+  --surface-light: #f5f5f7;
+  --surface-dark: #272729;
+  --surface-darker: #1d1d1f;
+  
+  /* Text */
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-tertiary: rgba(0, 0, 0, 0.48);
+  
+  /* On dark */
+  --text-on-dark: #ffffff;
+  --text-on-dark-secondary: rgba(255, 255, 255, 0.8);
+  
+  /* Links */
+  --link-light: #0066cc;
+  --link-dark: #53D1F9;
+  
+  /* Accent */
+  --accent: #eb7690;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'SF Pro Text', '-apple-system', 'BlinkMacSystemFont', 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground: #ffffff;
-    --background: #0a0a0a;
-  }
+/* Apple-style tight typography */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+p {
+  letter-spacing: -0.01em;
+  line-height: 1.47;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }

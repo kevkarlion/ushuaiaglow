@@ -6,25 +6,51 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <FeaturedProducts />
-      <Categories />
       
-      {/* Promotions Section */}
-      <section className="py-16 bg-primary-500">
+      {/* Combos CTA Section - después del Hero */}
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <span className="inline-block px-4 py-1 bg-white/20 text-white text-sm font-semibold rounded-full mb-4">
-              ⚡ Oferta Limitada
+            <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-medium rounded-full mb-4">
+              Nuevos
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Hasta 30% de descuento
+            <h2 className="text-3xl md:text-4xl font-semibold text-surface-darker leading-[1.1] tracking-tight mb-3">
+              Combos <span className="text-primary">Exclusivos</span>
             </h2>
-            <p className="text-primary-100 max-w-2xl mx-auto mb-8">
-              Aprovecha nuestras ofertas exclusivas. Stocks limitados.
+            <p className="text-gray-600 max-w-2xl mx-auto mb-8">
+              Paquetes de productos con hasta 30% de descuento. 
+              Ideales para iniciar tu rutina de cuidado.
             </p>
             <a
-              href="/offers"
-              className="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+              href="/combos"
+              className="inline-flex items-center justify-center px-6 py-3 bg-surface-darker hover:bg-primary text-white font-normal rounded-lg transition-colors"
+            >
+              Ver Combos
+            </a>
+          </div>
+        </div>
+      </section>
+      
+      <FeaturedProducts />
+      
+      <Categories />
+      
+      {/* Promotions Section - Apple dark style */}
+      <section className="py-20 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <span className="inline-block px-3 py-1 bg-white/10 text-primary text-xs font-medium rounded-full mb-4">
+              Oferta Limitada
+            </span>
+            <h2 className="text-3xl md:text-4xl font-semibold text-white leading-[1.1] tracking-tight mb-3">
+              Hasta 30% de descuento
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto mb-8">
+              Aprovechá nuestras ofertas exclusivas en productos seleccionados.
+            </p>
+            <a
+              href="/products"
+              className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-white font-normal rounded-lg transition-colors"
             >
               Ver Ofertas
             </a>

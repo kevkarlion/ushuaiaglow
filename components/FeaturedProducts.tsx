@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import ProductCard from './ProductCard';
 import { Product } from '@/types/product';
 
@@ -11,11 +12,16 @@ export default function FeaturedProducts() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await fetch('http://localhost:3000/api/products');
+        const res = await fetch('/api/products');
+        if (!res.ok) {
+          setProducts([]);
+          return;
+        }
         const data = await res.json();
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching products:', error);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -26,15 +32,15 @@ export default function FeaturedProducts() {
   const featuredProducts = products.slice(0, 8);
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-20 bg-surface-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {/* Section Header - Apple style tight line-height */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Productos <span className="text-primary-500">Destacados</span>
+          <h2 className="text-3xl md:text-4xl font-semibold text-surface-darker leading-[1.1] tracking-tight mb-3">
+            Productos <span className="text-primary">Destacados</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Descubrí nuestra selección de productos premium
+          <p className="text-gray-500 text-sm max-w-2xl mx-auto">
+            Descubrí nuestra selección de productos premium para el cuidado de tu piel
           </p>
         </div>
 
@@ -62,17 +68,15 @@ export default function FeaturedProducts() {
           </div>
         )}
 
-        {/* View All Button */}
+        {/* View All - Apple pill style */}
         <div className="text-center mt-12">
-          <a
+          <Link
             href="/products"
-            className="inline-flex items-center justify-center px-8 py-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold border border-gray-200 rounded-lg transition-all duration-200 hover:border-primary-500 hover:text-primary-500"
+            className="inline-flex items-center justify-center px-6 py-3 text-primary font-normal hover:underline underline-offset-4 transition-all"
           >
             Ver todos los productos
-            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
+            <span className="ml-1">→</span>
+          </Link>
         </div>
       </div>
     </section>

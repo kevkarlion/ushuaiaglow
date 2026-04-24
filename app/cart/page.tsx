@@ -40,6 +40,15 @@ function CartContent() {
     return null;
   });
 
+  // Get preferenceId from URL for validation
+  const [preferenceId, setPreferenceId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('preference_id');
+    }
+    return null;
+  });
+
   const handleCheckout = async () => {
     // Validate buyer data - ALWAYS required now
     if (!buyerForm.nombreCompleto || !buyerForm.email || !buyerForm.direccion || 
@@ -93,27 +102,41 @@ function CartContent() {
     );
   }
 
-  // Success message
+  // Success message - redirect to checkout success page
   if (status === 'success') {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center px-4">
-          <div className="w-20 h-20 mx-auto mb-6 bg-green-500/20 rounded-full flex items-center justify-center">
-            <svg className="w-10 h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-semibold text-white mb-2">¡Gracias por tu compra!</h1>
-          <p className="text-gray-400 mb-8">Tu pedido fue procesado exitosamente.</p>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-white font-normal rounded-lg transition-colors"
-          >
-            Volver al Inicio
-          </Link>
+    // Redirect to professional success page
+    if (typeof window !== 'undefined') {
+      window.location.href = `/checkout/success${preferenceId ? '?order=' + preferenceId : ''}`;
+      return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+          <div className="text-white">Redirigiendo...</div>
         </div>
-      </div>
-    );
+      );
+    }
+  }
+
+  // Failure message
+  if (status === 'failure') {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/checkout/failure';
+      return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+          <div className="text-white">Redirigiendo...</div>
+        </div>
+      );
+    }
+  }
+
+  // Pending message
+  if (status === 'pending') {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/checkout/pending';
+      return (
+        <div className="min-h-screen bg-black flex items-center justify-center">
+          <div className="text-white">Redirigiendo...</div>
+        </div>
+      );
+    }
   }
 
   return (

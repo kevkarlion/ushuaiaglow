@@ -1,9 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { LucideCheckCircle, LucideArrowRight, LucidePackage, LucideMail } from 'lucide-react';
 
 export default function CheckoutSuccessPage() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('order') || 'CPT01-XXXXX';
+  
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="max-w-md mx-auto px-4 py-12 text-center">
@@ -29,7 +33,7 @@ export default function CheckoutSuccessPage() {
             <span className="font-medium">Pedido confirmado</span>
           </div>
           <p className="text-gray-500 text-sm">
-           ID de operación: CPT01-XXXXX
+            N° de pedido: <span className="font-mono text-white">{orderId}</span>
           </p>
         </div>
 
@@ -39,13 +43,13 @@ export default function CheckoutSuccessPage() {
           <div className="flex gap-3">
             <LucideMail className="w-5 h-5 text-primary flex-shrink-0" />
             <p className="text-gray-400 text-sm">
-              Te enviamos un email con确认ación y guía de seguimiento.
+              Te enviamos un email de confirmacion con los datos de tu pedido.
             </p>
           </div>
           <div className="flex gap-3">
             <LucidePackage className="w-5 h-5 text-primary flex-shrink-0" />
             <p className="text-gray-400 text-sm">
-              Preparamos tu pedido en 24-48hs hábiles.
+              Preparamos tu pedido en 24-48hs habiles y te avisamos cuando este enviado.
             </p>
           </div>
         </div>
@@ -63,7 +67,7 @@ export default function CheckoutSuccessPage() {
             href="/contacto"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-colors"
           >
-            ¿Necesitás ayuda?
+            ¿Necesitas ayuda?
           </Link>
         </div>
       </div>

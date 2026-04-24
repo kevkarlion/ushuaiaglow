@@ -14,29 +14,29 @@ export default function CheckoutFailurePage() {
 
         {/* Title */}
         <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">
-          El pago no pudo procesarse
+          El pago no fue aprobado
         </h1>
 
         {/* Message */}
         <p className="text-gray-400 mb-8">
-          Hubo un problema al procesar tu pago. Podés intentar nuevamente o contactarnos.
+          Hubo un problema al procesar tu pago. Podez intentar nuevamente o contactarnos.
         </p>
 
         {/* Tips */}
         <div className="bg-surface-darker/30 rounded-xl p-6 border border-white/10 mb-8 text-left">
-          <h2 className="text-white font-semibold mb-4">¿Querés intentarlo de nuevo?</h2>
+          <h2 className="text-white font-semibold mb-4">¿Queres intentarlo de nuevo?</h2>
           <ul className="space-y-2 text-gray-400 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-primary">•</span>
-              Verificá que los datos de tu tarjeta sean correctos
+              <span className="text-primary">-</span>
+              Verifica que los datos de tu tarjeta sean correctos
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-primary">•</span>
+              <span className="text-primary">-</span>
               Asegurate de tener saldo disponible
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-primary">•</span>
-              Probá con otro medio de pago
+              <span className="text-primary">-</span>
+              Prueba con otro medio de pago
             </li>
           </ul>
         </div>

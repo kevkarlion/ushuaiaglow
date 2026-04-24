@@ -1,9 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { LucideClock, LucideArrowRight, LucideHelpCircle, LucideFileText } from 'lucide-react';
 
 export default function CheckoutPendingPage() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('order') || 'CPT01-XXXXX';
+  
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="max-w-md mx-auto px-4 py-12 text-center">
@@ -19,17 +23,17 @@ export default function CheckoutPendingPage() {
 
         {/* Message */}
         <p className="text-gray-400 mb-8">
-          Tu pago está siendo procesado. Te notificaremos cuando sea confirmado.
+          Tu pago esta siendo procesado. Te notificaremos cuando sea confirmado.
         </p>
 
-        {/* Info */}
+        {/* Order Info */}
         <div className="bg-surface-darker/30 rounded-xl p-6 border border-white/10 mb-8 text-left">
           <div className="flex gap-3">
             <LucideFileText className="w-5 h-5 text-primary flex-shrink-0" />
             <div>
-              <h2 className="text-white font-medium mb-2">¿Cómo继续?</h2>
+              <h2 className="text-white font-medium mb-2">N° de pedido: {orderId}</h2>
               <p className="text-gray-400 text-sm">
-                depending on the payment method you chose, you'll receive instructions via email or you can view them in your Mercado Pago account.
+                Depends on el metodo de pago elegido, recibiras instrucciones via email o podes verlas en tu cuenta de Mercado Pago.
               </p>
             </div>
           </div>
@@ -37,18 +41,18 @@ export default function CheckoutPendingPage() {
 
         {/* Tips */}
         <div className="bg-surface-darker/30 rounded-xl p-6 border border-white/10 mb-8 text-left">
-          <h2 className="text-white font-semibold mb-3">Métodos de pago comunes</h2>
+          <h2 className="text-white font-semibold mb-3">Metodos de pago comunes</h2>
           <ul className="space-y-2 text-gray-400 text-sm">
             <li className="flex items-start gap-2">
-              <span className="text-primary">•</span>
-              <strong>Efectivo:</strong> tenés 48hs para pagar en Rapipago o PagoFácil
+              <span className="text-primary">-</span>
+              <strong>Efectivo:</strong> tenes 48hs para pagar en Rapipago o PagoFacil
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-primary">•</span>
-              <strong>Transferencia:</strong> se acredita en 24-48hs hábiles
+              <span className="text-primary">-</span>
+              <strong>Transferencia:</strong> se acredita en 24-48hs habiles
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-primary">•</span>
+              <span className="text-primary">-</span>
               <strong>Tarjeta:</strong> puede demorar unos minutos en aprobarse
             </li>
           </ul>
@@ -68,7 +72,7 @@ export default function CheckoutPendingPage() {
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-colors"
           >
             <LucideHelpCircle className="w-5 h-5" />
-            ¿Necesitás ayuda?
+            Necesitas ayuda?
           </Link>
         </div>
       </div>

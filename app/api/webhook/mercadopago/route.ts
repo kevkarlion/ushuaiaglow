@@ -18,22 +18,36 @@ async function getClient() {
 
 // POST /api/webhook/mercadopago - procesar pagos
 export async function POST(request: Request) {
+  let mongoClient = null;
+  
   try {
     const body = await request.json();
     const { type, data } = body;
 
+    console.log('🔔 Webhook recibido:', { type, paymentId: data?.id, liveMode: body.live_mode });
+
     // Solo procesar payments
     if (type !== 'payment') {
-      return NextResponse.json({ message: 'Ignored' });
+      return NextResponse.json({ message: 'Ignored', type });
     }
 
-    const paymentId = data.id;
-    const mongoClient = await getClient();
+    const paymentId = data?.id;
+    if (!paymentId) {
+      return NextResponse.json({ message: 'No payment ID' }, { status: 400 });
+    }
+
+    // Conectar a MongoDB
+    try {
+      mongoClient = await getClient();
+    } catch (mongoError) {
+      console.error('❌ Error conectando a MongoDB:', mongoError);
+      return NextResponse.json({ error: 'MongoDB no configurada' }, { status: 500 });
+    }
 
     // 1. Obtener datos del pago desde MP
     const accessToken = process.env.MP_ACCESS_TOKEN;
     if (!accessToken) {
-      console.error('MP_ACCESS_TOKEN no configurado');
+      console.error('❌ MP_ACCESS_TOKEN no configurado en env');
       return NextResponse.json({ error: 'MP no configurado' }, { status: 500 });
     }
 
@@ -45,20 +59,23 @@ export async function POST(request: Request) {
     );
 
     if (!mpResponse.ok) {
-      console.error('Error fetching payment from MP');
-      return NextResponse.json({ error: 'Error MP' }, { status: 500 });
+      const errorText = await mpResponse.text();
+      console.error('❌ Error de MP:', mpResponse.status, errorText);
+      return NextResponse.json({ error: 'Error MP', status: mpResponse.status }, { status: 500 });
     }
 
     const payment = await mpResponse.json();
 
     // Solo procesar pagos aprobados
     if (payment.status !== 'approved') {
-      console.log(`Payment ${paymentId} status: ${payment.status}`);
-      return NextResponse.json({ message: 'Not approved' });
+      console.log(`⏳ Payment ${paymentId} status: ${payment.status} - no aprobado`);
+      return NextResponse.json({ message: 'Not approved', status: payment.status });
     }
 
     const preferenceId = payment.preference_id;
     const externalReference = payment.external_reference;
+
+    console.log('✅ Pago aprobado:', { paymentId, preferenceId, externalReference });
 
     // 2. Buscar la venta por preferenceId
     const salesCollection = mongoClient.db('ushuaia').collection('sales');
@@ -182,8 +199,12 @@ export async function POST(request: Request) {
       stockErrors: stockErrors.length > 0 ? stockErrors : undefined,
     });
   } catch (error) {
-    console.error('Webhook error:', error);
-    return NextResponse.json({ error: 'Webhook error' }, { status: 500 });
+    console.error('❌ Webhook error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ 
+      error: 'Webhook error', 
+      details: errorMessage,
+    }, { status: 200 }); // Devolver 200 para que MP no reintente infinitamente
   }
 }
 

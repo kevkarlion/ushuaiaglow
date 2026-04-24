@@ -31,7 +31,9 @@ interface BuyerData {
   provincia: string;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_URL || process.env.BASE_URL || 'http://localhost:3000';
+
+console.log('🔍 BASE_URL para back_urls:', BASE_URL);
 
 export async function POST(request: Request) {
   try {
@@ -144,7 +146,6 @@ export async function POST(request: Request) {
           pending: `${BASE_URL}/checkout/pending`,
           failure: `${BASE_URL}/checkout/failure`,
         },
-        auto_return: 'approved',
         external_reference: externalRef,
         notification_url: `${BASE_URL}/api/webhook/mercadopago`,
       }),

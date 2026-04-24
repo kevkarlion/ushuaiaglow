@@ -83,8 +83,12 @@ function CartContent() {
 
       if (data.initPoint) {
         window.location.href = data.initPoint;
+      } else if (data.error) {
+        setError(data.error + (data.details ? ': ' + data.details : ''));
       } else if (data.demo) {
         setError('Modo demo: Configura MP_ACCESS_TOKEN en .env para activar pagos reales');
+      } else {
+        setError('Error desconocido. Intentalo de nuevo.');
       }
     } catch (err) {
       setError('Error al procesar el pago. Intentalo de nuevo.');

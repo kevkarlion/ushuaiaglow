@@ -59,6 +59,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const existingItem = currentItems.find((i) => i.productId === item.productId);
       
       if (existingItem) {
+        console.log('🛒 existing item, updating quantity:', existingItem.quantity + quantity);
         return currentItems.map((i) =>
           i.productId === item.productId
             ? { ...i, quantity: i.quantity + quantity }
@@ -66,6 +67,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         );
       }
       
+      console.log('🛒 new item, adding to cart');
       return [...currentItems, { ...item, quantity }];
     });
   }, []);

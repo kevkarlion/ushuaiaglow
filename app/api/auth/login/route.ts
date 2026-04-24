@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
 
 let client: MongoClient | null = null;
 
@@ -21,7 +20,7 @@ async function getClient() {
 const JWT_SECRET = process.env.JWT_SECRET || process.env.AUTH_SECRET || 'ushuaia-secret-change-in-production';
 const COOKIE_NAME = 'auth-token';
 
-// POST /api/auth/login - NO redirect, retorna token JSON
+// POST /api/auth/login
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -60,28 +59,12 @@ export async function POST(request: Request) {
       { expiresIn: '7d' }
     );
 
-    // SET COOKIE también
-    const cookieStore = await cookies();
-    cookieStore.set(COOKIE_NAME, token, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
-    });
+    console.log('✅ Login OK, token:', token.substring(0, 20) + '...');
 
-    console.log('✅ Login OK');
-
-    // NO redirect - возвращаем JSON с token!
+    // Return JSON with token - client will handle redirect
     return NextResponse.json({
       success: true,
       token: token,
-      user: {
-        id: user._id.toString(),
-        email: user.email,
-        nombre: user.nombre || 'Admin',
-        rol: user.rol || 'admin',
-      },
     });
   } catch (error) {
     console.error('Login error:', error);

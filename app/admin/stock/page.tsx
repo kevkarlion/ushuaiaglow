@@ -268,7 +268,7 @@ export default function StockPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right text-gray-400">
-                        ${product.price.toFixed(2)}
+                        ${(product.price || 0).toLocaleString('es-AR')}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 justify-center">

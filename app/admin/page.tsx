@@ -149,7 +149,7 @@ export default function AdminPage() {
 
   const handleEdit = (product: Product) => {
     // Go to edit page instead of inline edit
-    router.push(`/admin/products/${product.id}`);
+    router.push(`/admin/productos/${product.id}`);
   };
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,245 +238,188 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+    <div className="p-6">
+      {message && (
+        <div className={`mb-4 p-3 rounded-lg ${message.includes('Error') ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`}>
+          {message}
+        </div>
+      )}
+
+      {/* Importar desde Excel */}
+      <div className="bg-surface-darker/30 rounded-lg p-6 mb-8">
+        <h2 className="text-lg font-medium text-white mb-4">Importar desde Excel</h2>
+        <div className="flex items-center gap-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx, .xls, .csv"
+            onChange={handleFileImport}
+            disabled={importing}
+            className="hidden"
+            id="excel-import"
+          />
+          <label
+            htmlFor="excel-import"
+            className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:bg-white/20 text-white rounded-lg cursor-pointer"
+          >
+            {importing ? 'Importando...' : 'Seleccionar Archivo'}
+          </label>
+          <span className="text-gray-400 text-sm">
+            Formatos: .xlsx, .xls, .csv
+          </span>
+        </div>
+        <p className="text-gray-500 text-xs mt-2">
+          Columnas aceptadas: title, description, price, category, brand, stock, images, ingredients, howToUse, warnings, weight
+        </p>
+      </div>
+
+      {/* Form */}
+      <div className="bg-surface-darker/30 rounded-lg p-6 mb-8">
+        <h2 className="text-lg font-medium text-white mb-4">
+          {editingId ? 'Editar Producto' : 'Agregar Producto'}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <h1 className="text-2xl font-semibold text-white">Admin - Productos</h1>
-            {user && (
-              <p className="text-gray-400 text-sm">Hola, {user.nombre}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            <button onClick={() => router.push('/')} className="text-primary hover:underline">
-              ← Inicio
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="px-3 py-1 bg-white/10 hover:bg-white/20 text-gray-400 text-sm rounded"
-            >
-              Cerrar Sesión
-            </button>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <button
-            onClick={() => router.push('/admin')}
-            className="p-4 bg-surface-darker/50 rounded-lg border border-primary text-center"
-          >
-            <p className="text-primary font-medium">Productos</p>
-            <p className="text-gray-400 text-sm">{products.length} items</p>
-          </button>
-          <button
-            onClick={() => router.push('/admin/stock')}
-            className="p-4 bg-surface-darker/30 rounded-lg border border-white/10 hover:border-primary text-center"
-          >
-            <p className="text-white font-medium">Stock</p>
-            {lowStockCount > 0 && (
-              <p className="text-orange-400 text-sm">⚠️ {lowStockCount} bajo stock</p>
-            )}
-          </button>
-          <button
-            onClick={() => router.push('/admin/buyers')}
-            className="p-4 bg-surface-darker/30 rounded-lg border border-white/10 hover:border-primary text-center"
-          >
-            <p className="text-white font-medium">Compradores</p>
-            <p className="text-gray-400 text-sm">Ver clientes</p>
-          </button>
-          <button
-            onClick={() => router.push('/admin/sales')}
-            className="p-4 bg-surface-darker/30 rounded-lg border border-white/10 hover:border-primary text-center"
-          >
-            <p className="text-white font-medium">Ventas</p>
-            <p className="text-gray-400 text-sm">Historial</p>
-          </button>
-        </div>
-
-        {message && (
-          <div className={`mb-4 p-3 rounded-lg ${message.includes('Error') ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`}>
-            {message}
-          </div>
-        )}
-
-        {/* Importar desde Excel */}
-        <div className="bg-surface-darker/30 rounded-lg p-6 mb-8">
-          <h2 className="text-lg font-medium text-white mb-4">Importar desde Excel</h2>
-          <div className="flex items-center gap-4">
+            <label className="block text-sm text-gray-400 mb-1">Título</label>
             <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx, .xls, .csv"
-              onChange={handleFileImport}
-              disabled={importing}
-              className="hidden"
-              id="excel-import"
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+              required
             />
-            <label
-              htmlFor="excel-import"
-              className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:bg-white/20 text-white rounded-lg cursor-pointer"
-            >
-              {importing ? 'Importando...' : 'Seleccionar Archivo'}
-            </label>
-            <span className="text-gray-400 text-sm">
-              Formatos: .xlsx, .xls, .csv
-            </span>
           </div>
-          <p className="text-gray-500 text-xs mt-2">
-            Columnas aceptadas: title, description, price, category, brand, stock, images, ingredients, howToUse, warnings, weight
-          </p>
-        </div>
 
-        {/* Form */}
-        <div className="bg-surface-darker/30 rounded-lg p-6 mb-8">
-          <h2 className="text-lg font-medium text-white mb-4">
-            {editingId ? 'Editar Producto' : 'Agregar Producto'}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Descripción</label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+              rows={2}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Título</label>
+              <label className="block text-sm text-gray-400 mb-1">Precio</label>
               <input
-                type="text"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                type="number"
+                step="0.01"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                 required
               />
             </div>
-
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Descripción</label>
-              <textarea
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              <label className="block text-sm text-gray-400 mb-1">Categoría</label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                rows={2}
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Precio</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Categoría</label>
-                <select
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                >
-                  {categories.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Stock</label>
-                <input
-                  type="number"
-                  value={form.stock}
-                  onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">URL Imagen</label>
-              <input
-                type="url"
-                value={form.imageUrl}
-                onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                placeholder="https://..."
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-6 py-2 bg-primary hover:bg-primary/90 disabled:bg-white/20 text-white rounded-lg"
               >
-                {saving ? 'Guardando...' : editingId ? 'Actualizar' : 'Guardar'}
-              </button>
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingId(null);
-                    setForm(initialForm);
-                  }}
-                  className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg"
-                >
-                  Cancelar
-                </button>
-              )}
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
             </div>
-          </form>
-        </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Stock</label>
+              <input
+                type="number"
+                value={form.stock}
+                onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                required
+              />
+            </div>
+          </div>
 
-        {/* List */}
-        <div>
-          <h2 className="text-lg font-medium text-white mb-4">
-            Productos ({products.length})
-          </h2>
-          {loading ? (
-            <p className="text-gray-400">Cargando...</p>
-          ) : !Array.isArray(products) || products.length === 0 ? (
-            <p className="text-gray-400">No hay productos</p>
-          ) : (
-            <div className="space-y-2">
-              {(products as Product[]).map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center gap-4 p-3 bg-surface-darker/30 rounded-lg"
-                >
-                  <div className="w-12 h-12 bg-white/10 rounded overflow-hidden flex-shrink-0">
-                    {product.images?.[0] && (
-                      <img
-                        src={product.images[0]}
-                        alt={product.title}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white truncate">{product.title}</p>
-                    <p className="text-gray-400 text-sm">
-                      ${product.price.toFixed(2)} - {product.category}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-sm rounded"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="px-3 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-400 text-sm rounded"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">URL Imagen</label>
+            <input
+              type="url"
+              value={form.imageUrl}
+              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+              placeholder="https://..."
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-6 py-2 bg-primary hover:bg-primary/90 disabled:bg-white/20 text-white rounded-lg"
+            >
+              {saving ? 'Guardando...' : editingId ? 'Actualizar' : 'Guardar'}
+            </button>
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setForm(initialForm);
+                }}
+                className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      {/* List */}
+      <div>
+        <h2 className="text-lg font-medium text-white mb-4">
+          Productos ({products.length})
+        </h2>
+        {loading ? (
+          <p className="text-gray-400">Cargando...</p>
+        ) : !Array.isArray(products) || products.length === 0 ? (
+          <p className="text-gray-400">No hay productos</p>
+        ) : (
+          <div className="space-y-2">
+            {(products as Product[]).map((product) => (
+              <div
+                key={product.id}
+                className="flex items-center gap-4 p-3 bg-surface-darker/30 rounded-lg"
+              >
+                <div className="w-12 h-12 bg-white/10 rounded overflow-hidden flex-shrink-0">
+                  {product.images?.[0] && (
+                    <img
+                      src={product.images[0]}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white truncate">{product.title}</p>
+                  <p className="text-gray-400 text-sm">
+                    ${product.price.toFixed(2)} - {product.category}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(product)}
+                    className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-sm rounded"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    className="px-3 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-400 text-sm rounded"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -23,12 +23,12 @@
   },
   "dynamicRoutes": [
     {
-      "page": "/admin/products/[id]",
-      "regex": "^/admin/products/([^/]+?)(?:/)?$",
+      "page": "/admin/productos/[id]",
+      "regex": "^/admin/productos/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/admin/products/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/admin/productos/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
       "page": "/api/products/[id]",
@@ -47,12 +47,12 @@
       "namedRegex": "^/api/stock/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
-      "page": "/categories/[category]",
-      "regex": "^/categories/([^/]+?)(?:/)?$",
+      "page": "/categorias/[category]",
+      "regex": "^/categorias/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPcategory": "nxtPcategory"
       },
-      "namedRegex": "^/categories/(?<nxtPcategory>[^/]+?)(?:/)?$"
+      "namedRegex": "^/categorias/(?<nxtPcategory>[^/]+?)(?:/)?$"
     },
     {
       "page": "/combos/[id]",
@@ -63,12 +63,12 @@
       "namedRegex": "^/combos/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
-      "page": "/products/[id]",
-      "regex": "^/products/([^/]+?)(?:/)?$",
+      "page": "/productos/[id]",
+      "regex": "^/productos/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "namedRegex": "^/products/(?<nxtPid>[^/]+?)(?:/)?$"
+      "namedRegex": "^/productos/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -151,6 +151,12 @@
       "namedRegex": "^/api/auth/register(?:/)?$"
     },
     {
+      "page": "/api/auth/set-cookie",
+      "regex": "^/api/auth/set\\-cookie(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/set\\-cookie(?:/)?$"
+    },
+    {
       "page": "/api/buyers",
       "regex": "^/api/buyers(?:/)?$",
       "routeKeys": {},
@@ -161,6 +167,18 @@
       "regex": "^/api/checkout(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/checkout(?:/)?$"
+    },
+    {
+      "page": "/api/combos",
+      "regex": "^/api/combos(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/combos(?:/)?$"
+    },
+    {
+      "page": "/api/migrate-slugs",
+      "regex": "^/api/migrate\\-slugs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/migrate\\-slugs(?:/)?$"
     },
     {
       "page": "/api/products",
@@ -175,16 +193,16 @@
       "namedRegex": "^/api/sales(?:/)?$"
     },
     {
-      "page": "/api/seed",
-      "regex": "^/api/seed(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/seed(?:/)?$"
-    },
-    {
       "page": "/api/stock",
       "regex": "^/api/stock(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/stock(?:/)?$"
+    },
+    {
+      "page": "/api/upload",
+      "regex": "^/api/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/upload(?:/)?$"
     },
     {
       "page": "/api/webhook/mercadopago",
@@ -199,10 +217,10 @@
       "namedRegex": "^/cart(?:/)?$"
     },
     {
-      "page": "/categories",
-      "regex": "^/categories(?:/)?$",
+      "page": "/categorias",
+      "regex": "^/categorias(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/categories(?:/)?$"
+      "namedRegex": "^/categorias(?:/)?$"
     },
     {
       "page": "/combos",
@@ -211,10 +229,16 @@
       "namedRegex": "^/combos(?:/)?$"
     },
     {
-      "page": "/products",
-      "regex": "^/products(?:/)?$",
+      "page": "/contacto",
+      "regex": "^/contacto(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/products(?:/)?$"
+      "namedRegex": "^/contacto(?:/)?$"
+    },
+    {
+      "page": "/productos",
+      "regex": "^/productos(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/productos(?:/)?$"
     }
   ],
   "dataRoutes": [],

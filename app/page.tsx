@@ -18,7 +18,7 @@ export default function HomePage() {
               Combos <span className="text-primary">Exclusivos</span>
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto mb-8">
-              Paquetes de productos con hasta 30% de descuento. 
+              Paquetes de productos con hasta 25% de descuento. 
               Ideales para iniciar tu rutina de cuidado.
             </p>
             <a
@@ -43,13 +43,13 @@ export default function HomePage() {
               Oferta Limitada
             </span>
             <h2 className="text-3xl md:text-4xl font-semibold text-white leading-[1.1] tracking-tight mb-3">
-              Hasta 30% de descuento
+              Hasta 25% de descuento
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto mb-8">
               Aprovechá nuestras ofertas exclusivas en productos seleccionados.
             </p>
             <a
-              href="/products"
+              href="/productos"
               className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-white font-normal rounded-lg transition-colors"
             >
               Ver Ofertas

@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { Product } from '@/types/product';
 
+interface ComboDisplay extends Product {
+  products: { name: string; image: string }[];
+}
+
 interface ComboProduct {
   name: string;
   description: string;
@@ -31,8 +35,8 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
   const resolvedParams = use(params);
   const [combo, setCombo] = useState<Combo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeImage, setActiveImage] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -40,15 +44,17 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
     
     async function fetchCombo() {
       try {
-        // Fetch all products from API
+        const idOrSlug = resolvedParams.id;
+        
+        // Buscar TODOS los productos en la API
         const res = await fetch('/api/products');
-        const data = await res.json();
+        const allProducts = await res.json();
         
         if (!mounted) return;
         
-        // Find the combo by ID
-        const found = (data as Product[]).find(
-          p => p.id === resolvedParams.id && (p.isCombo === true || p.category?.toLowerCase() === 'combo')
+        // Find the combo by id O by slug
+        const found = (allProducts as Product[]).find(
+          p => (p.id === idOrSlug || p.slug === idOrSlug) && (p.isCombo === true || p.category?.toLowerCase() === 'combo')
         );
         
         if (!found) {
@@ -56,7 +62,36 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
           setLoading(false);
           return;
         }
-
+        
+        // Obtener los nombres de productos incluidos
+        const includedNames: string[] = [];
+        const pi = found.productsIncluded as string | undefined;
+        if (Array.isArray(pi)) {
+          includedNames.push(...pi);
+        } else if (typeof pi === 'string' && pi) {
+          try {
+            const parsed = JSON.parse(pi);
+            if (Array.isArray(parsed)) includedNames.push(...parsed);
+          } catch {
+            includedNames.push(...pi.split(','));
+          }
+        }
+        
+        // Buscar cada producto incluido en la lista completa para obtener su imagen
+        const comboProducts = includedNames.map((name: string) => {
+          const productName = name.trim();
+          // Buscar producto por nombre en la lista
+          const matched = (allProducts as Product[]).find(
+            p => p.title?.toLowerCase() === productName.toLowerCase()
+          );
+          return {
+            name: productName,
+            description: '',
+            image: matched?.images?.[0] || '',
+            benefit: 'Incluido',
+          };
+        });
+        
         // Transform product data to Combo format
         const comboData: Combo = {
           id: found.id,
@@ -68,14 +103,7 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
           originalPrice: found.originalPrice || found.price * 1.3,
           discount: found.discount || Math.round((1 - found.price / (found.originalPrice || found.price * 1.3)) * 100),
           image: found.images?.[0] || '/productos/combo-full.jpeg',
-          products: found.productsIncluded 
-            ? (Array.isArray(found.productsIncluded) ? found.productsIncluded : JSON.parse(found.productsIncluded as string)).map((id: string, idx: number) => ({
-                name: `Producto ${idx + 1}`,
-                description: '',
-                image: '',
-                benefit: 'Incluido',
-              }))
-            : [],
+          products: comboProducts,
           includes: found.weight ? [found.weight] : ['Combo especial'],
         };
         
@@ -122,13 +150,6 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  // Ensure image path is valid
-  const mainImage = combo.image?.startsWith('/') || combo.image?.startsWith('http') 
-    ? combo.image 
-    : '/productos/combo-full.jpeg';
-    
-  const allImages = [mainImage, ...combo.products.map(p => p.image?.startsWith('/') || p.image?.startsWith('http') ? p.image : '/productos/combo-full.jpeg')].filter((img, i, arr) => arr.indexOf(img) === i);
-
   return (
     <div className="min-h-screen bg-black">
       {/* Breadcrumb */}
@@ -146,35 +167,17 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Images Section */}
+          {/* Image Section - Imagen principal del combo */}
           <div className="space-y-4">
-            {/* Main Image */}
             <div className="aspect-square bg-surface-light rounded-lg overflow-hidden relative">
               <Image
-                src={allImages[activeImage] || '/productos/combo-full.jpeg'}
-                alt={activeImage === 0 ? combo.title : `Producto ${activeImage}`}
+                src={combo.image || '/productos/combo-full.jpeg'}
+                alt={combo.title}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>
-            
-            {/* Thumbnails */}
-            {allImages.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {allImages.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(idx)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden relative border-2 transition-all ${
-                      activeImage === idx ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <Image src={img || '/productos/combo-full.jpeg'} alt={idx === 0 ? 'Combo' : `Thumbnail ${idx}`} fill sizes="80px" className="object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Info Section */}
@@ -225,58 +228,81 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
 
-            {/* Individual Products */}
-            {combo.products.length > 0 && (
-              <div className="border-t border-white/10 pt-4">
-                <p className="text-xs text-white/40 mb-3">PRODUCTOS DEL COMBO</p>
-                <div className="space-y-3">
-                  {combo.products.map((product, idx) => (
-                    <div key={idx} className="flex items-center gap-3 bg-surface-darker/20 rounded-lg p-3">
-                      <div className="w-12 h-12 rounded-lg overflow-hidden relative flex-shrink-0 bg-surface-light">
-                        {product.image ? (
-                          <Image src={product.image} alt={product.name} fill sizes="48px" className="object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">{idx + 1}</div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{product.name}</p>
-                        <p className="text-xs text-gray-500">{product.benefit}</p>
-                      </div>
+            {/* Products included */}
+                {combo.products.length > 0 && (
+                  <div className="border-t border-white/10 pt-4">
+                    <p className="text-xs text-white/40 mb-3">PRODUCTOS DEL COMBO</p>
+                    <div className="space-y-3">
+                      {combo.products.map((product, idx) => (
+                        <div key={idx} className="flex items-center gap-3 bg-surface-darker/20 rounded-lg p-3">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden relative flex-shrink-0 bg-surface-light">
+                            {product.image ? (
+                              <Image src={product.image} alt={product.name} fill sizes="48px" className="object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
+                                {idx + 1}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-white truncate">{product.name}</p>
+                            <p className="text-xs text-gray-500">{product.benefit}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
+                  </div>
+                )}
 
             {/* Price */}
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-white">${combo.price.toLocaleString('es-AR')}</span>
+              <span className="text-3xl font-bold text-white">${(combo.price || 0).toLocaleString('es-AR')}</span>
               {combo.originalPrice > combo.price && (
-                <span className="text-lg text-white/40 line-through">${combo.originalPrice.toLocaleString('es-AR')}</span>
+                <span className="text-lg text-white/40 line-through">${(combo.originalPrice || 0).toLocaleString('es-AR')}</span>
               )}
               {combo.originalPrice > combo.price && (
-                <span className="text-sm text-green-400">Ahorrás ${(combo.originalPrice - combo.price).toLocaleString('es-AR')}</span>
+                <span className="text-sm text-green-400">Ahorrás ${((combo.originalPrice || 0) - (combo.price || 0)).toLocaleString('es-AR')}</span>
               )}
             </div>
 
-            {/* Add Button */}
-            <button 
-              onClick={() => {
-                addItem({
-                  productId: `combo-${combo.id}`,
-                  title: combo.title,
-                  price: combo.price,
-                  image: mainImage,
-                });
-                setIsAdding(true);
-                setTimeout(() => setIsAdding(false), 1000);
-              }}
-              disabled={isAdding} 
-              className="w-full py-3.5 bg-primary hover:bg-primary/90 disabled:bg-white/10 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all active:scale-[0.98]"
-            >
-              {isAdding ? '✓ Agregado al carrito' : 'Añadir Combo al carrito'}
-            </button>
+            {/* Quantity and Add Button */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <label className="text-sm text-white/60">Cantidad:</label>
+                <div className="flex items-center border border-white/20 rounded-lg">
+                  <button 
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                    className="px-4 py-2 text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                  >
+                    −
+                  </button>
+                  <span className="px-4 py-2 text-sm font-medium text-white min-w-[40px] text-center">{quantity}</span>
+                  <button 
+                    onClick={() => setQuantity(quantity + 1)} 
+                    className="px-4 py-2 text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => {
+                  addItem({
+                    productId: `combo-${combo.id}`,
+                    title: combo.title,
+                    price: combo.price,
+                    image: combo.image,
+                  }, quantity);
+                  setIsAdding(true);
+                  setTimeout(() => setIsAdding(false), 1000);
+                }}
+                disabled={isAdding} 
+                className="w-full py-3.5 bg-primary hover:bg-primary/90 disabled:bg-white/10 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all active:scale-[0.98]"
+              >
+                {isAdding ? '✓ Agregado al carrito' : 'Añadir Combo al carrito'}
+              </button>
+            </div>
 
             {/* Shipping info */}
             <div className="border-t border-white/10 pt-4 space-y-2">

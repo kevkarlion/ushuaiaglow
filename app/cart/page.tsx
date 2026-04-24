@@ -18,7 +18,6 @@ function CartContent() {
   const { items, totalItems, subtotal, updateQuantity, removeItem, clearCart, isLoading } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
-  const [showBuyerForm, setShowBuyerForm] = useState(false);
   const [buyerForm, setBuyerForm] = useState<BuyerFormData>({
     nombreCompleto: '',
     email: '',
@@ -42,13 +41,11 @@ function CartContent() {
   });
 
   const handleCheckout = async () => {
-    // Validate buyer data if form is shown
-    if (showBuyerForm) {
-      if (!buyerForm.nombreCompleto || !buyerForm.email || !buyerForm.direccion || 
-          !buyerForm.codigoPostal || !buyerForm.provincia) {
-        setError('Por favor completá todos los datos de envío');
-        return;
-      }
+    // Validate buyer data - ALWAYS required now
+    if (!buyerForm.nombreCompleto || !buyerForm.email || !buyerForm.direccion || 
+        !buyerForm.codigoPostal || !buyerForm.provincia) {
+      setError('Por favor completá todos los datos de envío');
+      return;
     }
 
     setIsProcessing(true);
@@ -63,12 +60,9 @@ function CartContent() {
           quantity: item.quantity,
         })),
         total: subtotal,
+        // Always include buyer data - now mandatory
+        buyer: buyerForm,
       };
-
-      // Add buyer data if available
-      if (showBuyerForm) {
-        checkoutBody.buyer = buyerForm;
-      }
 
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -144,7 +138,7 @@ function CartContent() {
             <h2 className="text-xl font-semibold text-white mb-2">Tu carrito está vacío</h2>
             <p className="text-gray-400 mb-8">Agregá productos para comenzar</p>
             <Link
-              href="/products"
+              href="/productos"
               className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-white font-normal rounded-lg transition-colors"
             >
               Ver Productos
@@ -153,7 +147,7 @@ function CartContent() {
         </div>
       ) : (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="space-y-4">
+<div className="space-y-4">
             {items.map((item) => (
               <div key={item.productId} className="flex gap-4 bg-surface-darker/30 rounded-lg p-4">
                 <div className="w-20 h-20 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
@@ -167,76 +161,80 @@ function CartContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-white text-sm truncate">{item.title}</h3>
-                  <p className="text-primary font-semibold mt-1">${item.price.toFixed(2)}</p>
-                  <div className="flex items-center gap-3 mt-3">
-                    <button
-                      onClick={() => item.quantity > 1 ? updateQuantity(item.productId, item.quantity - 1) : removeItem(item.productId)}
-                      className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-lg text-white"
+                  <p className="text-primary font-semibold mt-1">${(item.price || 0).toLocaleString('es-AR')}</p>
+                  
+                  {/* Quantity controls */}
+                  <div className="flex items-center gap-3 mt-2">
+                    <button 
+                      onClick={() => {
+                        if (item.quantity > 1) {
+                          updateQuantity(item.productId, item.quantity - 1);
+                        } else {
+                          removeItem(item.productId);
+                        }
+                      }}
+                      className="w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded text-white"
                     >
-                      -
+                      −
                     </button>
-                    <span className="text-white w-8 text-center">{item.quantity}</span>
-                    <button
+                    <span className="text-white font-medium w-6 text-center">{item.quantity}</span>
+                    <button 
                       onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-lg text-white"
+                      className="w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded text-white"
                     >
                       +
                     </button>
-                    <button onClick={() => removeItem(item.productId)} className="ml-auto text-gray-400 hover:text-red-400 p-2">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
+                    <button 
+                      onClick={() => removeItem(item.productId)}
+                      className="ml-auto text-red-400 hover:text-red-300 text-sm"
+                    >
+                      Eliminar
                     </button>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-white font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                <div className="text-right">
+                  <p className="text-white font-semibold">${((item.price || 0) * item.quantity).toLocaleString('es-AR')}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 pt-6 border-t border-white/10">
+<div className="mt-8 pt-6 border-t border-white/10">
             <div className="flex justify-between items-center mb-4">
+              <Link
+                href="/productos"
+                className="text-primary hover:underline"
+              >
+                ← Seguir comprando
+              </Link>
               <span className="text-gray-400">Subtotal</span>
-              <span className="text-white font-medium">${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-lg text-white">Total</span>
-              <span className="text-xl font-semibold text-white">${subtotal.toFixed(2)}</span>
+              <span className="text-white font-medium">${(subtotal || 0).toLocaleString('es-AR')}</span>
             </div>
 
-            {/* Buyer Form Toggle */}
-            <button
-              type="button"
-              onClick={() => setShowBuyerForm(!showBuyerForm)}
-              className="w-full py-2 mb-4 text-left text-primary hover:underline text-sm"
-            >
-              {showBuyerForm ? '← Ocultar datos de envío' : '+ Completar datos de envío (opcional)'}
-            </button>
-
-            {/* Buyer Form */}
-            {showBuyerForm && (
+            {/* Buyer Form - Always visible now */}
               <div className="mb-4 p-4 bg-surface-darker/30 rounded-lg space-y-3">
+                <h3 className="text-white font-medium mb-3">Datos de envío</h3>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Nombre completo</label>
+                  <label className="block text-sm text-gray-400 mb-1">Nombre completo *</label>
                   <input
                     type="text"
                     value={buyerForm.nombreCompleto}
                     onChange={(e) => handleBuyerChange('nombreCompleto', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                     placeholder="Juan Pérez"
+                    required
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Email</label>
+                    <label className="block text-sm text-gray-400 mb-1">Email *</label>
                     <input
                       type="email"
                       value={buyerForm.email}
                       onChange={(e) => handleBuyerChange('email', e.target.value)}
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                       placeholder="juan@email.com"
+                      required
                     />
                   </div>
                   <div>
@@ -251,39 +249,41 @@ function CartContent() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Dirección</label>
+                  <label className="block text-sm text-gray-400 mb-1">Dirección *</label>
                   <input
                     type="text"
                     value={buyerForm.direccion}
                     onChange={(e) => handleBuyerChange('direccion', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                     placeholder="Calle 123, piso 2"
+                    required
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Código Postal</label>
+                    <label className="block text-sm text-gray-400 mb-1">Código Postal *</label>
                     <input
                       type="text"
                       value={buyerForm.codigoPostal}
                       onChange={(e) => handleBuyerChange('codigoPostal', e.target.value)}
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                       placeholder="C1428"
+                      required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Provincia</label>
+                    <label className="block text-sm text-gray-400 mb-1">Provincia *</label>
                     <input
                       type="text"
                       value={buyerForm.provincia}
                       onChange={(e) => handleBuyerChange('provincia', e.target.value)}
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                       placeholder="Buenos Aires"
+                      required
                     />
                   </div>
                 </div>
               </div>
-            )}
             
             {error && (
               <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">

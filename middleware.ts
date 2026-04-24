@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   console.log('🍪 Token:', token ? 'YES' : 'NO');
 
   // Rutas públicas del admin
-  const publicPaths = ['/admin/login', '/admin/register'];
+  const publicPaths = ['/admin/login', '/admin/register', '/api/auth/set-cookie'];
   if (publicPaths.includes(pathname)) {
     console.log('✅ Public path');
     return NextResponse.next();

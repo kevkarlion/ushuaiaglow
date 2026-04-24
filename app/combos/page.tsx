@@ -11,6 +11,7 @@ interface ComboDisplay extends Product {
 
 export default function CombosPage() {
   const [combos, setCombos] = useState<ComboDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchCombos() {
@@ -18,15 +19,14 @@ export default function CombosPage() {
         const res = await fetch('/api/products');
         if (!res.ok) {
           setCombos([]);
+          setLoading(false);
           return;
         }
-        const data = await res.json();
+        const allProducts = await res.json();
         
-        // Filtrar solo los productos que son combos (isCombo = true o category = 'Combo')
-        const filteredCombos = (Array.isArray(data) ? data : [])
+        const filteredCombos = (Array.isArray(allProducts) ? allProducts : [])
           .filter((p: Product) => p.isCombo === true || p.category?.toLowerCase() === 'combo')
           .map((c: Product): ComboDisplay => {
-            // Parsear productsIncluded - puede ser string, array, o undefined
             let productsArr: string[] = [];
             const pi = c.productsIncluded as any;
             
@@ -36,13 +36,25 @@ export default function CombosPage() {
               try {
                 productsArr = JSON.parse(pi);
               } catch {
-                productsArr = [];
+                productsArr = pi.split(',');
               }
             }
             
+            // Buscar cada producto para obtener su imagen
+            const productsWithImages = productsArr.map((name: string) => {
+              const productName = name.trim();
+              const matched = (allProducts as Product[]).find(
+                p => p.title?.toLowerCase() === productName.toLowerCase()
+              );
+              return {
+                name: productName,
+                image: matched?.images?.[0] || '',
+              };
+            });
+            
             return {
               ...c,
-              products: productsArr.map((id: string) => ({ name: 'Producto', image: '' })),
+              products: productsWithImages,
             };
           });
         
@@ -50,27 +62,30 @@ export default function CombosPage() {
       } catch (error) {
         console.error('Error fetching combos:', error);
         setCombos([]);
+      } finally {
+        setLoading(false);
       }
     }
     fetchCombos();
   }, []);
 
-  // Combos hardcodeados (fallback si no hay datos en DB)
+  // Combos hardcodeados (nuevos valores - precios en pesos argentinos)
   const defaultCombos: ComboDisplay[] = [
     {
       id: '1',
-      title: 'Rutina Facial Básica',
-      description: 'Todo lo que necesitás para una rutina diaria de limpieza e hidratación.',
-      price: 15990,
-      originalPrice: 21900,
-      discount: 27,
+      slug: 'basico',
+      title: 'Básico',
+      description: 'Serum + Gel. Rutina diaria básica de limpieza e hidratación.',
+      price: 24500,
+      originalPrice: 30000,
+      discount: 18,
       category: 'Combo',
       brand: 'Ushuaia',
       stock: 10,
       images: ['/productos/combo-full.jpeg'],
       products: [
-        { name: 'Mascarilla Arcilla', image: '/productos/mascarilla.jpeg' },
-        { name: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
+        { name: 'Serum', image: '/productos/serum.jpeg' },
+        { name: 'Gel', image: '/productos/gel.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -79,18 +94,19 @@ export default function CombosPage() {
     },
     {
       id: '2',
-      title: 'Beauty Glow',
-      description: 'Sérum de vitaminas + protector solar para un glow natural.',
-      price: 18990,
-      originalPrice: 25900,
-      discount: 27,
+      slug: 'proteccion-tratamiento',
+      title: 'Protección + Tratamiento',
+      description: 'Protector + Serum. Cuidado diario con protección solar.',
+      price: 30500,
+      originalPrice: 38000,
+      discount: 20,
       category: 'Combo',
       brand: 'Ushuaia',
       stock: 10,
       images: ['/productos/combo2.jpeg'],
       products: [
-        { name: 'Sérum Vit C', image: '/productos/serum.jpeg' },
-        { name: 'Protector SPF 50', image: '/productos/protector-solar.jpeg' },
+        { name: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
+        { name: 'Sérum', image: '/productos/serum.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -99,19 +115,20 @@ export default function CombosPage() {
     },
     {
       id: '3',
-      title: 'Hidratación Total',
-      description: 'Tratamiento intensivo para piel seca y deshidratada.',
-      price: 22990,
-      originalPrice: 31900,
-      discount: 28,
+      slug: 'hidratacion-intensiva',
+      title: 'Hidratación Intensiva',
+      description: 'Serum + Gel + Mascarilla. Tratamiento completo.',
+      price: 28500,
+      originalPrice: 35000,
+      discount: 19,
       category: 'Combo',
       brand: 'Ushuaia',
       stock: 10,
       images: ['/productos/combo-full.jpeg'],
       products: [
-        { name: 'Mascarilla', image: '/productos/mascarilla.jpeg' },
         { name: 'Sérum', image: '/productos/serum.jpeg' },
-        { name: 'Protector', image: '/productos/protector-solar.jpeg' },
+        { name: 'Gel', image: '/productos/gel.jpeg' },
+        { name: 'Mascarilla', image: '/productos/mascarilla.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -120,18 +137,20 @@ export default function CombosPage() {
     },
     {
       id: '4',
-      title: 'Anti-Aging Premium',
-      description: 'Los favoritos para combatir los signos del tiempo.',
-      price: 27990,
-      originalPrice: 38900,
-      discount: 28,
+      slug: 'spa-en-casa',
+      title: 'Spa en Casa',
+      description: 'Serum + Gel + Mascarilla + Vincha. Kit de relajación completo.',
+      price: 36500,
+      originalPrice: 45000,
+      discount: 19,
       category: 'Combo',
       brand: 'Ushuaia',
       stock: 10,
       images: ['/productos/combo2.jpeg'],
       products: [
-        { name: 'Sérum C', image: '/productos/serum.jpeg' },
-        { name: 'Protector', image: '/productos/protector-solar.jpeg' },
+        { name: 'Sérum', image: '/productos/serum.jpeg' },
+        { name: 'Gel', image: '/productos/gel.jpeg' },
+        { name: 'Mascarilla', image: '/productos/mascarilla.jpeg' },
         { name: 'Vincha', image: '/productos/vincha.jpeg' },
       ],
       isCombo: true,
@@ -140,19 +159,23 @@ export default function CombosPage() {
       updatedAt: '',
     },
     {
-      id: '5',
-      title: 'Spa en Casa',
-      description: 'Kit completo para un momento de relax y autocuidado.',
-      price: 14990,
-      originalPrice: 19900,
-      discount: 25,
+      id: '6',
+      slug: 'premium',
+      title: 'Premium',
+      description: 'Serum + Gel + Vincha + Protector + Mascarilla. El kit completo.',
+      price: 46500,
+      originalPrice: 58000,
+      discount: 20,
       category: 'Combo',
       brand: 'Ushuaia',
       stock: 10,
       images: ['/productos/combo-full.jpeg'],
       products: [
-        { name: 'Mascarilla Arcilla', image: '/productos/mascarilla.jpeg' },
+        { name: 'Sérum', image: '/productos/serum.jpeg' },
+        { name: 'Gel', image: '/productos/gel.jpeg' },
         { name: 'Vincha', image: '/productos/vincha.jpeg' },
+        { name: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
+        { name: 'Mascarilla', image: '/productos/mascarilla.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -162,7 +185,7 @@ export default function CombosPage() {
   ];
 
   // Combos: primero los de DB, luego los hardcodeados
-  const displayCombos = [...combos, ...defaultCombos];
+  const displayCombos = combos;
 
   return (
     <div className="min-h-screen bg-black">
@@ -180,11 +203,32 @@ export default function CombosPage() {
 
       {/* Combos Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5">
+                <div className="aspect-video bg-surface-light animate-pulse"></div>
+                <div className="p-5 space-y-4">
+                  <div className="h-6 bg-surface-light rounded w-1/2 animate-pulse"></div>
+                  <div className="h-4 bg-surface-light rounded w-3/4 animate-pulse"></div>
+                  <div className="h-8 bg-surface-light rounded w-1/3 animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : displayCombos.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400">No hay combos disponibles</p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayCombos.map((combo) => (
+          {displayCombos.map((combo) => {
+            // Usar slug si está disponible, si no usar id
+            const comboSlug = combo.slug || combo.id;
+            return (
             <Link 
               key={combo.id} 
-              href={`/combos/${combo.id}`}
+              href={`/combos/${comboSlug}`}
               className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all block"
             >
               {/* Combo Image */}
@@ -237,9 +281,9 @@ export default function CombosPage() {
 
                 {/* Price */}
                 <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold text-white">${combo.price.toLocaleString('es-AR')}</span>
+                  <span className="text-xl font-bold text-white">${(combo.price || 0).toLocaleString('es-AR')}</span>
                   {combo.originalPrice && (
-                    <span className="text-sm text-gray-500 line-through">${combo.originalPrice.toLocaleString('es-AR')}</span>
+                    <span className="text-sm text-gray-500 line-through">${(combo.originalPrice || 0).toLocaleString('es-AR')}</span>
                   )}
                 </div>
 
@@ -247,8 +291,10 @@ export default function CombosPage() {
                 <p className="text-sm text-primary">Ver detalle →</p>
               </div>
             </Link>
-          ))}
+          );
+          })}
         </div>
+        )}
       </div>
 
       {/* CTA Section */}
@@ -261,7 +307,7 @@ export default function CombosPage() {
             Escribinos y armamos un combo personalizado vos eligiendo los productos.
           </p>
           <Link
-            href="/contact"
+            href="/contacto"
             className="inline-block px-8 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors"
           >
             Contactanos

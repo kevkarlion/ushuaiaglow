@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -11,64 +11,38 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Check if already logged in by trying to access /admin/me
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      // Verify with the API
-      fetch('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.authenticated) {
-            // Already logged in, go to admin
-            window.location.href = '/admin';
-          }
-        })
-        .catch(() => {});
-    }
-  }, []);
+  // NO auto-redirect - let user submit the form
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    console.log('📝 Submitting login for:', email.trim().toLowerCase());
+
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
-        credentials: 'include',
         body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
         headers: { 'Content-Type': 'application/json' },
       });
 
+      console.log('📝 Login response status:', res.status);
+
       if (res.ok) {
         const data = await res.json();
-        console.log('Login data:', JSON.stringify(data));
+        console.log('📝 Login data:', data);
         
-        // Ensure we have the token
-        const token = data.token || localStorage.getItem('auth_token');
-        
-        if (token) {
-          localStorage.setItem('auth_token', token);
-          
-          // Guardar token en cookie para que el navegador lo use automáticamente
-          // Esto es la clave - guardar en cookie desde el cliente
-          document.cookie = `auth-token=${token}; path=/; max-age=${60*60*24*7}`;
+        if (data.token) {
+          // Use intermediate route to set cookie properly
+          window.location.href = `/api/auth/set-cookie?token=${encodeURIComponent(data.token)}`;
         }
-        
-        console.log('✅ Login success, token saved, going to /admin');
-        
-        // Give browser a moment to save cookie, then redirect
-        setTimeout(() => {
-          window.location.href = '/admin';
-        }, 100);
       } else {
         const data = await res.json();
         setError(data.error || 'Credenciales inválidas');
       }
-    } catch {
+    } catch (err) {
+      console.error('📝 Login error:', err);
       setError('Error de conexión');
     } finally {
       setLoading(false);
@@ -93,7 +67,7 @@ export default function LoginPage() {
           <div>
             <label className="block text-sm text-gray-400 mb-1">Email</label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black"

@@ -1,6 +1,7 @@
 export interface Product {
   id: string;
   title: string;
+  slug?: string;         // URL amigable (ej: "vitamina" en vez de "69e3c4b322fa...")
   description?: string;
   price: number;           // Precio de venta (salePrice)
   originalPrice?: number; // Precio original tachado

@@ -21,26 +21,19 @@ export default function ProductCard({ product }: ProductCardProps) {
     setMounted(true);
   }, []);
 
-  // Validar que la URL de imagen sea válida (absoluta o path relativo)
+  // Validar que la URL de imagen sea válida
   const isValidImageUrl = (url: string | undefined): boolean => {
     if (!url || url.trim() === '') return false;
-    
-    // Si es un path relativo (empieza con /), es válido
-    if (url.startsWith('/')) return true;
-    
-    // Si es URL absoluta, validar que sea válida
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
+    return true;
   };
 
-  const productImage = product.images?.[0] || '';
+  const productImage = product.images?.[0] || '/placeholder.png';
+
+  // Usar slug si está disponible, si no usar id (compatibilidad hacia atrás)
+  const productSlug = product.slug || product.id;
 
   const handleProductClick = () => {
-    router.push(`/products/${product.id}`);
+    router.push(`/productos/${productSlug}`);
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -134,9 +127,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.discount && product.discount > 0 && (
             <span className="text-sm font-semibold text-accent">{product.discount}% OFF</span>
           )}
-          <span className="text-lg font-semibold text-surface-darker">${product.price.toFixed(2)}</span>
+          <span className="text-lg font-semibold text-surface-darker">${(product.price || 0).toLocaleString('es-AR')}</span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-sm text-gray-400 line-through">${product.originalPrice.toFixed(2)}</span>
+            <span className="text-sm text-gray-400 line-through">${(product.originalPrice || 0).toLocaleString('es-AR')}</span>
           )}
         </div>
 

@@ -71,7 +71,7 @@ export default function FeaturedProducts() {
         {/* View All - Apple pill style */}
         <div className="text-center mt-12">
           <Link
-            href="/products"
+            href="/productos"
             className="inline-flex items-center justify-center px-6 py-3 text-primary font-normal hover:underline underline-offset-4 transition-all"
           >
             Ver todos los productos

@@ -84,16 +84,35 @@ export async function POST(request: Request) {
 
     for (const item of sale.items) {
       try {
-        const productIdObj = new ObjectId(item.productId);
-        const product = await productsCollection.findOne({ _id: productIdObj });
+        // Buscar el producto por título o por ID
+        let product;
+        const productIdStr = item.productId?.toString() || '';
+        
+        // Si es un ObjectId válido (24 hex), buscar por _id
+        if (/^[a-f0-9]{24}$/i.test(productIdStr)) {
+          product = await productsCollection.findOne({ _id: new ObjectId(productIdStr) });
+        }
+        
+        // Si no se encuentra por ID, buscar por título
+        if (!product && item.title) {
+          product = await productsCollection.findOne({ title: item.title });
+        }
+        
+        // También buscar por slug
+        if (!product && item.title) {
+          const slug = item.title.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          product = await productsCollection.findOne({ slug });
+        }
 
         if (product) {
           const newStock = Math.max(0, (product.stock || 0) - item.quantity);
           await productsCollection.updateOne(
-            { _id: productIdObj },
+            { _id: product._id },
             { $set: { stock: newStock, updatedAt: new Date() } }
           );
           stockDeduction.push(item.title);
+        } else {
+          console.log('Product not found for:', item.productId, item.title);
         }
       } catch (err) {
         console.error('Error deducing stock for:', item.productId, err);

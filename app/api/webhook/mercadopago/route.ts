@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { MongoClient, ObjectId } from 'mongodb';
+import { sendEmail } from '@/lib/email';
 
 let client: MongoClient | null = null;
 
@@ -130,6 +131,20 @@ export async function POST(request: Request) {
         } 
       }
     );
+
+    // 6. Enviar email de confirmación
+    try {
+      await sendEmail('payment_success', {
+        buyerEmail: sale.buyerEmail,
+        buyerName: sale.buyerNombre,
+        orderId: sale.preferenceId,
+        total: sale.total,
+        items: sale.items,
+        paymentId: paymentId.toString(),
+      });
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+    }
 
     console.log(`Payment ${paymentId} processed. Stock deducted:`, stockDeduction);
 

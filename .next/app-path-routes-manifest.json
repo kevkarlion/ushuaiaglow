@@ -27,9 +27,13 @@
   "/cart/page": "/cart",
   "/categorias/[category]/page": "/categorias/[category]",
   "/categorias/page": "/categorias",
+  "/checkout/failure/page": "/checkout/failure",
+  "/checkout/pending/page": "/checkout/pending",
+  "/checkout/success/page": "/checkout/success",
   "/combos/[id]/page": "/combos/[id]",
   "/combos/page": "/combos",
   "/contacto/page": "/contacto",
+  "/nosotros/page": "/nosotros",
   "/page": "/",
   "/productos/[id]/page": "/productos/[id]",
   "/productos/page": "/productos"

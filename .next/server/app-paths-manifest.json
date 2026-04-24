@@ -27,9 +27,13 @@
   "/cart/page": "app/cart/page.js",
   "/categorias/[category]/page": "app/categorias/[category]/page.js",
   "/categorias/page": "app/categorias/page.js",
+  "/checkout/failure/page": "app/checkout/failure/page.js",
+  "/checkout/pending/page": "app/checkout/pending/page.js",
+  "/checkout/success/page": "app/checkout/success/page.js",
   "/combos/[id]/page": "app/combos/[id]/page.js",
   "/combos/page": "app/combos/page.js",
   "/contacto/page": "app/contacto/page.js",
+  "/nosotros/page": "app/nosotros/page.js",
   "/page": "app/page.js",
   "/productos/[id]/page": "app/productos/[id]/page.js",
   "/productos/page": "app/productos/page.js"

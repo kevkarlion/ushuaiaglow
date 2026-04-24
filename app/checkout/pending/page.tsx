@@ -1,13 +1,10 @@
-'use client';
+// Force dynamic rendering for searchParams
+export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { LucideClock, LucideArrowRight, LucideHelpCircle, LucideFileText } from 'lucide-react';
 
 export default function CheckoutPendingPage() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get('order') || 'CPT01-XXXXX';
-  
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="max-w-md mx-auto px-4 py-12 text-center">
@@ -31,9 +28,9 @@ export default function CheckoutPendingPage() {
           <div className="flex gap-3">
             <LucideFileText className="w-5 h-5 text-primary flex-shrink-0" />
             <div>
-              <h2 className="text-white font-medium mb-2">N° de pedido: {orderId}</h2>
+              <h2 className="text-white font-medium mb-2">N° de pedido: CPT01-XXXXX</h2>
               <p className="text-gray-400 text-sm">
-                Depends on el metodo de pago elegido, recibiras instrucciones via email o podes verlas en tu cuenta de Mercado Pago.
+                Segun el metodo de pago elegido, recibiras instrucciones via email o podes verlas en tu cuenta de Mercado Pago.
               </p>
             </div>
           </div>

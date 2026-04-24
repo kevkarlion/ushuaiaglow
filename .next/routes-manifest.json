@@ -223,6 +223,24 @@
       "namedRegex": "^/categorias(?:/)?$"
     },
     {
+      "page": "/checkout/failure",
+      "regex": "^/checkout/failure(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout/failure(?:/)?$"
+    },
+    {
+      "page": "/checkout/pending",
+      "regex": "^/checkout/pending(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout/pending(?:/)?$"
+    },
+    {
+      "page": "/checkout/success",
+      "regex": "^/checkout/success(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout/success(?:/)?$"
+    },
+    {
       "page": "/combos",
       "regex": "^/combos(?:/)?$",
       "routeKeys": {},
@@ -233,6 +251,12 @@
       "regex": "^/contacto(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/contacto(?:/)?$"
+    },
+    {
+      "page": "/nosotros",
+      "regex": "^/nosotros(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/nosotros(?:/)?$"
     },
     {
       "page": "/productos",

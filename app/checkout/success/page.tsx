@@ -1,13 +1,10 @@
-'use client';
+// Force dynamic rendering for searchParams
+export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { LucideCheckCircle, LucideArrowRight, LucidePackage, LucideMail } from 'lucide-react';
 
 export default function CheckoutSuccessPage() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get('order') || 'CPT01-XXXXX';
-  
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="max-w-md mx-auto px-4 py-12 text-center">
@@ -33,7 +30,7 @@ export default function CheckoutSuccessPage() {
             <span className="font-medium">Pedido confirmado</span>
           </div>
           <p className="text-gray-500 text-sm">
-            N° de pedido: <span className="font-mono text-white">{orderId}</span>
+            N° de pedido: <span className="font-mono text-white">CPT01-XXXXX</span>
           </p>
         </div>
 

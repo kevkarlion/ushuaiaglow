@@ -82,27 +82,43 @@ export async function POST(request: Request) {
     // 4. Descontar stock de cada item
     const productsCollection = mongoClient.db('ushuaia').collection('products');
     const stockDeduction: string[] = [];
+    const stockErrors: string[] = [];
 
     for (const item of sale.items) {
       try {
-        // Buscar el producto por título o por ID
+        // Buscar el producto por ID, título o slug
         let product;
         const productIdStr = item.productId?.toString() || '';
+        const itemTitle = item.title?.trim() || '';
         
-        // Si es un ObjectId válido (24 hex), buscar por _id
+        console.log('🔍 Buscando producto:', { productId: productIdStr, title: itemTitle });
+        
+        // 1. Si es un ObjectId válido (24 hex), buscar por _id
         if (/^[a-f0-9]{24}$/i.test(productIdStr)) {
           product = await productsCollection.findOne({ _id: new ObjectId(productIdStr) });
+          if (product) console.log('✅ Encontrado por ObjectId:', product.title);
         }
         
-        // Si no se encuentra por ID, buscar por título
-        if (!product && item.title) {
-          product = await productsCollection.findOne({ title: item.title });
+        // 2. Si no se encuentra por ID, buscar por título exacto
+        if (!product && itemTitle) {
+          product = await productsCollection.findOne({ title: itemTitle });
+          if (product) console.log('✅ Encontrado por título:', product.title);
         }
         
-        // También buscar por slug
-        if (!product && item.title) {
-          const slug = item.title.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        // 3. Buscar por slug generado
+        if (!product && itemTitle) {
+          const slug = itemTitle.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
           product = await productsCollection.findOne({ slug });
+          if (product) console.log('✅ Encontrado por slug:', product.title);
+        }
+
+        // 4. Buscar por título que contenga parte del nombre (fallback)
+        if (!product && itemTitle && itemTitle.length > 5) {
+          const partialTitle = itemTitle.substring(0, 10); // Primeros 10 caracteres
+          product = await productsCollection.findOne({ 
+            title: { $regex: partialTitle, $options: 'i' } 
+          });
+          if (product) console.log('✅ Encontrado por regex parcial:', product.title);
         }
 
         if (product) {
@@ -111,13 +127,22 @@ export async function POST(request: Request) {
             { _id: product._id },
             { $set: { stock: newStock, updatedAt: new Date() } }
           );
-          stockDeduction.push(item.title);
+          stockDeduction.push(itemTitle);
+          console.log(`✅ Stock descontado: ${itemTitle} (${product.stock} -> ${newStock})`);
         } else {
-          console.log('Product not found for:', item.productId, item.title);
+          const errorMsg = `Producto no encontrado: ${productIdStr || 'sin ID'} - "${itemTitle}"`;
+          console.error('❌', errorMsg);
+          stockErrors.push(errorMsg);
         }
       } catch (err) {
-        console.error('Error deducing stock for:', item.productId, err);
+        console.error('❌ Error descontando stock para:', item.productId, err);
+        stockErrors.push(`Error: ${item.title}`);
       }
+    }
+
+    // Log detallado del resultado
+    if (stockErrors.length > 0) {
+      console.error('❌ Errores de stock:', stockErrors);
     }
 
     // 5. Actualizar status de la venta
@@ -146,7 +171,7 @@ export async function POST(request: Request) {
       console.error('Error sending confirmation email:', emailError);
     }
 
-    console.log(`Payment ${paymentId} processed. Stock deducted:`, stockDeduction);
+    console.log(`Payment ${paymentId} processed. Stock deducted:`, stockDeduction, 'Errors:', stockErrors);
 
     return NextResponse.json({
       success: true,
@@ -154,6 +179,7 @@ export async function POST(request: Request) {
       status: 'paid',
       stockDeducted: stockDeduction.length,
       items: stockDeduction,
+      stockErrors: stockErrors.length > 0 ? stockErrors : undefined,
     });
   } catch (error) {
     console.error('Webhook error:', error);

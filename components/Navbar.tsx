@@ -35,6 +35,7 @@ export default function Navbar() {
     { name: 'Productos', href: '/productos' },
     { name: 'Combos', href: '/combos' },
     { name: 'Categorías', href: '/categorias' },
+    { name: 'Nosotros', href: '/nosotros' },
     { name: 'Contacto', href: '/contacto' },
   ];
 

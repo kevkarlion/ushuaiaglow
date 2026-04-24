@@ -30,7 +30,7 @@ export default function Hero() {
           <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
             {/* Main discount badge */}
             <span className="inline-block px-3 py-1.5 md:px-4 md:py-2 bg-primary text-white text-xs md:text-sm font-semibold rounded-full">
-              20% OFF en productos seleccionados
+              Combos con 25% de descuento
             </span>
           </div>
 
@@ -69,7 +69,7 @@ export default function Hero() {
               <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span>Envíos a todo el país</span>
+              <span>Envío gratis a todo el país</span>
             </div>
             <div className="flex items-center gap-1.5">
               <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">

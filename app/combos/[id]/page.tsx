@@ -310,13 +310,7 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8" />
                 </svg>
-                Envío gratis a partir de $50.000
-              </div>
-              <div className="flex items-center gap-2 text-xs text-white/50">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2h8.117m-8.117a4 4 0 00-4 4v5h5.582" />
-                </svg>
-                30 días para devoluciones
+                Envío gratis a todo el país
               </div>
             </div>
           </div>

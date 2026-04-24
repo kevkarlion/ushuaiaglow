@@ -33,8 +33,8 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">WhatsApp</p>
-                    <a href="https://wa.me/5491167667548" className="text-white font-medium hover:text-primary transition-colors text-lg block">
-                      +54 9 11 6766-7548
+                    <a href="https://wa.me/5492984210435" className="text-white font-medium hover:text-primary transition-colors text-lg block">
+                      +54 9 2984-210435
                     </a>
                   </div>
                 </div>
@@ -45,8 +45,8 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">Email</p>
-                    <a href="mailto:hola@ushuaia.com.ar" className="text-white font-medium hover:text-primary transition-colors text-lg block">
-                      hola@ushuaia.com.ar
+                    <a href="mailto:info@ushuaiaglow.com" target="_blank" rel="noopener noreferrer" className="text-white font-medium hover:text-primary transition-colors text-lg block">
+                      info@ushuaiaglow.com
                     </a>
                   </div>
                 </div>
@@ -56,8 +56,8 @@ export default function ContactoPage() {
                     <PinIcon className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Horario de atención</p>
-                    <p className="text-white font-medium">Lunes a viernes de 9 a 18hs</p>
+                    <p className="text-gray-400 text-sm">Dirección</p>
+                    <p className="text-white font-medium">General Roca, Río Negro, Argentina</p>
                   </div>
                 </div>
               </div>
@@ -118,12 +118,13 @@ export default function ContactoPage() {
                 Escribinos por WhatsApp o mandanos un email. Preferimos WhatsApp por la rapidez en responder.
               </p>
               <div className="space-y-4">
-                <a href="https://wa.me/5491167667548" 
+                <a href="https://wa.me/5492984210435" 
                   className="flex items-center justify-center gap-3 py-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-colors">
                   <WhatsAppIcon className="w-5 h-5" />
                   Escribir por WhatsApp
                 </a>
-                <a href="mailto:hola@ushuaia.com.ar" 
+                <a href="mailto:info@ushuaiaglow.com" 
+                  target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-3 py-4 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-colors">
                   <MailIcon className="w-5 h-5" />
                   Mandar email

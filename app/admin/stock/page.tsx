@@ -24,6 +24,7 @@ interface ProductFormData {
 
 const initialForm: ProductFormData = {
   title: '',
+  description: '',
   price: '',
   stock: '',
   category: 'Cuidado Facial',

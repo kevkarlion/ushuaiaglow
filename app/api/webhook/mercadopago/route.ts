@@ -77,19 +77,37 @@ export async function POST(request: Request) {
 
     console.log('✅ Pago aprobado:', { paymentId, preferenceId, externalReference });
 
-    // 2. Buscar la venta por preferenceId
+    // 2. Buscar la venta por preferenceId (MP) O external_reference (nuestro ID)
     const salesCollection = mongoClient.db('ushuaia').collection('sales');
-    const sale = await salesCollection.findOne({ preferenceId });
-
+    
+    // Buscar por external_reference PRIMERO (nuestro preferenceId como "ushuaia-xxx")
+    let sale = await salesCollection.findOne({ preferenceId: externalReference });
+    
+    // Si no se encuentra, buscar por preference_id de MP
+    if (!sale && preferenceId) {
+      sale = await salesCollection.findOne({ preferenceId: preferenceId });
+    }
+    
+    // Último intento: buscar por cualquier campo que coincida con externalReference
     if (!sale) {
-      console.error('Sale not found for preference:', preferenceId);
-      // Maybe it's a new sale - create it from payment
-      return NextResponse.json({ 
-        message: 'Sale not found', 
-        preferenceId,
-        externalReference 
+      sale = await salesCollection.findOne({ 
+        $or: [
+          { preferenceId: externalReference },
+          { preferenceId: { $regex: externalReference, $options: 'i' } },
+        ]
       });
     }
+
+    if (!sale) {
+      console.error('❌ Sale not found:', { externalReference, preferenceId });
+      return NextResponse.json({ 
+        message: 'Sale not found', 
+        externalReference,
+        preferenceId
+      });
+    }
+    
+    console.log('✅ Venta encontrada:', sale._id, sale.status);
 
     // 3. Si ya pagada, skip
     if (sale.status === 'paid') {

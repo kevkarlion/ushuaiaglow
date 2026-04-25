@@ -233,11 +233,20 @@ ${itemsList}
 
 // ===== Send Email =====
 export async function sendEmail(type: EmailType, data: EmailData): Promise<boolean> {
+  let transporter: Transporter;
   try {
-    const transporter = await getTransporter();
-    const { subject, html, text } = getEmailTemplate(type, data);
-    const smtpFrom = process.env.SMTP_FROM || 'Ushuaia <noreply@ushuaiaglow.com>';
+    transporter = await getTransporter();
+  } catch (err) {
+    console.error('❌ Error getTransporter:', err);
+    return false;
+  }
+  
+  const { subject, html, text } = getEmailTemplate(type, data);
+  const smtpFrom = process.env.SMTP_FROM || 'Ushuaia <noreply@ushuaiaglow.com>';
 
+  console.log('📧 Intentando enviar email:', { to: data.buyerEmail, from: smtpFrom, subject });
+
+  try {
     const result = await transporter.sendMail({
       from: smtpFrom,
       to: data.buyerEmail,
@@ -246,10 +255,22 @@ export async function sendEmail(type: EmailType, data: EmailData): Promise<boole
       html,
     });
 
-    console.log(`📧 Email ${type} enviado a ${data.buyerEmail}:`, result.messageId);
+    console.log('📧 Email sendMail result:', {
+      messageId: result.messageId,
+      envelope: result.envelope,
+      accepted: result.accepted,
+      rejected: result.rejected,
+    });
+
+    // Verificar que realmente fue aceptado
+    if (!result.accepted || result.accepted.length === 0) {
+      console.error('❌ Email no aceptado:', result.rejected);
+      return false;
+    }
+
     return true;
   } catch (error) {
-    console.error(`❌ Error enviando email ${type}:`, error);
+    console.error('❌ Error sendMail:', error);
     return false;
   }
 }

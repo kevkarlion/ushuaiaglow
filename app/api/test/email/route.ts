@@ -1,47 +1,52 @@
 import { NextResponse } from 'next/server';
-import { sendEmail } from '@/lib/email';
+import { sendEmail, checkEmailConfig } from '@/lib/email';
 
-// POST /api/test/email - Envía un email de prueba
+// GET - Check SMTP config
+export async function GET() {
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS ? '*** configurado ***' : 'NO CONFIGURADO';
+  const smtpFrom = process.env.SMTP_FROM;
+
+  return NextResponse.json({
+    smtpHost,
+    smtpPort,
+    smtpUser,
+    smtpPass,
+    smtpFrom,
+    baseUrl: process.env.NEXT_PUBLIC_URL,
+  });
+}
+
+// POST - Send test email
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, type } = body;
+    const { email } = body as { email?: string };
 
-    const testEmail = email || 'test@example.com';
-    const emailType = type || 'payment_success';
+    const testEmail = email || 'info@ushuaiaglow.com';
 
-    console.log('📧 Enviando email de prueba:', { testEmail, emailType });
-
-    // Datos de prueba
-    const testData = {
+    const result = await sendEmail('payment_success', {
       buyerEmail: testEmail,
-      buyerName: 'Cliente de Prueba',
+      buyerName: 'Test User',
       orderId: `test-${Date.now()}`,
-      total: 15000,
+      total: 1000,
       items: [
-        { title: 'Producto de Prueba x1', quantity: 1, price: 15000 }
+        { title: 'Producto de Prueba x1', quantity: 1, price: 1000 }
       ],
-      paymentId: 'TEST-' + Date.now(),
-    };
+      paymentId: 'test-payment-123',
+    });
 
-    const result = await sendEmail(emailType, testData);
-
-    return NextResponse.json({
-      success: result,
-      message: result ? 'Email enviado exitosamente' : 'Error al enviar email',
-      email: testEmail,
-      type: emailType,
+    return NextResponse.json({ 
+      success: result, 
+      message: result ? 'Email enviado' : 'Email falló',
+      testEmail: testEmail 
     });
   } catch (error) {
-    console.error('❌ Error en test/email:', error);
-    return NextResponse.json(
-      { error: 'Error enviando email', details: String(error) },
-      { status: 500 }
-    );
+    console.error('Test email error:', error);
+    return NextResponse.json({ 
+      error: String(error) 
+    }, { status: 500 });
   }
-}
-
-// GET /api/test/email - Health check
-export async function GET() {
-  return NextResponse.json({ status: 'ok', endpoint: 'test/email' });
 }

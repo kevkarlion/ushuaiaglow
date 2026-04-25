@@ -151,6 +151,7 @@ export async function POST(request: Request) {
           pending: `${BASE_URL}/checkout/pending`,
           failure: `${BASE_URL}/checkout/failure`,
         },
+        auto_return: 'approved',
         external_reference: externalRef,
         notification_url: `${BASE_URL}/api/webhook/mercadopago`,
       }),

@@ -1,10 +1,34 @@
+'use client';
+
 // Force dynamic rendering for searchParams
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useCart } from '@/context/CartContext';
 import { LucideCheckCircle, LucideArrowRight, LucidePackage, LucideMail } from 'lucide-react';
 
 export default function CheckoutSuccessPage() {
+  const { items, clearCart, isLoading } = useCart();
+  const [cleaned, setCleaned] = useState(false);
+  
+  // Limpiar el carrito al montar el componente
+  useEffect(() => {
+    if (!cleaned && !isLoading && items.length > 0) {
+      console.log('🧹 Limpiando carrito en checkout/success');
+      clearCart();
+      setCleaned(true);
+    }
+  }, [cleaned, isLoading, items, clearCart]);
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Cargando...</div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="max-w-md mx-auto px-4 py-12 text-center">
@@ -20,7 +44,7 @@ export default function CheckoutSuccessPage() {
 
         {/* Message */}
         <p className="text-gray-400 mb-8">
-          Tu pedido fue confirmado y está siendo procesado. Te enviamos un email con los detalles.
+          Tu pedido fue confirmada y está siendo procesado. Te enviamos un email con los detalles.
         </p>
 
         {/* Order Info */}
@@ -40,13 +64,13 @@ export default function CheckoutSuccessPage() {
           <div className="flex gap-3">
             <LucideMail className="w-5 h-5 text-primary flex-shrink-0" />
             <p className="text-gray-400 text-sm">
-              Te enviamos un email de confirmacion con los datos de tu pedido.
+              Te enviamos un email de confirmación con los datos de tu pedido.
             </p>
           </div>
           <div className="flex gap-3">
             <LucidePackage className="w-5 h-5 text-primary flex-shrink-0" />
             <p className="text-gray-400 text-sm">
-              Preparamos tu pedido en 24-48hs habiles y te avisamos cuando este enviado.
+              Preparamos tu pedido en 24-48hs hábiles y te avisamos cuando esté enviado.
             </p>
           </div>
         </div>
@@ -64,7 +88,7 @@ export default function CheckoutSuccessPage() {
             href="/contacto"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg transition-colors"
           >
-            ¿Necesitas ayuda?
+            ¿Necesitás ayuda?
           </Link>
         </div>
       </div>

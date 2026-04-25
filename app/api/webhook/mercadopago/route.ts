@@ -211,17 +211,17 @@ export async function POST(request: Request) {
         mongoClient = await getClient();
         
         for (const mp of merchantOrder.payments) {
-          if (mp.status === 'approved') {
-            paymentId = mp.id;
-            console.log('💳 Procesando pago:', paymentId);
+          if (mp.status === 'approved' && mp.id) {
+            const payId = mp.id.toString();
+            console.log('💳 Procesando pago:', payId);
             
-            const result = await processPayment(paymentId, mongoClient);
+            const result = await processPayment(payId, mongoClient);
             console.log('📝 Result:', result);
           }
         }
       }
 
-      return NextResponse.json({ success: true, topic, processed: !!paymentId });
+      return NextResponse.json({ success: true, topic, processed: true });
     }
 
     // Caso 2: type=payment (formato legacy)

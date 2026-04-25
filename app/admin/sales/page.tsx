@@ -113,31 +113,31 @@ export default function SalesPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-surface-darker/30 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Total Transacciones</p>
-            <p className="text-2xl text-white">{totalSales}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
+            <p className="text-gray-400 text-xs lg:text-sm">Total</p>
+            <p className="text-xl lg:text-2xl text-white">{totalSales}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Ingresos Totales</p>
-            <p className="text-2xl text-green-400">${totalRevenue.toFixed(2)}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
+            <p className="text-gray-400 text-xs lg:text-sm">Ingresos</p>
+            <p className="text-xl lg:text-2xl text-green-400">${totalRevenue.toFixed(2)}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Pagadas</p>
-            <p className="text-2xl text-green-400">{paidCount}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
+            <p className="text-gray-400 text-xs lg:text-sm">Pagadas</p>
+            <p className="text-xl lg:text-2xl text-green-400">{paidCount}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">Pendientes</p>
-            <p className="text-2xl text-yellow-400">{pendingCount}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
+            <p className="text-gray-400 text-xs lg:text-sm">Pendientes</p>
+            <p className="text-xl lg:text-2xl text-yellow-400">{pendingCount}</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex gap-4 mb-4">
+        <div className="flex gap-3 mb-4">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-black"
           >
             <option value="">Todos los estados</option>
             <option value="paid">Pagadas</option>
@@ -146,115 +146,130 @@ export default function SalesPage() {
           </select>
           <button
             onClick={fetchSales}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg"
+            className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-100 text-black rounded-lg"
           >
-            🔄 Actualizar
+            ↻
           </button>
         </div>
 
-        {/* Table */}
+        {/* Table - desktop table, mobile cards */}
         {loading ? (
           <p className="text-gray-400">Cargando...</p>
         ) : sales.length === 0 ? (
           <p className="text-gray-400">No hay ventas</p>
         ) : (
-          <div className="bg-surface-darker/30 rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-white/5">
-                <tr>
-                  <th className="px-4 py-3 text-left text-gray-400 text-sm">ID</th>
-                  <th className="px-4 py-3 text-left text-gray-400 text-sm">Fecha</th>
-                  <th className="px-4 py-3 text-left text-gray-400 text-sm">Comprador</th>
-                  <th className="px-4 py-3 text-right text-gray-400 text-sm">Total</th>
-                  <th className="px-4 py-3 text-center text-gray-400 text-sm">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sales.map((sale) => (
-                  <tr 
-                    key={sale.id} 
-                    className="border-t border-white/5 hover:bg-white/5 cursor-pointer"
-                    onClick={() => setSelectedSale(sale)}
-                  >
-                    <td className="px-4 py-3 text-gray-400 text-sm">
-                      {sale.id.substring(0, 8)}...
-                    </td>
-                    <td className="px-4 py-3 text-gray-400">
-                      {formatDate(sale.createdAt)}
-                    </td>
-                    <td className="px-4 py-3 text-white">
-                      <p>{sale.buyerNombre}</p>
-                      <p className="text-gray-500 text-sm">{sale.buyerEmail}</p>
-                    </td>
-                    <td className="px-4 py-3 text-right text-white font-medium">
-                      ${sale.total.toFixed(2)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {getStatusBadge(sale.status)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-2 md:table md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
+            {/* Desktop header */}
+            <div className="hidden md:table-header-group">
+              <div className="table-row bg-white/5">
+                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">ID</div>
+                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Fecha</div>
+                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Comprador</div>
+                <div className="table-cell px-4 py-3 text-right text-gray-400 text-sm">Total</div>
+                <div className="table-cell px-4 py-3 text-center text-gray-400 text-sm">Estado</div>
+              </div>
+            </div>
+            
+            {/* Mobile cards / Desktop rows */}
+            <div className="md:table-row-group">
+              {sales.map((sale) => (
+                <div 
+                  key={sale.id}
+                  className="md:table-row border-t border-white/5 hover:bg-white/5 cursor-pointer mb-2 md:mb-0 md:border-0 p-3 md:p-0 bg-surface-darker/30 md:bg-transparent rounded-lg md:rounded-none"
+                  onClick={() => setSelectedSale(sale)}
+                >
+                  {/* Mobile view */}
+                  <div className="md:hidden flex justify-between items-start mb-2">
+                    <div>
+                      <p className="text-white font-medium">${sale.total.toFixed(2)}</p>
+                      <p className="text-gray-400 text-xs">{formatDate(sale.createdAt)}</p>
+                    </div>
+                    {getStatusBadge(sale.status)}
+                  </div>
+                  <div className="md:hidden">
+                    <p className="text-white text-sm">{sale.buyerNombre}</p>
+                    <p className="text-gray-500 text-xs">{sale.buyerEmail}</p>
+                  </div>
+                  
+                  {/* Desktop view */}
+                  <div className="hidden md:table-cell px-4 py-3 text-gray-400 text-sm">
+                    {sale.id.substring(0, 8)}...
+                  </div>
+                  <div className="hidden md:table-cell px-4 py-3 text-gray-400">
+                    {formatDate(sale.createdAt)}
+                  </div>
+                  <div className="hidden md:table-cell px-4 py-3 text-white">
+                    <p>{sale.buyerNombre}</p>
+                    <p className="text-gray-500 text-sm">{sale.buyerEmail}</p>
+                  </div>
+                  <div className="hidden md:table-cell px-4 py-3 text-right text-white font-medium">
+                    ${sale.total.toFixed(2)}
+                  </div>
+                  <div className="hidden md:table-cell px-4 py-3 text-center">
+                    {getStatusBadge(sale.status)}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Modal */}
         {selectedSale && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-surface-darker rounded-lg p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-start mb-4">
+            <div className="bg-surface-darker rounded-lg p-4 md:p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-xl text-white">Venta {selectedSale.id.substring(0, 8)}...</h2>
-                  <p className="text-gray-400 text-sm">{formatDate(selectedSale.createdAt)}</p>
+                  <h2 className="text-2xl font-bold text-white">Venta</h2>
+                  <p className="text-gray-400 text-lg mt-1">{formatDate(selectedSale.createdAt)}</p>
                 </div>
                 <button 
                   onClick={() => setSelectedSale(null)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-400 hover:text-white text-2xl"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="mb-4">
-                <p className="text-gray-400 text-sm">Estado</p>
-                {getStatusBadge(selectedSale.status)}
+              <div className="mb-6">
+                <p className="text-gray-400 text-base mb-1">Estado</p>
+                <div className="text-lg">{getStatusBadge(selectedSale.status)}</div>
               </div>
 
-              <div className="mb-4">
-                <p className="text-gray-400 text-sm">Comprador</p>
-                <p className="text-white">{selectedSale.buyerNombre}</p>
-                <p className="text-gray-400 text-sm">{selectedSale.buyerEmail}</p>
+              <div className="mb-6">
+                <p className="text-gray-400 text-base mb-1">Comprador</p>
+                <p className="text-white text-xl font-semibold">{selectedSale.buyerNombre}</p>
+                <p className="text-gray-300 text-lg mt-1">{selectedSale.buyerEmail}</p>
                 {selectedSale.buyerTelefono && (
-                  <p className="text-gray-400 text-sm">Tel: {selectedSale.buyerTelefono}</p>
+                  <p className="text-gray-300 text-lg mt-2">📞 {selectedSale.buyerTelefono}</p>
                 )}
               </div>
 
               {(selectedSale.buyerDireccion || selectedSale.buyerCodigoPostal || selectedSale.buyerProvincia) && (
-                <div className="mb-4">
-                  <p className="text-gray-400 text-sm">Dirección de envío</p>
-                  {selectedSale.buyerDireccion && <p className="text-white">{selectedSale.buyerDireccion}</p>}
-                  {selectedSale.buyerCodigoPostal && <p className="text-white">CP: {selectedSale.buyerCodigoPostal}</p>}
-                  {selectedSale.buyerProvincia && <p className="text-white">{selectedSale.buyerProvincia}</p>}
+                <div className="mb-6">
+                  <p className="text-gray-400 text-base mb-1">Dirección de envío</p>
+                  {selectedSale.buyerDireccion && <p className="text-white text-lg">{selectedSale.buyerDireccion}</p>}
+                  {selectedSale.buyerCodigoPostal && <p className="text-white text-lg">CP: {selectedSale.buyerCodigoPostal}</p>}
+                  {selectedSale.buyerProvincia && <p className="text-white text-lg">{selectedSale.buyerProvincia}</p>}
                 </div>
               )}
 
-              <div className="mb-4">
-                <p className="text-gray-400 text-sm mb-2">Items</p>
-                <div className="space-y-2">
+              <div className="mb-5">
+                <p className="text-gray-400 text-sm mb-2">Productos</p>
+                <div className="space-y-3">
                   {selectedSale.items.map((item, idx) => (
                     <div 
                       key={idx}
-                      className="flex justify-between items-center bg-white/5 rounded p-3"
+                      className="flex justify-between items-center bg-white/10 rounded-lg p-4"
                     >
                       <div>
-                        <p className="text-white">{item.title}</p>
+                        <p className="text-white text-base">{item.title}</p>
                         <p className="text-gray-400 text-sm">
-                          ${item.price.toFixed(2)} × {item.quantity}
+                          ${item.price.toLocaleString('es-AR')} × {item.quantity}
                         </p>
                       </div>
-                      <p className="text-white font-medium">
-                        ${(item.price * item.quantity).toFixed(2)}
+                      <p className="text-white text-lg font-semibold">
+                        ${(item.price * item.quantity).toLocaleString('es-AR')}
                       </p>
                     </div>
                   ))}
@@ -263,22 +278,22 @@ export default function SalesPage() {
 
               <div className="border-t border-white/10 pt-4">
                 <div className="flex justify-between items-center">
-                  <p className="text-gray-400">Total</p>
-                  <p className="text-xl text-white font-semibold">
-                    ${selectedSale.total.toFixed(2)}
+                  <p className="text-gray-400 text-lg">Total</p>
+                  <p className="text-2xl text-white font-bold">
+                    ${selectedSale.total.toLocaleString('es-AR')}
                   </p>
                 </div>
               </div>
 
               {selectedSale.paidAt && (
                 <div className="mt-4 pt-4 border-t border-white/10">
-                  <p className="text-gray-400 text-sm">Pagado el {formatDate(selectedSale.paidAt)}</p>
+                  <p className="text-gray-400 text-base">Pagado: {formatDate(selectedSale.paidAt)}</p>
                 </div>
               )}
 
               <button 
                 onClick={() => setSelectedSale(null)}
-                className="mt-6 w-full px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg"
+                className="mt-6 w-full py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg"
               >
                 Cerrar
               </button>

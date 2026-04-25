@@ -47,6 +47,7 @@ export async function GET(request: Request) {
       direccion: b.direccion,
       codigoPostal: b.codigoPostal,
       provincia: b.provincia,
+      purchaseCount: b.purchaseCount || 0,
       createdAt: b.createdAt,
     }));
     

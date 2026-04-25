@@ -199,6 +199,30 @@
       "namedRegex": "^/api/stock(?:/)?$"
     },
     {
+      "page": "/api/test/debug",
+      "regex": "^/api/test/debug(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/test/debug(?:/)?$"
+    },
+    {
+      "page": "/api/test/email",
+      "regex": "^/api/test/email(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/test/email(?:/)?$"
+    },
+    {
+      "page": "/api/test/email-config",
+      "regex": "^/api/test/email\\-config(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/test/email\\-config(?:/)?$"
+    },
+    {
+      "page": "/api/test/mp-token",
+      "regex": "^/api/test/mp\\-token(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/test/mp\\-token(?:/)?$"
+    },
+    {
       "page": "/api/upload",
       "regex": "^/api/upload(?:/)?$",
       "routeKeys": {},

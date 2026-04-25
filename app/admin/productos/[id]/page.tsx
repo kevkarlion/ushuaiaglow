@@ -267,7 +267,8 @@ export default function EditProductPage() {
               <select
                 value={form.category}
                 onChange={(e) => handleChange('category', e.target.value)}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                className="w-full px-4 py-2 bg-gray-900 border border-white/20 rounded-lg text-white appearance-none cursor-pointer"
+                style={{ backgroundColor: 'rgb(23 23 23)', color: 'white' }}
               >
                 {categories.map(c => (
                   <option key={c} value={c}>{c}</option>

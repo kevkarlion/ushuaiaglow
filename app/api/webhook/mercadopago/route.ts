@@ -52,6 +52,7 @@ async function processPayment(paymentId: string, mongoClient: any) {
   // Buscar checkout pendiente en pending_checkouts
   const pendingCollection = mongoClient.db('ushuaia').collection('pending_checkouts');
   const salesCollection = mongoClient.db('ushuaia').collection('sales');
+  const buyersCollection = mongoClient.db('ushuaia').collection('buyers');
   
   let pendingCheckout = await pendingCollection.findOne({ externalRef: externalReference });
   
@@ -144,6 +145,26 @@ async function processPayment(paymentId: string, mongoClient: any) {
 
   await pendingCollection.deleteOne({ _id: pendingCheckout._id });
   console.log('✅ Venta creada en sales:', saleResult.insertedId);
+
+  // Actualizar contador de compras del buyer
+  if (pendingCheckout.buyerId) {
+    await buyersCollection.updateOne(
+      { _id: new ObjectId(pendingCheckout.buyerId) },
+      { 
+        $inc: { purchaseCount: 1 },
+        $set: { updatedAt: new Date() }
+      }
+    );
+  } else if (pendingCheckout.buyerEmail) {
+    // Si no hay buyerId (backward compatibility), buscar por email
+    await buyersCollection.updateOne(
+      { email: pendingCheckout.buyerEmail },
+      { 
+        $inc: { purchaseCount: 1 },
+        $set: { updatedAt: new Date() }
+      }
+    );
+  }
 
   // 1. Enviar email al comprador
   try {

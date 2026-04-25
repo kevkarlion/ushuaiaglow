@@ -90,6 +90,7 @@ export async function POST(request: Request) {
           direccion: buyer.direccion,
           codigoPostal: buyer.codigoPostal,
           provincia: buyer.provincia,
+          purchaseCount: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
         });

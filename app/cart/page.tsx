@@ -108,6 +108,10 @@ function CartContent() {
 
   // Success message - redirect to checkout success page
   if (status === 'success') {
+    // Vaciar el carrito antes de redirigir
+    if (typeof window !== 'undefined' && items.length > 0) {
+      clearCart();
+    }
     // Redirect to professional success page
     if (typeof window !== 'undefined') {
       window.location.href = `/checkout/success${preferenceId ? '?order=' + preferenceId : ''}`;

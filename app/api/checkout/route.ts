@@ -102,6 +102,10 @@ export async function POST(request: Request) {
         buyerId,
         buyerNombre: buyer.nombreCompleto,
         buyerEmail: buyer.email.toLowerCase(),
+        buyerTelefono: buyer.telefono,
+        buyerDireccion: buyer.direccion,
+        buyerCodigoPostal: buyer.codigoPostal,
+        buyerProvincia: buyer.provincia,
         items: items.map(item => ({
           productId: item.id,
           title: item.title,

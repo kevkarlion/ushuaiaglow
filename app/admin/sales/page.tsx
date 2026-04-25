@@ -15,6 +15,10 @@ interface Sale {
   buyerId: string;
   buyerNombre: string;
   buyerEmail: string;
+  buyerTelefono?: string;
+  buyerDireccion?: string;
+  buyerCodigoPostal?: string;
+  buyerProvincia?: string;
   items: SaleItem[];
   total: number;
   preferenceId?: string;
@@ -221,7 +225,19 @@ export default function SalesPage() {
                 <p className="text-gray-400 text-sm">Comprador</p>
                 <p className="text-white">{selectedSale.buyerNombre}</p>
                 <p className="text-gray-400 text-sm">{selectedSale.buyerEmail}</p>
+                {selectedSale.buyerTelefono && (
+                  <p className="text-gray-400 text-sm">Tel: {selectedSale.buyerTelefono}</p>
+                )}
               </div>
+
+              {(selectedSale.buyerDireccion || selectedSale.buyerCodigoPostal || selectedSale.buyerProvincia) && (
+                <div className="mb-4">
+                  <p className="text-gray-400 text-sm">Dirección de envío</p>
+                  {selectedSale.buyerDireccion && <p className="text-white">{selectedSale.buyerDireccion}</p>}
+                  {selectedSale.buyerCodigoPostal && <p className="text-white">CP: {selectedSale.buyerCodigoPostal}</p>}
+                  {selectedSale.buyerProvincia && <p className="text-white">{selectedSale.buyerProvincia}</p>}
+                </div>
+              )}
 
               <div className="mb-4">
                 <p className="text-gray-400 text-sm mb-2">Items</p>

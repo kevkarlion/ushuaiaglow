@@ -22,6 +22,7 @@ interface Combo {
   title: string;
   subtitle: string;
   description: string;
+  fullDescription: string;
   benefits: string[];
   price: number;
   originalPrice: number;
@@ -79,16 +80,44 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
         
         // Buscar cada producto incluido en la lista completa para obtener su imagen
         const comboProducts = includedNames.map((name: string) => {
-          const productName = name.trim();
-          // Buscar producto por nombre en la lista
-          const matched = (allProducts as Product[]).find(
-            p => p.title?.toLowerCase() === productName.toLowerCase()
-          );
+          const productName = name.trim().toLowerCase();
+          
+          // Buscar por coincidencia parcial
+          const matched = (allProducts as Product[]).find(p => {
+            const titleLower = p.title?.toLowerCase() || '';
+            // Normalizar: remover acentos y comparar
+            const normalizedName = productName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const normalizedTitle = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            
+            // 1. El título incluye el nombre del producto incluido
+            // 2. El nombre incluye alguna palabra del título
+            // 3. Hay palabras en común
+            const nameWords = normalizedName.split(/\s+/);
+            const titleWords = normalizedTitle.split(/\s+/);
+            
+            const hasCommonWord = nameWords.some(nw => 
+              titleWords.some(tw => tw.length > 2 && (nw.includes(tw) || tw.includes(nw)))
+            );
+            
+            return normalizedTitle.includes(normalizedName) || 
+                   normalizedName.includes(normalizedTitle) ||
+                   hasCommonWord;
+          });
+          
+          // Obtener la imagen del producto
+          let image = '';
+          if (matched?.images && matched.images.length > 0) {
+            const firstImage = matched.images[0];
+            if (typeof firstImage === 'string' && (firstImage.startsWith('/') || firstImage.startsWith('http'))) {
+              image = firstImage;
+            }
+          }
+          
           return {
             name: productName,
-            description: '',
-            image: matched?.images?.[0] || '',
-            benefit: 'Incluido',
+            description: matched?.description || '',
+            image,
+            benefit: matched?.category || 'Incluido',
           };
         });
         
@@ -98,7 +127,8 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
           title: found.title,
           subtitle: found.brand || 'Combo Especial',
           description: found.description || '',
-          benefits: found.ingredients ? found.ingredients.split(',').map(i => i.trim()) : ['Especial'],
+          fullDescription: (found as any).fullDescription || '',
+          benefits: (found as any).benefits || [],
           price: found.price,
           originalPrice: found.originalPrice || found.price * 1.3,
           discount: found.discount || Math.round((1 - found.price / (found.originalPrice || found.price * 1.3)) * 100),
@@ -106,6 +136,42 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
           products: comboProducts,
           includes: found.weight ? [found.weight] : ['Combo especial'],
         };
+        
+        // Agregar benefits y fullDescription según el slug/título del combo
+        const titleLower = found.title?.toLowerCase() || '';
+        const slugLower = found.slug?.toLowerCase() || '';
+        
+        const comboBenefitsMap: Record<string, { benefits: string[]; fullDescription: string }> = {
+          'basico': {
+            fullDescription: 'Dúo hidratante que equilibra, suaviza e ilumina la piel en pocos pasos. Combina sérum antioxidante y gel hidratante para una rutina liviana que deja el rostro fresco, uniforme y saludable todos los días.',
+            benefits: ['Hidratación profunda', 'Ilumina la piel', 'Textura suave', 'Rutina rápida']
+          },
+          'proteccion': {
+            fullDescription: 'Dúo esencial que protege e ilumina la piel todos los días. Combina sérum antioxidante con vitamina C y protector solar para prevenir manchas, cuidar frente a los rayos UV y mantener un rostro más luminoso y saludable.',
+            benefits: ['Protección UV', 'Previene manchas', 'Antioxidante', 'Piel luminosa']
+          },
+          'rutina': {
+            fullDescription: 'Combo básico de skincare que hidrata, ilumina y revitaliza la piel en una rutina simple y efectiva. Incluye sérum antioxidante, gel hidratante y mascarilla nutritiva para lograr una piel más suave, fresca y luminosa todos los días.',
+            benefits: ['Hidratación intensa', 'Revitaliza', 'Piel suave', 'Resultados visibles']
+          },
+          'spa': {
+            fullDescription: 'Combo esencial de skincare que hidrata, ilumina y revitaliza la piel en pocos pasos. Incluye sérum antioxidante, gel hidratante, mascarilla nutritiva y vincha para una rutina cómoda y efectiva. Ideal para lograr una piel más fresca, suave y luminosa todos los días.',
+            benefits: ['Hidratación profunda', 'Ilumina e hidrata', 'Aplicación cómoda', 'Rutina completa']
+          },
+          'full': {
+            fullDescription: 'Combo completo de skincare que limpia, hidrata, protege e ilumina la piel en una rutina simple y efectiva. Incluye sérum antioxidante, gel hidratante, protector solar, mascarilla revitalizante y vincha para una aplicación cómoda. Ideal para lograr una piel más luminosa, fresca y saludable todos los días.',
+            benefits: ['Protección solar', 'Hidratación total', 'Antioxidante', 'Acción múltiple']
+          },
+        };
+        
+        // Buscar por coincidencia en el mapa
+        for (const [key, value] of Object.entries(comboBenefitsMap)) {
+          if (slugLower.includes(key) || titleLower.includes(key)) {
+            if (!comboData.fullDescription) comboData.fullDescription = value.fullDescription;
+            if (comboData.benefits.length === 0) comboData.benefits = value.benefits;
+            break;
+          }
+        }
         
         setCombo(comboData);
       } catch (error) {
@@ -127,9 +193,9 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
           <div className="grid lg:grid-cols-2 gap-8">
             <div className="aspect-square bg-surface-darker rounded-lg animate-pulse"></div>
             <div className="space-y-4">
-              <div className="h-6 bg-surface-darker rounded w-1/4"></div>
-              <div className="h-10 bg-surface-darker rounded w-1/2"></div>
-              <div className="h-24 bg-surface-darker rounded w-full"></div>
+              <div className="h-6 bg-surface-darker rounded w-1/4 animate-pulse"></div>
+              <div className="h-10 bg-surface-darker rounded w-1/2 animate-pulse"></div>
+              <div className="h-24 bg-surface-darker rounded w-full animate-pulse"></div>
             </div>
           </div>
         </div>
@@ -166,9 +232,23 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Image Section - Imagen principal del combo */}
-          <div className="space-y-4">
+        
+        {/* Container: flex-col en mobile, grid en desktop */}
+        <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-12 gap-8">
+          
+          {/* Mobile: Title first | Desktop: hidden */}
+          <div className="lg:hidden order-1">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-xs text-white/40 uppercase tracking-widest">Combo</span>
+            </div>
+            <h1 className="text-2xl font-semibold text-white leading-[1.1] tracking-tight">
+              {combo.title}
+            </h1>
+            <p className="text-lg text-primary font-medium mt-2">{combo.subtitle}</p>
+          </div>
+
+          {/* Image - Desktop: left col | Mobile: order 2 */}
+          <div className="lg:col-span-1 order-2 lg:order-1">
             <div className="aspect-square bg-surface-light rounded-lg overflow-hidden relative">
               <Image
                 src={combo.image || '/productos/combo-full.jpeg'}
@@ -180,21 +260,48 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
 
-          {/* Info Section */}
-          <div className="space-y-6">
-            {/* Category + Discount */}
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-primary font-medium bg-primary/20 px-3 py-1 rounded-full">
-                -{combo.discount || 0}% OFF
-              </span>
-              <span className="text-xs text-white/40 uppercase tracking-widest">Combo</span>
+          {/* Info - Desktop: right col | Mobile: order 3 */}
+          <div className="lg:col-span-1 lg:order-2 order-3 space-y-6">
+            
+            {/* Title - Desktop only */}
+            <div className="hidden lg:block">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-xs text-white/40 uppercase tracking-widest">Combo</span>
+              </div>
+              <h1 className="text-2xl xl:text-3xl font-semibold text-white leading-[1.1] tracking-tight">
+                {combo.title}
+              </h1>
+              <p className="text-lg text-primary font-medium mt-2">{combo.subtitle}</p>
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-semibold text-white leading-[1.1] tracking-tight">
-              {combo.title}
-            </h1>
-            
-            <p className="text-lg text-primary font-medium">{combo.subtitle}</p>
+            {/* Price - prominent */}
+            <div className="relative bg-surface-darker/40 border border-white/10 rounded-xl p-5">
+              {combo.discount && combo.discount > 0 && (
+                <div className="absolute -top-2.5 right-4">
+                  <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    -{combo.discount}% OFF
+                  </span>
+                </div>
+              )}
+              <span className="text-4xl font-bold text-white block">
+                ${(combo.price || 0).toLocaleString('es-AR')}
+              </span>
+              {combo.originalPrice > combo.price && (
+                <>
+                  <span className="text-lg text-white/40 line-through">
+                    ${(combo.originalPrice || 0).toLocaleString('es-AR')}
+                  </span>
+                  <span className="text-sm text-green-400 font-medium block">
+                    💰 Ahorrás ${((combo.originalPrice || 0) - (combo.price || 0)).toLocaleString('es-AR')}
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Full Description */}
+            {combo.fullDescription && (
+              <p className="text-white/70 leading-relaxed">{combo.fullDescription}</p>
+            )}
 
             {/* Benefits */}
             {combo.benefits.length > 0 && (
@@ -211,62 +318,38 @@ export default function ComboDetailPage({ params }: { params: Promise<{ id: stri
               </div>
             )}
 
-            {/* Description */}
-            {combo.description && (
-              <p className="text-white/70 leading-relaxed">{combo.description}</p>
-            )}
-
-            {/* What's Included */}
-            {combo.includes.length > 0 && (
+            {/* Products included */}
+            {combo.products.length > 0 && (
               <div className="border-t border-white/10 pt-4">
-                <p className="text-xs text-white/40 mb-2">INCLUYE</p>
-                <ul className="space-y-1">
-                  {combo.includes.map((item, idx) => (
-                    <li key={idx} className="text-sm text-white/70">• {item}</li>
+                <p className="text-xs text-white/40 mb-3">PRODUCTOS DEL COMBO</p>
+                <div className="space-y-3">
+                  {combo.products.map((product, idx) => (
+                    <div key={idx} className="flex items-center gap-3 bg-surface-darker/20 rounded-lg p-3">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden relative flex-shrink-0 bg-surface-light">
+                        {product.image && product.image.startsWith('http') ? (
+                          <Image src={product.image} alt={product.name} fill sizes="48px" className="object-cover" />
+                        ) : product.image?.startsWith('/') ? (
+                          <Image src={product.image} alt={product.name} fill sizes="48px" className="object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-white/30">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M18 20h-6a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-4" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{product.name}</p>
+                        <p className="text-xs text-gray-500">{product.benefit}</p>
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
-            {/* Products included */}
-                {combo.products.length > 0 && (
-                  <div className="border-t border-white/10 pt-4">
-                    <p className="text-xs text-white/40 mb-3">PRODUCTOS DEL COMBO</p>
-                    <div className="space-y-3">
-                      {combo.products.map((product, idx) => (
-                        <div key={idx} className="flex items-center gap-3 bg-surface-darker/20 rounded-lg p-3">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden relative flex-shrink-0 bg-surface-light">
-                            {product.image ? (
-                              <Image src={product.image} alt={product.name} fill sizes="48px" className="object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
-                                {idx + 1}
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-white truncate">{product.name}</p>
-                            <p className="text-xs text-gray-500">{product.benefit}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-            {/* Price */}
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-white">${(combo.price || 0).toLocaleString('es-AR')}</span>
-              {combo.originalPrice > combo.price && (
-                <span className="text-lg text-white/40 line-through">${(combo.originalPrice || 0).toLocaleString('es-AR')}</span>
-              )}
-              {combo.originalPrice > combo.price && (
-                <span className="text-sm text-green-400">Ahorrás ${((combo.originalPrice || 0) - (combo.price || 0)).toLocaleString('es-AR')}</span>
-              )}
-            </div>
-
             {/* Quantity and Add Button */}
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4">
               <div className="flex items-center gap-4">
                 <label className="text-sm text-white/60">Cantidad:</label>
                 <div className="flex items-center border border-white/20 rounded-lg">

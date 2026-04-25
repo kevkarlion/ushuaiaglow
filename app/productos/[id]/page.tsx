@@ -173,16 +173,35 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               )}
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-semibold text-white leading-[1.1] tracking-tight">
-              {product.title}
-            </h1>
+            {/* Title + Price inline */}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <h1 className="text-2xl md:text-3xl font-semibold text-white leading-[1.1] tracking-tight">
+                {product.title}
+              </h1>
 
-            {/* Price */}
-            <div className="flex items-center gap-3">
-              <span className="text-2xl font-semibold text-white">${(product.price || 0).toLocaleString('es-AR')}</span>
-              {product.originalPrice && product.originalPrice > product.price && (
-                <span className="text-lg text-white/40 line-through">${(product.originalPrice || 0).toLocaleString('es-AR')}</span>
-              )}
+              {/* Price inline */}
+              <div className="relative bg-surface-darker/40 border border-white/10 rounded-xl p-4 text-right flex-shrink-0">
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <div className="absolute -top-2.5 right-4">
+                    <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">
+                      -{Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                    </span>
+                  </div>
+                )}
+                <span className="text-3xl font-bold text-white block">
+                  ${(product.price || 0).toLocaleString('es-AR')}
+                </span>
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <>
+                    <span className="text-sm text-white/40 line-through">
+                      ${(product.originalPrice || 0).toLocaleString('es-AR')}
+                    </span>
+                    <span className="text-sm text-green-400 font-medium block">
+                      Ahorrás ${((product.originalPrice || 0) - (product.price || 0)).toLocaleString('es-AR')}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Stock */}

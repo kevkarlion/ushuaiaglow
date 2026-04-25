@@ -49,15 +49,16 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14">
+          <div className="flex justify-between items-center h-16 md:h-18">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center py-2">
               <Image 
-                src="/us-logo.png" 
+                src="/us-logo-final.png" 
                 alt="Ushuaia" 
-                width={96} 
-                height={96} 
-                className="w-36 h-36 md:w-40 object-contain"
+                width={80} 
+                height={80} 
+                className="h-10 w-auto object-contain md:h-12"
+                priority
               />
             </Link>
 

@@ -6,7 +6,9 @@ import Link from 'next/link';
 import { Product } from '@/types/product';
 
 interface ComboDisplay extends Product {
-  products: { name: string; image: string }[];
+  products: { name: string; displayName: string; image: string }[];
+  benefits?: string[];
+  fullDescription?: string;
 }
 
 export default function CombosPage() {
@@ -40,21 +42,49 @@ export default function CombosPage() {
               }
             }
             
-            // Buscar cada producto para obtener su imagen
+            // Buscar cada producto para obtener su imagen (búsqueda flexible)
             const productsWithImages = productsArr.map((name: string) => {
-              const productName = name.trim();
-              const matched = (allProducts as Product[]).find(
-                p => p.title?.toLowerCase() === productName.toLowerCase()
-              );
+              const productName = name.trim().toLowerCase();
+              // Normalizar acentos
+              const normalizedName = productName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+              
+              const matched = (allProducts as Product[]).find(p => {
+                const titleLower = p.title?.toLowerCase() || '';
+                const normalizedTitle = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                
+                const nameWords = normalizedName.split(/\s+/);
+                const titleWords = normalizedTitle.split(/\s+/);
+                
+                const hasCommonWord = nameWords.some(nw => 
+                  titleWords.some(tw => tw.length > 2 && (nw.includes(tw) || tw.includes(nw)))
+                );
+                
+                return normalizedTitle.includes(normalizedName) || 
+                       normalizedName.includes(normalizedTitle) ||
+                       hasCommonWord;
+              });
+              
+              // Obtener imagen válida
+              let image = '';
+              if (matched?.images && matched.images.length > 0) {
+                const firstImage = matched.images[0];
+                if (typeof firstImage === 'string' && (firstImage.startsWith('/') || firstImage.startsWith('http'))) {
+                  image = firstImage;
+                }
+              }
+              
               return {
                 name: productName,
-                image: matched?.images?.[0] || '',
+                displayName: productName.charAt(0).toUpperCase() + productName.slice(1),
+                image,
               };
             });
             
             return {
               ...c,
               products: productsWithImages,
+              benefits: (c as any).benefits || [],
+              fullDescription: (c as any).fullDescription || c.description || '',
             };
           });
         
@@ -69,13 +99,15 @@ export default function CombosPage() {
     fetchCombos();
   }, []);
 
-  // Combos hardcodeados (nuevos valores - precios en pesos argentinos)
+  // Default combos (para cuando no hay combos en la DB)
   const defaultCombos: ComboDisplay[] = [
     {
       id: '1',
       slug: 'basico',
-      title: 'Básico',
-      description: 'Serum + Gel. Rutina diaria básica de limpieza e hidratación.',
+      title: 'Básico Glow',
+      description: 'Dúo hidratante que equilibra, suaviza e ilumina la piel.',
+      fullDescription: 'Dúo hidratante que equilibra, suaviza e ilumina la piel en pocos pasos. Combina sérum antioxidante y gel hidratante para una rutina liviana que deja el rostro fresco, uniforme y saludable todos los días.',
+      benefits: ['Hidratación profunda', 'Ilumina la piel', 'Textura suave', 'Rutina rápida'],
       price: 24500,
       originalPrice: 30000,
       discount: 18,
@@ -84,8 +116,8 @@ export default function CombosPage() {
       stock: 10,
       images: ['/productos/combo-full.jpeg'],
       products: [
-        { name: 'Serum', image: '/productos/serum.jpeg' },
-        { name: 'Gel', image: '/productos/gel.jpeg' },
+        { name: 'serum', displayName: 'Sérum', image: '/productos/serum.jpeg' },
+        { name: 'gel', displayName: 'Gel Hidratante', image: '/productos/gel.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -94,9 +126,11 @@ export default function CombosPage() {
     },
     {
       id: '2',
-      slug: 'proteccion-tratamiento',
-      title: 'Protección + Tratamiento',
-      description: 'Protector + Serum. Cuidado diario con protección solar.',
+      slug: 'proteccion-total',
+      title: 'Protección Total',
+      description: 'Dúo que protege e ilumina la piel todos los días.',
+      fullDescription: 'Dúo esencial que protege e ilumina la piel todos los días. Combina sérum antioxidante con vitamina C y protector solar para prevenir manchas, cuidar frente a los rayos UV y mantener un rostro más luminoso y saludable.',
+      benefits: ['Protección UV', 'Previene manchas', 'Antioxidante', 'Piel luminosa'],
       price: 30500,
       originalPrice: 38000,
       discount: 20,
@@ -105,8 +139,8 @@ export default function CombosPage() {
       stock: 10,
       images: ['/productos/combo2.jpeg'],
       products: [
-        { name: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
-        { name: 'Sérum', image: '/productos/serum.jpeg' },
+        { name: 'protector solar', displayName: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
+        { name: 'serum', displayName: 'Sérum', image: '/productos/serum.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -115,9 +149,11 @@ export default function CombosPage() {
     },
     {
       id: '3',
-      slug: 'hidratacion-intensiva',
-      title: 'Hidratación Intensiva',
-      description: 'Serum + Gel + Mascarilla. Tratamiento completo.',
+      slug: 'rutina-completa',
+      title: 'Rutina Completa',
+      description: 'Combo básico que hidrata, ilumina y revitaliza.',
+      fullDescription: 'Combo básico de skincare que hidrata, ilumina y revitaliza la piel en una rutina simple y efectiva. Incluye sérum antioxidante, gel hidratante y mascarilla nutritiva para lograr una piel más suave, fresca y luminosa todos los días.',
+      benefits: ['Hidratación intensa', 'Revitaliza', 'Piel suave', 'Resultados visibles'],
       price: 28500,
       originalPrice: 35000,
       discount: 19,
@@ -126,9 +162,9 @@ export default function CombosPage() {
       stock: 10,
       images: ['/productos/combo-full.jpeg'],
       products: [
-        { name: 'Sérum', image: '/productos/serum.jpeg' },
-        { name: 'Gel', image: '/productos/gel.jpeg' },
-        { name: 'Mascarilla', image: '/productos/mascarilla.jpeg' },
+        { name: 'serum', displayName: 'Sérum', image: '/productos/serum.jpeg' },
+        { name: 'gel', displayName: 'Gel Hidratante', image: '/productos/gel.jpeg' },
+        { name: 'mascarilla', displayName: 'Mascarilla Facial', image: '/productos/mascarilla.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -139,7 +175,9 @@ export default function CombosPage() {
       id: '4',
       slug: 'spa-en-casa',
       title: 'Spa en Casa',
-      description: 'Serum + Gel + Mascarilla + Vincha. Kit de relajación completo.',
+      description: 'Combo esencial que hidrata, ilumina y revitaliza.',
+      fullDescription: 'Combo esencial de skincare que hidrata, ilumina y revitaliza la piel en pocos pasos. Incluye sérum antioxidante, gel hidratante, mascarilla nutritiva y vincha para una rutina cómoda y efectiva. Ideal para lograr una piel más fresca, suave y luminosa todos los días.',
+      benefits: ['Hidratación profunda', 'Ilumina e hidrata', 'Aplicación cómoda', 'Rutina completa'],
       price: 36500,
       originalPrice: 45000,
       discount: 19,
@@ -148,10 +186,10 @@ export default function CombosPage() {
       stock: 10,
       images: ['/productos/combo2.jpeg'],
       products: [
-        { name: 'Sérum', image: '/productos/serum.jpeg' },
-        { name: 'Gel', image: '/productos/gel.jpeg' },
-        { name: 'Mascarilla', image: '/productos/mascarilla.jpeg' },
-        { name: 'Vincha', image: '/productos/vincha.jpeg' },
+        { name: 'serum', displayName: 'Sérum', image: '/productos/serum.jpeg' },
+        { name: 'gel', displayName: 'Gel Hidratante', image: '/productos/gel.jpeg' },
+        { name: 'mascarilla', displayName: 'Mascarilla Facial', image: '/productos/mascarilla.jpeg' },
+        { name: 'vincha', displayName: 'Vincha Spa', image: '/productos/vincha.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -160,9 +198,11 @@ export default function CombosPage() {
     },
     {
       id: '6',
-      slug: 'premium',
-      title: 'Premium',
-      description: 'Serum + Gel + Vincha + Protector + Mascarilla. El kit completo.',
+      slug: 'full',
+      title: 'Combo Full',
+      description: 'Combo completo que limpia, hidrata, protege e ilumina.',
+      fullDescription: 'Combo completo de skincare que limpia, hidrata, protege e ilumina la piel en una rutina simple y efectiva. Incluye sérum antioxidante, gel hidratante, protector solar, mascarilla revitalizante y vincha para una aplicación cómoda. Ideal para lograr una piel más luminosa, fresca y saludable todos los días.',
+      benefits: ['Protección solar', 'Hidratación total', 'Antioxidante', 'Acción múltiple'],
       price: 46500,
       originalPrice: 58000,
       discount: 20,
@@ -171,11 +211,11 @@ export default function CombosPage() {
       stock: 10,
       images: ['/productos/combo-full.jpeg'],
       products: [
-        { name: 'Sérum', image: '/productos/serum.jpeg' },
-        { name: 'Gel', image: '/productos/gel.jpeg' },
-        { name: 'Vincha', image: '/productos/vincha.jpeg' },
-        { name: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
-        { name: 'Mascarilla', image: '/productos/mascarilla.jpeg' },
+        { name: 'serum', displayName: 'Sérum', image: '/productos/serum.jpeg' },
+        { name: 'gel', displayName: 'Gel Hidratante', image: '/productos/gel.jpeg' },
+        { name: 'vincha', displayName: 'Vincha Spa', image: '/productos/vincha.jpeg' },
+        { name: 'protector solar', displayName: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
+        { name: 'mascarilla', displayName: 'Mascarilla Facial', image: '/productos/mascarilla.jpeg' },
       ],
       isCombo: true,
       productsIncluded: [],
@@ -229,45 +269,74 @@ export default function CombosPage() {
             <Link 
               key={combo.id} 
               href={`/combos/${comboSlug}`}
-              className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all block"
+              className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 flex flex-col"
             >
+              {/* Mobile: Title + description first */}
+              <div className="p-4 pb-2 md:hidden">
+                <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
+                  {combo.title}
+                </h3>
+                <p className="text-sm text-gray-400 mt-1">{combo.description}</p>
+              </div>
+
               {/* Combo Image */}
-              <div className="relative aspect-video bg-surface-light">
+              <div className="relative aspect-video bg-surface-light overflow-hidden flex-shrink-0">
                 <Image
                   src={combo.images?.[0]?.startsWith('/') || combo.images?.[0]?.startsWith('http') ? combo.images[0] : '/productos/combo-full.jpeg'}
                   alt={combo.title}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 right-3 bg-primary text-white text-sm font-bold px-3 py-1 rounded-full">
+                <div className="absolute top-3 right-3 bg-primary text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
                   -{combo.discount || 0}%
                 </div>
               </div>
 
-              {/* Combo Info */}
-              <div className="p-5 space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
-                    {combo.title}
-                  </h3>
-                  <p className="text-sm text-gray-400 mt-1">{combo.description}</p>
+              {/* Content - Desktop: title inline, Mobile: stacked */}
+              <div className="p-4 flex flex-col flex-1">
+                {/* Desktop: Title + Price inline */}
+                <div className="hidden md:flex items-start justify-between gap-3 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
+                      {combo.title}
+                    </h3>
+                    <p className="text-sm text-gray-400 mt-1">{combo.description}</p>
+                  </div>
+                  {/* Price - inline */}
+                  <div className="relative bg-surface-darker/80 border border-white/10 rounded-lg px-3 py-2 text-right flex-shrink-0">
+                    {combo.discount && combo.discount > 0 && (
+                      <div className="absolute -top-2 right-2">
+                        <span className="bg-primary text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                          -{combo.discount}%
+                        </span>
+                      </div>
+                    )}
+                    <span className="text-xl font-bold text-white block">
+                      ${(combo.price || 0).toLocaleString('es-AR')}
+                    </span>
+                    {combo.originalPrice && combo.originalPrice > combo.price && (
+                      <span className="text-xs text-white/40 line-through block">
+                        ${(combo.originalPrice || 0).toLocaleString('es-AR')}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Products included */}
-                <div className="flex items-center gap-2">
+                {/* Desktop: Products included */}
+                <div className="hidden md:flex items-center gap-2">
                   <span className="text-xs text-gray-500">Incluye:</span>
                   <div className="flex -space-x-2">
                     {combo.products.map((p, idx) => (
                       <div 
                         key={idx} 
-                        className="w-8 h-8 rounded-full bg-surface-light border-2 border-surface-darker overflow-hidden relative"
-                        title={p.name}
+                        className="w-8 h-8 rounded-full bg-surface-darker border-2 border-black overflow-hidden relative"
+                        title={p.displayName || p.name}
                       >
-                        {p.image ? (
-                          <Image src={p.image} alt={p.name} fill sizes="32px" className="object-cover" />
+                        {p.image && (p.image.startsWith('/') || p.image.startsWith('http')) ? (
+                          <Image src={p.image} alt={p.displayName || p.name} fill sizes="32px" className="object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400">
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
                             {idx + 1}
                           </div>
                         )}
@@ -279,16 +348,63 @@ export default function CombosPage() {
                   </span>
                 </div>
 
-                {/* Price */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold text-white">${(combo.price || 0).toLocaleString('es-AR')}</span>
-                  {combo.originalPrice && (
-                    <span className="text-sm text-gray-500 line-through">${(combo.originalPrice || 0).toLocaleString('es-AR')}</span>
-                  )}
+                {/* Mobile: Products included + Price */}
+                <div className="md:hidden space-y-3 mt-2">
+                  {/* Products included */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-gray-500">Incluye:</span>
+                    <div className="flex -space-x-2">
+                      {combo.products.map((p, idx) => (
+                        <div 
+                          key={idx} 
+                          className="w-8 h-8 rounded-full bg-surface-darker border-2 border-black overflow-hidden relative"
+                          title={p.displayName || p.name}
+                        >
+                          {p.image && (p.image.startsWith('/') || p.image.startsWith('http')) ? (
+                            <Image src={p.image} alt={p.displayName || p.name} fill sizes="32px" className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                              {idx + 1}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      ({combo.products.length} productos)
+                    </span>
+                  </div>
+                  
+                  {/* Price + CTA */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1">
+                      <p className="text-sm text-green-400">
+                        💰 Ahorrás ${((combo.originalPrice || 0) - (combo.price || 0)).toLocaleString('es-AR')}
+                      </p>
+                      <p className="text-sm text-primary">Ver detalle →</p>
+                    </div>
+                    <div className="relative bg-surface-darker/80 border border-white/10 rounded-lg px-3 py-2 text-right flex-shrink-0">
+                      {combo.discount && combo.discount > 0 && (
+                        <div className="absolute -top-2 right-2">
+                          <span className="bg-primary text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                            -{combo.discount}%
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-xl font-bold text-white block">
+                        ${(combo.price || 0).toLocaleString('es-AR')}
+                      </span>
+                      {combo.originalPrice && combo.originalPrice > combo.price && (
+                        <span className="text-xs text-white/40 line-through block">
+                          ${(combo.originalPrice || 0).toLocaleString('es-AR')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Click to see details */}
-                <p className="text-sm text-primary">Ver detalle →</p>
+                {/* Desktop CTA */}
+                <p className="hidden md:block text-sm text-primary group-hover:translate-x-1 transition-transform mt-auto pt-3">Ver detalle →</p>
               </div>
             </Link>
           );

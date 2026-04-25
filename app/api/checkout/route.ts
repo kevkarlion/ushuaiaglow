@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     // External reference único
     const externalRef = `ushuaia-${Date.now()}`;
 
-    // Si hay datos del buyer, guardarlo
+    // Si hay datos del buyer, guardarlo SOLO temporalmente en pending_checkouts (no en sales)
     let buyerId: string | null = null;
     if (buyer && buyer.email) {
       const mongoClient = await getClient();
@@ -96,9 +96,9 @@ export async function POST(request: Request) {
         buyerId = result.insertedId.toString();
       }
 
-      // También crear la venta en estado "pending"
-      const salesCollection = mongoClient.db('ushuaia').collection('sales');
-      await salesCollection.insertOne({
+      // Guardar checkout pendiente SOLO para referencia (no crear venta a priori)
+      const pendingCollection = mongoClient.db('ushuaia').collection('pending_checkouts');
+      await pendingCollection.insertOne({
         buyerId,
         buyerNombre: buyer.nombreCompleto,
         buyerEmail: buyer.email.toLowerCase(),
@@ -109,9 +109,10 @@ export async function POST(request: Request) {
           quantity: item.quantity,
         })),
         total,
-        preferenceId: externalRef,
-        status: 'pending', // Se actualiza a 'paid' cuando MP confirma
+        externalRef,
         createdAt: new Date(),
+        // TTL: expire después de 24hs si no se paga
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
     }
 

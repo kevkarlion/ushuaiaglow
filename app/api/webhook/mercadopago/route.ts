@@ -77,40 +77,51 @@ export async function POST(request: Request) {
 
     console.log('✅ Pago aprobado:', { paymentId, preferenceId, externalReference });
 
-    // 2. Buscar la venta por preferenceId (MP) O external_reference (nuestro ID)
+    // 2. Buscar checkout pendiente en pending_checkouts
+    const pendingCollection = mongoClient.db('ushuaia').collection('pending_checkouts');
     const salesCollection = mongoClient.db('ushuaia').collection('sales');
     
-    // Buscar por external_reference PRIMERO (nuestro preferenceId como "ushuaia-xxx")
-    let sale = await salesCollection.findOne({ preferenceId: externalReference });
+    let pendingCheckout = await pendingCollection.findOne({ externalRef: externalReference });
     
-    // Si no se encuentra, buscar por preference_id de MP
-    if (!sale && preferenceId) {
-      sale = await salesCollection.findOne({ preferenceId: preferenceId });
+    // Si no se encuentra por externalRef, buscar por preferenceId de MP
+    if (!pendingCheckout && preferenceId) {
+      pendingCheckout = await pendingCollection.findOne({ externalRef: preferenceId });
     }
     
-    // Último intento: buscar por cualquier campo que coincida con externalReference
-    if (!sale) {
-      sale = await salesCollection.findOne({ 
-        $or: [
-          { preferenceId: externalReference },
-          { preferenceId: { $regex: externalReference, $options: 'i' } },
-        ]
+    // Último intento: buscar por regex
+    if (!pendingCheckout) {
+      pendingCheckout = await pendingCollection.findOne({ 
+        externalRef: { $regex: externalReference, $options: 'i' } 
       });
     }
 
-    if (!sale) {
-      console.error('❌ Sale not found:', { externalReference, preferenceId });
-      return NextResponse.json({ 
-        message: 'Sale not found', 
-        externalReference,
-        preferenceId
-      });
+    if (!pendingCheckout) {
+      // Verificar si ya está en sales (backward compatibility)
+      let existingSale = await salesCollection.findOne({ preferenceId: externalReference });
+      if (!existingSale && preferenceId) {
+        existingSale = await salesCollection.findOne({ preferenceId: preferenceId });
+      }
+      
+      if (existingSale) {
+        console.log('✅ Venta existente (backward compat):', existingSale._id);
+        if (existingSale.status === 'paid') {
+          return NextResponse.json({ message: 'Already paid' });
+        }
+        pendingCheckout = existingSale;
+      } else {
+        console.error('❌ Checkout pendiente no encontrado:', { externalReference, preferenceId });
+        return NextResponse.json({ 
+          message: 'Checkout not found', 
+          externalReference,
+          preferenceId
+        });
+      }
+    } else {
+      console.log('✅ Checkout pendiente encontrado:', pendingCheckout._id);
     }
     
-    console.log('✅ Venta encontrada:', sale._id, sale.status);
-
-    // 3. Si ya pagada, skip
-    if (sale.status === 'paid') {
+    // 3. Si ya está en sales como paid, skip (backward compat)
+    if (pendingCheckout.status === 'paid') {
       return NextResponse.json({ message: 'Already paid' });
     }
 
@@ -119,7 +130,7 @@ export async function POST(request: Request) {
     const stockDeduction: string[] = [];
     const stockErrors: string[] = [];
 
-    for (const item of sale.items) {
+    for (const item of pendingCheckout.items) {
       try {
         // Buscar el producto por ID, título o slug
         let product;
@@ -180,38 +191,45 @@ export async function POST(request: Request) {
       console.error('❌ Errores de stock:', stockErrors);
     }
 
-    // 5. Actualizar status de la venta
-    await salesCollection.updateOne(
-      { _id: sale._id },
-      { 
-        $set: { 
-          status: 'paid',
-          paymentId: paymentId.toString(),
-          paidAt: new Date(),
-        } 
-      }
-    );
+    // 5. Crear la venta en sales (como "paid")
+    const saleResult = await salesCollection.insertOne({
+      buyerId: pendingCheckout.buyerId,
+      buyerNombre: pendingCheckout.buyerNombre,
+      buyerEmail: pendingCheckout.buyerEmail,
+      items: pendingCheckout.items,
+      total: pendingCheckout.total,
+      preferenceId: externalReference,
+      status: 'paid',
+      paymentId: paymentId.toString(),
+      paidAt: new Date(),
+      createdAt: new Date(),
+    });
 
-    // 6. Enviar email de confirmación
+    // 6. Eliminar de pending_checkouts
+    await pendingCollection.deleteOne({ _id: pendingCheckout._id });
+    console.log('✅ Venta creada en sales:', saleResult.insertedId);
+
+    // 7. Enviar email de confirmación
     try {
       await sendEmail('payment_success', {
-        buyerEmail: sale.buyerEmail,
-        buyerName: sale.buyerNombre,
-        orderId: sale.preferenceId,
-        total: sale.total,
-        items: sale.items,
+        buyerEmail: pendingCheckout.buyerEmail,
+        buyerName: pendingCheckout.buyerNombre,
+        orderId: externalReference,
+        total: pendingCheckout.total,
+        items: pendingCheckout.items,
         paymentId: paymentId.toString(),
       });
     } catch (emailError) {
       console.error('Error sending confirmation email:', emailError);
     }
 
-    console.log(`Payment ${paymentId} processed. Stock deducted:`, stockDeduction, 'Errors:', stockErrors);
+    console.log(`Payment ${paymentId} processed. Sale created:`, saleResult.insertedId, 'Stock:', stockDeduction);
 
     return NextResponse.json({
       success: true,
       paymentId,
       status: 'paid',
+      saleId: saleResult.insertedId.toString(),
       stockDeducted: stockDeduction.length,
       items: stockDeduction,
       stockErrors: stockErrors.length > 0 ? stockErrors : undefined,

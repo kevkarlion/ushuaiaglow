@@ -94,7 +94,7 @@ export default function RegisterPage() {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black"
-              placeholder="Juan Pérez"
+              placeholder=""
               required
             />
           </div>
@@ -106,7 +106,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black"
-              placeholder="admin@ushuaia.com"
+              placeholder=""
               required
             />
           </div>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black"
-              placeholder="Mínimo 6 caracteres"
+              placeholder=""
               required
             />
           </div>
@@ -130,7 +130,7 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-black"
-              placeholder="Repetí tu password"
+              placeholder=""
               required
             />
           </div>

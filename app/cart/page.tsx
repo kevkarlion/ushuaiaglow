@@ -248,7 +248,7 @@ function CartContent() {
                     value={buyerForm.nombreCompleto}
                     onChange={(e) => handleBuyerChange('nombreCompleto', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                    placeholder="Tu nombre completo"
+                    placeholder=""
                     required
                   />
                 </div>
@@ -260,7 +260,7 @@ function CartContent() {
                       value={buyerForm.email}
                       onChange={(e) => handleBuyerChange('email', e.target.value)}
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                      placeholder="tu@email.com"
+                      placeholder=""
                       required
                     />
                   </div>
@@ -271,7 +271,7 @@ function CartContent() {
                       value={buyerForm.telefono}
                       onChange={(e) => handleBuyerChange('telefono', e.target.value)}
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                      placeholder="Ej: 298 123 4567"
+                      placeholder=""
                     />
                   </div>
                 </div>
@@ -282,7 +282,7 @@ function CartContent() {
                     value={buyerForm.direccion}
                     onChange={(e) => handleBuyerChange('direccion', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                    placeholder="Calle y número"
+                    placeholder=""
                     required
                   />
                 </div>
@@ -294,7 +294,7 @@ function CartContent() {
                       value={buyerForm.codigoPostal}
                       onChange={(e) => handleBuyerChange('codigoPostal', e.target.value)}
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                      placeholder="Ej: 8332"
+                      placeholder=""
                       required
                     />
                   </div>
@@ -305,7 +305,7 @@ function CartContent() {
                       value={buyerForm.provincia}
                       onChange={(e) => handleBuyerChange('provincia', e.target.value)}
                       className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                      placeholder="Tu provincia"
+                      placeholder=""
                       required
                     />
                   </div>

@@ -141,7 +141,7 @@ async function processPayment(paymentId: string, mongoClient: any) {
   await pendingCollection.deleteOne({ _id: pendingCheckout._id });
   console.log('✅ Venta creada en sales:', saleResult.insertedId);
 
-  // Enviar email
+  // 1. Enviar email al comprador
   try {
     await sendEmail('payment_success', {
       buyerEmail: pendingCheckout.buyerEmail,
@@ -152,7 +152,22 @@ async function processPayment(paymentId: string, mongoClient: any) {
       paymentId: paymentId.toString(),
     });
   } catch (emailError) {
-    console.error('Error sending confirmation email:', emailError);
+    console.error('Error sending confirmation email to buyer:', emailError);
+  }
+
+  // 2. Enviar email al admin (nueva venta)
+  try {
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'info@ushuaiaglow.com';
+    await sendEmail('payment_success', {
+      buyerEmail: ADMIN_EMAIL,
+      buyerName: 'Admin',
+      orderId: `NUEVA VENTA: ${externalReference}`,
+      total: pendingCheckout.total,
+      items: pendingCheckout.items,
+      paymentId: paymentId.toString(),
+    });
+  } catch (emailError) {
+    console.error('Error sending notification to admin:', emailError);
   }
 
   return {

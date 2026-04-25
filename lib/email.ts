@@ -242,7 +242,13 @@ export async function sendEmail(type: EmailType, data: EmailData): Promise<boole
   }
   
   const { subject, html, text } = getEmailTemplate(type, data);
-  const smtpFrom = process.env.SMTP_FROM || 'Ushuaia <noreply@ushuaiaglow.com>';
+  // Asegurar formato válido: "Nombre <email@domain>"
+  let smtpFrom = process.env.SMTP_FROM;
+  if (!smtpFrom || !smtpFrom.includes('@')) {
+    smtpFrom = 'Ushuaia <info@ushuaiaglow.com>';
+  } else if (!smtpFrom.includes('<') && smtpFrom.includes('@')) {
+    smtpFrom = `Ushuaia <${smtpFrom}>`;
+  }
 
   console.log('📧 Intentando enviar email:', { to: data.buyerEmail, from: smtpFrom, subject });
 

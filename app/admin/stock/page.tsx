@@ -171,6 +171,7 @@ export default function StockPage() {
     setEditingId(product.id);
     setForm({
       title: product.title,
+      description: product.description || '',
       price: product.price?.toString() || '',
       stock: product.stock?.toString() || '',
       category: product.category || 'Cuidado Facial',

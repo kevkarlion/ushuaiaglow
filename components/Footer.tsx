@@ -25,7 +25,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-block mb-4">
               <Image 
-                src="/us-logo.png" 
+                src="/us-logo-final.png" 
                 alt="Ushuaia" 
                 width={192} 
                 height={192} 

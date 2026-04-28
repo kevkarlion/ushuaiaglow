@@ -39,6 +39,8 @@
   "/contacto/page": "/contacto",
   "/nosotros/page": "/nosotros",
   "/page": "/",
+  "/privacidad/page": "/privacidad",
   "/productos/[id]/page": "/productos/[id]",
-  "/productos/page": "/productos"
+  "/productos/page": "/productos",
+  "/terminos/page": "/terminos"
 }

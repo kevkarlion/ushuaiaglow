@@ -1,19 +1,12 @@
-# https://www.robotstxt.org/robotstxt.html
-# Robots.txt para Ushuaia
-
+# *
 User-agent: *
 Allow: /
-Allow: /cart
-Allow: /combos
-Allow: /nosotros
-Allow: /productos
-Allow: /categorias
-Allow: /checkout
-
-# Admin - NO permitir crawlers
 Disallow: /admin
 Disallow: /api
 
-# Archivos sitemap
+# Host
+Host: https://www.ushuaiaglow.com
+
+# Sitemaps
 Sitemap: https://www.ushuaiaglow.com/sitemap.xml
 Sitemap: https://www.ushuaiaglow.com/sitemap-products.xml

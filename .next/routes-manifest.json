@@ -283,10 +283,22 @@
       "namedRegex": "^/nosotros(?:/)?$"
     },
     {
+      "page": "/privacidad",
+      "regex": "^/privacidad(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacidad(?:/)?$"
+    },
+    {
       "page": "/productos",
       "regex": "^/productos(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/productos(?:/)?$"
+    },
+    {
+      "page": "/terminos",
+      "regex": "^/terminos(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terminos(?:/)?$"
     }
   ],
   "dataRoutes": [],

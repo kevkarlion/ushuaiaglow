@@ -1,4 +1,11 @@
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Categorías',
+  description: 'Explorar por categoría',
+  keywords: ['categorías skincare', 'cuidado facial', 'accesorios belleza'],
+};
 
 const categories = [
   { 

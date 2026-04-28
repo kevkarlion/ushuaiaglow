@@ -39,6 +39,8 @@
   "/contacto/page": "app/contacto/page.js",
   "/nosotros/page": "app/nosotros/page.js",
   "/page": "app/page.js",
+  "/privacidad/page": "app/privacidad/page.js",
   "/productos/[id]/page": "app/productos/[id]/page.js",
-  "/productos/page": "app/productos/page.js"
+  "/productos/page": "app/productos/page.js",
+  "/terminos/page": "app/terminos/page.js"
 }

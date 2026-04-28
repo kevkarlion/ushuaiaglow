@@ -5,8 +5,18 @@ import Footer from '@/components/Footer';
 import { CartProvider } from '@/context/CartContext';
 
 export const metadata: Metadata = {
-  title: 'Ushuaia | Tienda Online',
-  description: 'Productos premium para tu estilo de vida',
+  title: {
+    default: 'UshuaiaGlow | Tienda de Skincare en Argentina',
+    template: '%s | UshuaiaGlow',
+  },
+  description: 'Comprá productos de cuidado facial: sérums, protectores solares, gels hidratantes ymás. Envío gratis a todo Argentina. Descuentos hasta 25% en combos.',
+  keywords: ['skincare Argentina', 'cuidado facial', 'serum vitamina C', 'protector solar', 'gel hidratante', 'mascarilla facial', 'Ushuaia'],
+  authors: [{ name: 'UshuaiaGlow' }],
+  openGraph: {
+    type: 'website',
+    locale: 'es_AR',
+    siteName: 'UshuaiaGlow',
+  },
 };
 
 export default function RootLayout({

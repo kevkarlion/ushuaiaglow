@@ -6,14 +6,14 @@ import { useEffect, useState } from 'react';
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[80vh] md:min-h-[90vh] bg-black overflow-hidden">
+    <section className="relative min-h-[90vh] md:min-h-[90vh] bg-black overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bottom-12 md:bottom-0">
         <Image
           src="/hero-1.png"
           alt="Ushuaia beauty natural"
           fill
-          className="object-cover md:object-[center_15%]"
+          className="object-cover"
           priority
         />
         {/* Gradient overlay - lighter on mobile to show more content */}

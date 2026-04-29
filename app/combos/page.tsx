@@ -11,6 +11,11 @@ interface ComboDisplay extends Product {
   fullDescription?: string;
 }
 
+// Función simple para posición de imagen
+function getImagePosition(slug: string): string {
+  return 'object-cover';
+}
+
 export default function CombosPage() {
   const [combos, setCombos] = useState<ComboDisplay[]>([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +142,7 @@ export default function CombosPage() {
       category: 'Combo',
       brand: 'Ushuaia',
       stock: 10,
-      images: ['/productos/combo2.jpeg'],
+      images: ['/productos/combo2-ok.jpeg'],
       products: [
         { name: 'protector solar', displayName: 'Protector Solar', image: '/productos/protector-solar.jpeg' },
         { name: 'serum', displayName: 'Sérum', image: '/productos/serum.jpeg' },
@@ -280,13 +285,13 @@ export default function CombosPage() {
               </div>
 
               {/* Combo Image */}
-              <div className="relative aspect-video bg-surface-light overflow-hidden flex-shrink-0">
+              <div className="relative aspect-video bg-surface-light overflow-hidden flex-shrink-0 ">
                 <Image
                   src={combo.images?.[0]?.startsWith('/') || combo.images?.[0]?.startsWith('http') ? combo.images[0] : '/productos/combo-full.jpeg'}
                   alt={combo.title}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className={`${getImagePosition(comboSlug)}  group-hover:scale-105 transition-transform duration-500`}
                 />
                 <div className="absolute top-3 right-3 bg-primary text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
                   -{combo.discount || 0}%

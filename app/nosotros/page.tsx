@@ -46,7 +46,7 @@ export default function NosotrosPage() {
           </div>
           <div className="relative aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden bg-surface-darker">
             <Image
-              src="/us-logo.png"
+              src="/us-logo-final.png"
               alt="Ushuaia - Cuidado Natural"
               fill
               className="object-contain p-8"

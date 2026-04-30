@@ -39,17 +39,42 @@ export async function GET(request: Request) {
     
     const buyers = await collection.find(filter).sort({ createdAt: -1 }).toArray();
     
-    const formatted = buyers.map(b => ({
-      id: b._id.toString(),
-      nombreCompleto: b.nombreCompleto,
-      email: b.email,
-      telefono: b.telefono,
-      direccion: b.direccion,
-      codigoPostal: b.codigoPostal,
-      provincia: b.provincia,
-      purchaseCount: b.purchaseCount || 0,
-      createdAt: b.createdAt,
-    }));
+    // Fetch sales for all buyers to include purchase history
+    const salesCollection = mongoClient.db('ushuaia').collection('sales');
+    const allSales = await salesCollection.find({}).sort({ createdAt: -1 }).toArray();
+    
+    // Build purchase history for each buyer
+    const formatted = buyers.map(b => {
+      const buyerId = b._id.toString();
+      const buyerEmail = b.email;
+      
+      // Find all sales for this buyer (by buyerId or buyerEmail)
+      const purchases = allSales
+        .filter(s => 
+          String(s.buyerId) === buyerId || 
+          s.buyerEmail?.toLowerCase() === buyerEmail?.toLowerCase()
+        )
+        .map(s => ({
+          id: s._id.toString(),
+          items: s.items || [],
+          total: s.total || 0,
+          status: s.status,
+          createdAt: s.createdAt,
+        }));
+      
+      return {
+        id: buyerId,
+        nombreCompleto: b.nombreCompleto,
+        email: b.email,
+        telefono: b.telefono,
+        direccion: b.direccion,
+        codigoPostal: b.codigoPostal,
+        provincia: b.provincia,
+        purchaseCount: purchases.length,
+        purchases: purchases,
+        createdAt: b.createdAt,
+      };
+    });
     
     return NextResponse.json(formatted);
   } catch (error) {

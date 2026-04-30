@@ -3,6 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface Purchase {
+  id: string;
+  items: { title: string; price: number; quantity: number }[];
+  total: number;
+  status: string;
+  createdAt: string;
+}
+
 interface Buyer {
   id: string;
   nombreCompleto: string;
@@ -12,6 +20,7 @@ interface Buyer {
   codigoPostal: string;
   provincia: string;
   purchaseCount: number;
+  purchases?: Purchase[];
   createdAt: string;
 }
 
@@ -207,6 +216,45 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
                   <p className="text-gray-400 text-base mb-1">Registrado desde</p>
                   <p className="text-white text-lg">{formatDate(selectedBuyer.createdAt)}</p>
                 </div>
+                
+                {/* Historial de compras */}
+                {selectedBuyer.purchases && selectedBuyer.purchases.length > 0 && (
+                  <div>
+                    <p className="text-gray-400 text-base mb-2">Historial de compras</p>
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {selectedBuyer.purchases.map((purchase) => (
+                        <div key={purchase.id} className="bg-white/5 rounded-lg p-3">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="text-white text-sm font-medium">
+                              {formatDate(purchase.createdAt)}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              purchase.status === 'approved' 
+                                ? 'bg-green-500/20 text-green-400'
+                                : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {purchase.status === 'approved' ? 'Aprobada' : purchase.status}
+                            </span>
+                          </div>
+                          <div className="space-y-1 mb-2">
+                            {purchase.items?.slice(0, 3).map((item, idx) => (
+                              <div key={idx} className="text-gray-300 text-sm flex justify-between">
+                                <span className="truncate max-w-[70%]">{item.title}</span>
+                                <span>x{item.quantity}</span>
+                              </div>
+                            ))}
+                            {purchase.items?.length > 3 && (
+                              <p className="text-gray-500 text-xs">+{purchase.items.length - 3} más</p>
+                            )}
+                          </div>
+                          <div className="text-primary font-semibold text-right">
+                            ${purchase.total?.toLocaleString('es-AR')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Purchase {
@@ -41,6 +41,30 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
   useEffect(() => {
     fetchBuyers();
   }, [search]);
+
+  // Handle ESC key to close modal
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape' && selectedBuyer) {
+      setSelectedBuyer(null);
+    }
+  }, [selectedBuyer]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (selectedBuyer) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedBuyer]);
 
   const fetchBuyers = async () => {
     setLoading(true);
@@ -179,9 +203,14 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
 
         {/* Modal */}
         {selectedBuyer && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-surface-darker rounded-lg p-5 md:p-6 max-w-lg w-full">
-              <div className="flex justify-between items-start mb-6">
+          <div 
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSelectedBuyer(null);
+            }}
+          >
+            <div className="bg-surface-darker rounded-lg p-5 md:p-6 max-w-lg w-full max-h-[90vh] flex flex-col">
+              <div className="flex justify-between items-start mb-4 shrink-0">
                 <h2 className="text-2xl font-bold text-white">{selectedBuyer.nombreCompleto}</h2>
                 <button 
                   onClick={() => setSelectedBuyer(null)}
@@ -191,7 +220,7 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
                 </button>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-y-auto flex-1 pr-2">
                 <div>
                   <p className="text-gray-400 text-base mb-1">Email</p>
                   <p className="text-white text-lg">{selectedBuyer.email}</p>
@@ -259,7 +288,7 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
 
               <button 
                 onClick={() => setSelectedBuyer(null)}
-                className="mt-6 w-full py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg"
+                className="mt-4 w-full py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg shrink-0"
               >
                 Cerrar
               </button>

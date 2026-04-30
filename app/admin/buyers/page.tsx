@@ -78,7 +78,7 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
         {/* Header */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-6">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-white">Compradores</h1>
+            <h1 className="text-xl md:text-2xl font-semibold text-white">Clientes</h1>
             <p className="text-gray-400 text-sm">{buyers.length} registrados</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">

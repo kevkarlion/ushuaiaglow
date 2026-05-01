@@ -16,7 +16,7 @@ interface BuyerFormData {
 }
 
 function CartContent() {
-  const { items, totalItems, subtotal, updateQuantity, removeItem, clearCartWithPurchase, isLoading } = useCart();
+  const { items, totalItems, subtotal, updateQuantity, removeItem, clearCart, clearCartWithPurchase, isLoading } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [buyerForm, setBuyerForm] = useState<BuyerFormData>({

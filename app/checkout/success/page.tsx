@@ -6,20 +6,71 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import { trackPurchase, buildGA4Item } from '@/lib/ga4-ecommerce';
 import { LucideCheckCircle, LucideArrowRight, LucidePackage, LucideMail } from 'lucide-react';
 
-export default function CheckoutSuccessPage() {
-  const { items, clearCart, isLoading } = useCart();
+interface PurchaseData {
+  items: Array<{
+    productId: string;
+    title: string;
+    price: number;
+    image: string;
+    quantity: number;
+  }>;
+  total: number;
+  timestamp: number;
+}
+
+export default function CheckoutSuccessPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
+  const { clearCart, isLoading } = useCart();
   const [cleaned, setCleaned] = useState(false);
+  const [orderId, setOrderId] = useState<string>('');
   
-  // Limpiar el carrito al montar el componente
+  // Get order ID from URL params and track purchase
   useEffect(() => {
-    if (!cleaned && !isLoading && items.length > 0) {
-      console.log('🧹 Limpiando carrito en checkout/success');
-      clearCart();
-      setCleaned(true);
+    async function init() {
+      const params = await searchParams;
+      setOrderId(params.order || `ORD-${Date.now()}`);
+      
+      if (!cleaned) {
+        // Try to get purchase data from localStorage (set by clearCartWithPurchase)
+        let purchaseData: PurchaseData | null = null;
+        
+        if (typeof window !== 'undefined') {
+          const stored = localStorage.getItem('last-purchase');
+          if (stored) {
+            try {
+              purchaseData = JSON.parse(stored);
+            } catch (e) {
+              console.error('Error parsing purchase data:', e);
+            }
+          }
+        }
+        
+        // Track purchase event if we have data
+        if (purchaseData) {
+          trackPurchase({
+            transaction_id: params.order || `ORD-${purchaseData.timestamp}`,
+            currency: 'ARS',
+            value: purchaseData.total,
+            items: purchaseData.items.map(item => 
+              buildGA4Item(item.productId, item.title, item.price, item.quantity)
+            )
+          });
+          
+          // Clear the stored purchase data
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('last-purchase');
+          }
+        }
+        
+        clearCart();
+        setCleaned(true);
+      }
     }
-  }, [cleaned, isLoading, items, clearCart]);
+    
+    init();
+  }, [cleaned, isLoading, clearCart, searchParams]);
   
   if (isLoading) {
     return (
@@ -54,7 +105,7 @@ export default function CheckoutSuccessPage() {
             <span className="font-medium">Pedido confirmado</span>
           </div>
           <p className="text-gray-500 text-sm">
-            N° de pedido: <span className="font-mono text-white">CPT01-XXXXX</span>
+            N° de pedido: <span className="font-mono text-white">{orderId || 'CPT01-XXXXX'}</span>
           </p>
         </div>
 

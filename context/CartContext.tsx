@@ -2,12 +2,14 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { CartItem, CartState } from '@/types/cart';
+import { trackAddToCart, trackRemoveFromCart, buildGA4Item } from '@/lib/ga4-ecommerce';
 
 interface CartContextType extends CartState {
   addItem: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  clearCartWithPurchase: (items: CartItem[], total: number) => void;
   isLoading: boolean;
 }
 
@@ -55,6 +57,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, isHydrated]);
 
   const addItem = useCallback((item: Omit<CartItem, 'quantity'>, quantity = 1) => {
+    // Track add_to_cart BEFORE updating state (to get accurate quantity)
+    trackAddToCart({
+      currency: 'ARS',
+      value: item.price * quantity,
+      items: [buildGA4Item(item.productId, item.title, item.price, quantity)]
+    });
+    
     setItems((currentItems) => {
       const existingItem = currentItems.find((i) => i.productId === item.productId);
       
@@ -73,7 +82,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const removeItem = useCallback((productId: string) => {
-    setItems((currentItems) => currentItems.filter((i) => i.productId !== productId));
+    // Find item before removing to track event
+    setItems((currentItems) => {
+      const itemToRemove = currentItems.find((i) => i.productId === productId);
+      
+      // Track remove_from_cart BEFORE filtering
+      if (itemToRemove) {
+        trackRemoveFromCart({
+          currency: 'ARS',
+          value: itemToRemove.price * itemToRemove.quantity,
+          items: [buildGA4Item(itemToRemove.productId, itemToRemove.title, itemToRemove.price, itemToRemove.quantity)]
+        });
+      }
+      
+      return currentItems.filter((i) => i.productId !== productId);
+    });
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
@@ -90,6 +113,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   }, []);
 
+  const clearCartWithPurchase = useCallback((itemsToSave: CartItem[], total: number) => {
+    // Save purchase data before clearing cart
+    if (typeof window !== 'undefined') {
+      const purchaseData = {
+        items: itemsToSave,
+        total,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('last-purchase', JSON.stringify(purchaseData));
+    }
+    setItems([]);
+  }, []);
+
   const { totalItems, subtotal } = calculateTotals(items);
 
   return (
@@ -102,6 +138,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
+        clearCartWithPurchase,
         isLoading,
       }}
     >

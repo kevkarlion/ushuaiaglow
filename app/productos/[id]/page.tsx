@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
+import { trackViewItem, buildGA4Item } from '@/lib/ga4-ecommerce';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -49,6 +50,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         const data = await res.json();
         if (!mounted) return;
         setProduct(data);
+        
+        // Track view_item event
+        trackViewItem({
+          currency: 'ARS',
+          value: data.price,
+          items: [buildGA4Item(data.id, data.title, data.price, 1, data.category, data.brand)]
+        });
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {

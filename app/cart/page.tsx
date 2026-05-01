@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { trackBeginCheckout, buildGA4Item } from '@/lib/ga4-ecommerce';
 
 interface BuyerFormData {
   nombreCompleto: string;
@@ -15,7 +16,7 @@ interface BuyerFormData {
 }
 
 function CartContent() {
-  const { items, totalItems, subtotal, updateQuantity, removeItem, clearCart, isLoading } = useCart();
+  const { items, totalItems, subtotal, updateQuantity, removeItem, clearCartWithPurchase, isLoading } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [buyerForm, setBuyerForm] = useState<BuyerFormData>({
@@ -59,6 +60,13 @@ function CartContent() {
 
     setIsProcessing(true);
     setError('');
+
+    // Track begin_checkout before redirecting to payment
+    trackBeginCheckout({
+      currency: 'ARS',
+      value: subtotal,
+      items: items.map((item) => buildGA4Item(item.productId, item.title, item.price, item.quantity))
+    });
 
     try {
       const checkoutBody: Record<string, unknown> = {
@@ -108,9 +116,9 @@ function CartContent() {
 
   // Success message - redirect to checkout success page
   if (status === 'success') {
-    // Vaciar el carrito antes de redirigir
+    // Save purchase data before clearing cart
     if (typeof window !== 'undefined' && items.length > 0) {
-      clearCart();
+      clearCartWithPurchase(items, subtotal);
     }
     // Redirect to professional success page
     if (typeof window !== 'undefined') {

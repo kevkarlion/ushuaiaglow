@@ -1,10 +1,10 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { trackBeginCheckout, buildGA4Item } from '@/lib/ga4-ecommerce';
+import { trackBeginCheckout, trackCartView, buildGA4Item } from '@/lib/ga4-ecommerce';
 
 interface BuyerFormData {
   nombreCompleto: string;
@@ -31,6 +31,17 @@ function CartContent() {
   const handleBuyerChange = (field: keyof BuyerFormData, value: string) => {
     setBuyerForm(prev => ({ ...prev, [field]: value }));
   };
+
+  // Track view_cart when cart page loads
+  useEffect(() => {
+    if (items.length > 0 && !isLoading) {
+      trackCartView({
+        currency: 'ARS',
+        value: subtotal,
+        items: items.map((item) => buildGA4Item(item.productId, item.title, item.price, item.quantity))
+      });
+    }
+  }, [items, subtotal, isLoading]);
 
   // Get search params from window (client-side)
   const [status, setStatus] = useState(() => {

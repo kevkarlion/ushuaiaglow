@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/types/product';
+import { trackViewItemList, buildGA4Item } from '@/lib/ga4-ecommerce';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,6 +24,17 @@ export default function ProductsPage() {
         
         const data = await res.json();
         setProducts(Array.isArray(data) ? data : []);
+        
+        // Track view_item_list when products load
+        if (Array.isArray(data) && data.length > 0) {
+          trackViewItemList({
+            item_list_id: 'products_all',
+            item_list_name: 'Todos los productos',
+            items: data.map((p: Product, idx: number) => 
+              buildGA4Item(p.id, p.title, p.price, 1, p.category, p.brand)
+            )
+          });
+        }
       } catch (error) {
         console.error('Error fetching products:', error);
         setProducts([]);

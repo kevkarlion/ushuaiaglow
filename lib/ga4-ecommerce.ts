@@ -3,7 +3,7 @@
  * https://developers.google.com/analytics/devguides/collection/ga4/ecommerce
  */
 
-const GA_MEASUREMENT_ID = 'G-WLV7FGHDKB';
+const GA_MEASUREMENT_ID = 'G-LSZTLY8S35';
 
 /**
  * Helper to check if gtag is available
@@ -202,6 +202,63 @@ export function trackPageView(pagePath: string, pageTitle?: string) {
     page_path: pagePath,
     page_title: pageTitle || document.title,
   });
+}
+
+/**
+ * Track view_item_list - when user views a product list (home, category, search results)
+ */
+export function trackViewItemList(params: {
+  item_list_id: string;
+  item_list_name: string;
+  items: GA4Item[];
+}) {
+  if (!isGtagAvailable()) return;
+  
+  (window as any).gtag('event', 'view_item_list', {
+    item_list_id: params.item_list_id,
+    item_list_name: params.item_list_name,
+    items: params.items,
+  });
+  
+  console.log('📊 GA4: view_item_list', params);
+}
+
+/**
+ * Track select_item - when user clicks a product from a list
+ */
+export function trackSelectItem(params: {
+  item_list_id: string;
+  item_list_name: string;
+  items: GA4Item[];
+}) {
+  if (!isGtagAvailable()) return;
+  
+  (window as any).gtag('event', 'select_item', {
+    item_list_id: params.item_list_id,
+    item_list_name: params.item_list_name,
+    items: params.items,
+  });
+  
+  console.log('📊 GA4: select_item', params);
+}
+
+/**
+ * Track cart_view - when user views the cart page
+ */
+export function trackCartView(params: {
+  currency: string;
+  value: number;
+  items: GA4Item[];
+}) {
+  if (!isGtagAvailable()) return;
+  
+  (window as any).gtag('event', 'view_cart', {
+    currency: params.currency,
+    value: params.value,
+    items: params.items,
+  });
+  
+  console.log('📊 GA4: view_cart', params);
 }
 
 export { GA_MEASUREMENT_ID };

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
+import { trackSelectItem, buildGA4Item } from '@/lib/ga4-ecommerce';
 
 interface ProductCardProps {
   product: Product;
@@ -33,6 +34,13 @@ export default function ProductCard({ product }: ProductCardProps) {
   const productSlug = product.slug || product.id;
 
   const handleProductClick = () => {
+    // Track select_item when user clicks on product
+    trackSelectItem({
+      item_list_id: 'products_list',
+      item_list_name: 'Todos los productos',
+      items: [buildGA4Item(product.id, product.title, product.price, 1, product.category, product.brand)]
+    });
+    
     router.push(`/productos/${productSlug}`);
   };
 

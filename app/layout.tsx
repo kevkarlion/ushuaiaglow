@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { CartProvider } from '@/context/CartContext';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import MetaPixel from '@/components/MetaPixel';
+import MetaPixelTracker from '@/components/MetaPixelTracker';
 
 export const metadata: Metadata = {
   title: {
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="es">
       <body className="min-h-screen flex flex-col">
         <MetaPixel />
+        <MetaPixelTracker />
         <GoogleAnalytics />
         <CartProvider>
           <Navbar />

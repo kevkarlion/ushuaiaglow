@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackSelectItem, buildGA4Item } from '@/lib/ga4-ecommerce';
-import { trackAddToCart } from '@/lib/meta-pixel';
 
 interface ProductCardProps {
   product: Product;
@@ -55,11 +54,6 @@ export default function ProductCard({ product }: ProductCardProps) {
       price: product.price,
       image: product.images?.[0] || '',
     });
-    
-    // Track Meta Pixel AddToCart
-    if (product.price) {
-      trackAddToCart(product.price, 'ARS', product.id, product.title);
-    }
     
     setTimeout(() => setIsAdding(false), 500);
   };

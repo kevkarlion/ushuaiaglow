@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { trackBeginCheckout, trackCartView, buildGA4Item } from '@/lib/ga4-ecommerce';
-import { trackInitiateCheckout } from '@/lib/meta-pixel';
 
 interface BuyerFormData {
   nombreCompleto: string;
@@ -79,9 +78,6 @@ function CartContent() {
       value: subtotal,
       items: items.map((item) => buildGA4Item(item.productId, item.title, item.price, item.quantity))
     });
-    
-    // Track Meta Pixel InitiateCheckout
-    trackInitiateCheckout(subtotal, 'ARS', items.length);
 
     try {
       const checkoutBody: Record<string, unknown> = {

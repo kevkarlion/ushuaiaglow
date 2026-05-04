@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { trackPurchase, buildGA4Item } from '@/lib/ga4-ecommerce';
-import { trackPurchase as trackMetaPurchase } from '@/lib/meta-pixel';
 import { LucideCheckCircle, LucideArrowRight, LucidePackage, LucideMail } from 'lucide-react';
 
 interface PurchaseData {
@@ -58,9 +57,6 @@ export default function CheckoutSuccessPage({ searchParams }: { searchParams: Pr
               buildGA4Item(item.productId, item.title, item.price, item.quantity)
             )
           });
-          
-          // Track Meta Pixel Purchase
-          trackMetaPurchase(purchaseData.total, 'ARS', params.order || `ORD-${purchaseData.timestamp}`);
           
           // Clear the stored purchase data
           if (typeof window !== 'undefined') {

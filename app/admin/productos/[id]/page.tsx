@@ -53,6 +53,43 @@ export default function EditProductPage() {
   const [form, setForm] = useState<ProductFormData>(initialForm);
   const [localPreview, setLocalPreview] = useState<string>('');
   const [imageError, setImageError] = useState<string>('');
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  
+  // Available images in public folder
+  const availableImages = [
+    // Productos
+    '/productos/1776972442644-97b6zdkx8so.png',
+    '/productos/1777435048796-huqn9zfq30n.jpg',
+    '/productos/1777434812406-8ymrhcs11c6.webp',
+    '/productos/1777434795178-l09pqnlg01i.webp',
+    '/productos/1777434783572-rehkt4y1gmc.webp',
+    '/productos/1777433410737-h3pasec263k.webp',
+    '/productos/1777433384413-ppfkod5ui.webp',
+    '/productos/1777433466858-og2t7vbft1.webp',
+    '/productos/1777433441490-n72lapddu0o.webp',
+    '/productos/1777433428174-w1xtkwyxw5q.webp',
+    '/productos/1776954894561-dlnr7kw32d5.webp',
+    '/productos/1776954862531-mccrvidzbv.webp',
+    '/productos/1776954848169-p90d5l80l9i.webp',
+    '/productos/1776954830518-k8iad0mo3cd.webp',
+    '/productos/1776954812211-3nb0b1546r9.webp',
+    '/productos/1776954473198-hgd79nsrqq.webp',
+    '/productos/1776954451491-ww4xm830ly.webp',
+    '/productos/1776954439607-920a5mo71w.webp',
+    '/productos/1776954429087-227gyyqykna.webp',
+    '/productos/1776954414746-c1xbdzaej8h.webp',
+    '/productos/mascara-h.webp',
+    '/productos/serum-c.webp',
+    '/productos/crema-hidratante.webp',
+    '/productos/vincha.webp',
+    '/productos/protector.webp',
+    // Combos
+    '/combos/combo-1-ok.webp',
+    '/combos/combo-2-ok.webp',
+    '/combos/combo-4-ok.webp',
+    '/combos/combo-3.webp',
+    '/combos/combo-5.webp',
+  ];
 
   useEffect(() => {
     if (id) {
@@ -305,104 +342,73 @@ export default function EditProductPage() {
             </div>
           )}
 
-          {/* Imagen - Selector de archivos */}
+          {/* Imagen - Selector de imágenes existentes */}
           <div>
             <label className="block text-sm text-gray-400 mb-1">Imagen</label>
-            <div className="flex gap-3">
-              <label className="flex-1 flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20 transition-colors">
+            
+            {/* Preview actual */}
+            <div className="flex gap-3 mb-3">
+              {form.imageUrl && (
+                <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-white/20 flex-shrink-0">
+                  <img src={form.imageUrl} alt="Actual" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => handleChange('imageUrl', '')}
+                    className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowImagePicker(!showImagePicker)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-colors"
+              >
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-sm text-gray-400">{uploading ? 'Subiendo...' : 'Subir imagen'}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  disabled={uploading}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    
-                    // Preview local primero
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      setLocalPreview(event.target?.result as string);
-                    };
-                    reader.readAsDataURL(file);
-                    
-                    // Subir al servidor
-                    setUploading(true);
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    
-                    try {
-                      const res = await fetch('/api/upload', { method: 'POST', body: formData });
-                      const data = await res.json();
-                      
-                      if (data.url) {
-                        handleChange('imageUrl', data.url);
-                        setMessage('✅ Imagen subida');
-                      } else {
-                        setMessage('⚠️ ' + (data.error || 'Error al subir'));
-                        // Still use local preview as fallback
-                        setLocalPreview(URL.createObjectURL(file));
-                      }
-                    } catch (error) {
-                      setMessage('⚠️ Error de conexión - podés usar URL directa');
-                      // Use local preview as fallback
-                      setLocalPreview(URL.createObjectURL(file));
-                    } finally {
-                      setUploading(false);
-                    }
-                  }}
-                  className="hidden"
-                />
-              </label>
-              {(localPreview || form.imageUrl) && (
-                <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/20">
-                  <img src={localPreview || form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                  {localPreview && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLocalPreview('');
-                        handleChange('imageUrl', '');
-                      }}
-                      className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              )}
+                <span className="text-sm text-white">{showImagePicker ? 'Cerrar' : 'Elegir imagen'}</span>
+              </button>
             </div>
+            
+            {/* Image picker grid */}
+            {showImagePicker && (
+              <div className="grid grid-cols-4 md:grid-cols-6 gap-2 p-3 bg-surface-darker/50 rounded-lg max-h-60 overflow-y-auto">
+                {availableImages.map((img, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => {
+                      handleChange('imageUrl', img);
+                      setShowImagePicker(false);
+                    }}
+                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                      form.imageUrl === img ? 'border-primary' : 'border-transparent'
+                    }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    {form.imageUrl === img && (
+                      <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">✓</span>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+            
+            {/* URL manual */}
             <input
               type="text"
               value={form.imageUrl}
               onChange={(e) => {
                 handleChange('imageUrl', e.target.value);
-                setLocalPreview(''); // Clear local preview when using URL
-                setImageError('');
+                setLocalPreview('');
               }}
-              onBlur={async () => {
-                if (form.imageUrl && !form.imageUrl.startsWith('data:')) {
-                  // Verify URL is accessible
-                  try {
-                    const res = await fetch(form.imageUrl, { method: 'HEAD' });
-                    if (!res.ok) {
-                      setImageError('⚠️ La URL no es accesible');
-                    } else {
-                      setImageError('');
-                    }
-                  } catch {
-                    setImageError('⚠️ URL inválida');
-                  }
-                }
-              }}
-              className={`mt-2 w-full px-4 py-2 bg-white/10 border rounded-lg text-white text-sm ${imageError ? 'border-red-500' : 'border-white/20'}`}
-              placeholder="O pega una URL directa (ej: https://...)"
+              className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm"
+              placeholder="O pega una URL directa"
             />
-            {imageError && <p className="text-red-400 text-xs mt-1">{imageError}</p>}
-            <p className="text-gray-500 text-xs mt-1">💡 Podés usar URLs de Cloudinary, Imgur, o cualquier hosting de imágenes</p>
           </div>
 
           {/* Info adicional */}

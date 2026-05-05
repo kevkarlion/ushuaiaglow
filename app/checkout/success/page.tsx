@@ -60,7 +60,8 @@ export default function CheckoutSuccessPage({ searchParams }: { searchParams: Pr
           });
           
           // Track Meta Pixel Purchase
-          trackMetaPurchase(purchaseData.total, params.order || `ORD-${purchaseData.timestamp}`);
+          const contentIds = purchaseData.items.map(item => item.productId);
+          trackMetaPurchase(purchaseData.total, params.order || `ORD-${purchaseData.timestamp}`, contentIds);
           
           // Clear the stored purchase data
           if (typeof window !== 'undefined') {

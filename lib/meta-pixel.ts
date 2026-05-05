@@ -42,10 +42,12 @@ export function trackInitiateCheckout(total: number, numItems: number) {
 }
 
 // Purchase - cuando completa compra
-export function trackPurchase(total: number, transactionId: string) {
+export function trackPurchase(total: number, transactionId: string, contentIds: string[] = []) {
   trackMetaEvent('Purchase', {
     value: total,
     currency: 'ARS',
     transaction_id: transactionId,
+    content_ids: contentIds,
+    content_type: 'product',
   });
 }

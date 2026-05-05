@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackSelectItem, buildGA4Item } from '@/lib/ga4-ecommerce';
+import { trackAddToCart } from '@/lib/meta-pixel';
 
 interface ProductCardProps {
   product: Product;
@@ -54,6 +55,9 @@ export default function ProductCard({ product }: ProductCardProps) {
       price: product.price,
       image: product.images?.[0] || '',
     });
+    
+    // Track Meta Pixel AddToCart
+    trackAddToCart(product.id, product.title, product.price);
     
     setTimeout(() => setIsAdding(false), 500);
   };

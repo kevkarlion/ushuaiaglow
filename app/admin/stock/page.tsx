@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as XLSX from 'xlsx';
+import Pagination from '@/components/Pagination';
 
 interface ProductStock {
   id: string;
@@ -32,10 +33,12 @@ const initialForm: ProductFormData = {
 };
 
 const LOW_STOCK_THRESHOLD = 5;
+const ITEMS_PER_PAGE = 15;
 
 export default function StockPage() {
   const [products, setProducts] = useState<ProductStock[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [saving, setSaving] = useState(false);
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
@@ -60,6 +63,11 @@ export default function StockPage() {
   useEffect(() => {
     fetchStock();
   }, [category, lowStockFilter]);
+
+  // Reset page when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, category, lowStockFilter]);
 
   const fetchStock = async () => {
     setLoading(true);
@@ -240,6 +248,13 @@ export default function StockPage() {
   const filteredProducts = products.filter(p => 
     !search || normalizeText(p.title).includes(normalizeText(search))
   );
+
+  // Pagination
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
   // Stats
   const lowStockProducts = products.filter(p => p.stock < LOW_STOCK_THRESHOLD);
@@ -456,17 +471,18 @@ export default function StockPage() {
         ) : filteredProducts.length === 0 ? (
           <p className="text-gray-400">No hay productos</p>
         ) : (
-          <div className="space-y-3 md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
-            {/* Desktop header - grid */}
-            <div className="hidden md:grid md:grid-cols-5 md:gap-4 md:p-4 bg-white/5 text-gray-400 text-sm">
-              <div>Producto</div>
-              <div>Categoría</div>
-              <div className="text-right">Stock</div>
-              <div className="text-right">Precio</div>
-              <div className="text-center">Acción</div>
-            </div>
-            
-            {filteredProducts.map((product) => {
+          <>
+            <div className="space-y-3 md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
+              {/* Desktop header - grid */}
+              <div className="hidden md:grid md:grid-cols-5 md:gap-4 md:p-4 bg-white/5 text-gray-400 text-sm">
+                <div>Producto</div>
+                <div>Categoría</div>
+                <div className="text-right">Stock</div>
+                <div className="text-right">Precio</div>
+                <div className="text-center">Acción</div>
+              </div>
+              
+              {paginatedProducts.map((product) => {
               const isLow = product.stock < LOW_STOCK_THRESHOLD;
               const adj = adjustments[product.id];
               const isSaving = saving;
@@ -566,7 +582,13 @@ export default function StockPage() {
                 </div>
               );
             })}
-          </div>
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
       </div>
     </div>

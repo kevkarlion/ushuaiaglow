@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Pagination from '@/components/Pagination';
 
 interface SaleItem {
   productId: string;
@@ -28,15 +29,23 @@ interface Sale {
   paidAt?: string;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function SalesPage() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     fetchSales();
+  }, [statusFilter]);
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
   }, [statusFilter]);
 
   const fetchSales = async () => {
@@ -158,21 +167,22 @@ export default function SalesPage() {
         ) : sales.length === 0 ? (
           <p className="text-gray-400">No hay ventas</p>
         ) : (
-          <div className="space-y-2 md:table md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
-            {/* Desktop header */}
-            <div className="hidden md:table-header-group">
-              <div className="table-row bg-white/5">
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">ID</div>
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Fecha</div>
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Comprador</div>
-                <div className="table-cell px-4 py-3 text-right text-gray-400 text-sm">Total</div>
-                <div className="table-cell px-4 py-3 text-center text-gray-400 text-sm">Estado</div>
+          <>
+            <div className="space-y-2 md:table md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
+              {/* Desktop header */}
+              <div className="hidden md:table-header-group">
+                <div className="table-row bg-white/5">
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">ID</div>
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Fecha</div>
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Comprador</div>
+                  <div className="table-cell px-4 py-3 text-right text-gray-400 text-sm">Total</div>
+                  <div className="table-cell px-4 py-3 text-center text-gray-400 text-sm">Estado</div>
+                </div>
               </div>
-            </div>
-            
-            {/* Mobile cards / Desktop rows */}
-            <div className="md:table-row-group">
-              {sales.map((sale) => (
+              
+              {/* Mobile cards / Desktop rows */}
+              <div className="md:table-row-group">
+                {sales.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((sale) => (
                 <div 
                   key={sale.id}
                   className="md:table-row border-t border-white/5 hover:bg-white/5 cursor-pointer mb-2 md:mb-0 md:border-0 p-3 md:p-0 bg-surface-darker/30 md:bg-transparent rounded-lg md:rounded-none"
@@ -211,7 +221,13 @@ export default function SalesPage() {
                 </div>
               ))}
             </div>
-          </div>
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(sales.length / ITEMS_PER_PAGE)}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
 
         {/* Modal */}

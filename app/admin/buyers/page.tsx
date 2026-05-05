@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Pagination from '@/components/Pagination';
 
 interface Purchase {
   id: string;
@@ -24,9 +25,12 @@ interface Buyer {
   createdAt: string;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function BuyersPage() {
   const [buyers, setBuyers] = useState<Buyer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
 const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
   const router = useRouter();
@@ -40,6 +44,11 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
 
   useEffect(() => {
     fetchBuyers();
+  }, [search]);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
   }, [search]);
 
   // Handle ESC key to close modal
@@ -144,22 +153,23 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
         ) : buyers.length === 0 ? (
           <p className="text-gray-400">No hay compradores</p>
         ) : (
-          <div className="space-y-2 md:table md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
-            {/* Desktop header */}
-            <div className="hidden md:table-header-group">
-              <div className="table-row bg-white/5">
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Nombre</div>
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Email</div>
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Teléfono</div>
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Ubicación</div>
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Compras</div>
-                <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Registrado</div>
+          <>
+            <div className="space-y-2 md:table md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
+              {/* Desktop header */}
+              <div className="hidden md:table-header-group">
+                <div className="table-row bg-white/5">
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Nombre</div>
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Email</div>
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Teléfono</div>
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Ubicación</div>
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Compras</div>
+                  <div className="table-cell px-4 py-3 text-left text-gray-400 text-sm">Registrado</div>
+                </div>
               </div>
-            </div>
-            
-            {/* Mobile cards / Desktop rows */}
-            <div className="md:table-row-group">
-              {buyers.map((buyer) => (
+              
+              {/* Mobile cards / Desktop rows */}
+              <div className="md:table-row-group">
+                {buyers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((buyer) => (
                 <div
                   key={buyer.id}
                   className="md:table-row border-t border-white/5 hover:bg-white/5 cursor-pointer mb-3 md:mb-0 md:border-0 p-4 md:p-0 bg-surface-darker/30 md:bg-transparent rounded-lg md:rounded-none"
@@ -198,7 +208,13 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
                 </div>
               ))}
             </div>
-          </div>
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(buyers.length / ITEMS_PER_PAGE)}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
 
         {/* Modal */}

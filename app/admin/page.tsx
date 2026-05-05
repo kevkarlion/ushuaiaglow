@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Product } from '@/types/product';
 import { useRouter } from 'next/navigation';
 import * as XLSX from 'xlsx';
+import Pagination from '@/components/Pagination';
 
 interface ProductFormData {
   title: string;
@@ -25,9 +26,12 @@ const initialForm: ProductFormData = {
 
 const categories = ['Cuidado Facial', 'Cuidado Corporal', 'Cuidado Capilar', 'Maquillaje'];
 
+const ITEMS_PER_PAGE = 10;
+
 export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [user, setUser] = useState<{ nombre: string; email: string } | null>(null);
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -85,6 +89,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (Array.isArray(data)) {
         setProducts(data);
+        setCurrentPage(1); // Reset to first page on new fetch
       } else if (data.error) {
         console.error('API error:', data.error);
         setProducts([]);
@@ -255,44 +260,53 @@ export default function AdminPage() {
         ) : !Array.isArray(products) || products.length === 0 ? (
           <p className="text-gray-400">No hay productos</p>
         ) : (
-          <div className="space-y-3">
-            {(products as Product[]).map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center gap-4 p-4 bg-surface-darker/30 rounded-lg"
-              >
-                <div className="w-16 h-16 md:w-12 md:h-12 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                  {product.images?.[0] && (
-                    <img
-                      src={product.images[0]}
-                      alt={product.title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-lg md:text-base truncate">{product.title}</p>
-                  <p className="text-gray-400 text-base md:text-sm">
-                    ${product.price.toLocaleString('es-AR')} - {product.category}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg"
+          <>
+            <div className="space-y-3">
+              {products
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center gap-4 p-4 bg-surface-darker/30 rounded-lg"
                   >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="px-3 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 text-sm rounded-lg"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                    <div className="w-16 h-16 md:w-12 md:h-12 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
+                      {product.images?.[0] && (
+                        <img
+                          src={product.images[0]}
+                          alt={product.title}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-lg md:text-base truncate">{product.title}</p>
+                      <p className="text-gray-400 text-base md:text-sm">
+                        ${product.price.toLocaleString('es-AR')} - {product.category}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="px-3 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 text-sm rounded-lg"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(products.length / ITEMS_PER_PAGE)}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
       </div>
     </div>

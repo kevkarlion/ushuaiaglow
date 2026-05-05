@@ -1,8 +1,10 @@
 // Meta Pixel event helpers
 
-export function trackMetaEvent(event: string, data?: Record<string, any>) {
+export function trackMetaEvent(event: string, data?: Record<string, any>, options?: { eventID?: string }) {
   if (typeof window !== 'undefined' && (window as any).fbq) {
-    if (data) {
+    if (data && options?.eventID) {
+      (window as any).fbq('track', event, data, { eventID: options.eventID });
+    } else if (data) {
       (window as any).fbq('track', event, data);
     } else {
       (window as any).fbq('track', event);
@@ -49,5 +51,5 @@ export function trackPurchase(total: number, transactionId: string, contentIds: 
     transaction_id: transactionId,
     content_ids: contentIds,
     content_type: 'product',
-  });
+  }, { eventID: transactionId });
 }

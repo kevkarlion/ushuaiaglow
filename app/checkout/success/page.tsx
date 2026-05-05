@@ -48,10 +48,28 @@ export default function CheckoutSuccessPage({ searchParams }: { searchParams: Pr
           }
         }
         
-        // Track purchase event if we have data
+        // Track purchase event only if we have data and order not already processed
         if (purchaseData) {
+          const transactionId = params.order || `ORD-${purchaseData.timestamp}`;
+          
+          // Check if this order was already processed (prevent duplicate on refresh)
+          const processedOrders = JSON.parse(typeof window !== 'undefined' ? localStorage.getItem('processed-orders') || '[]' : '[]');
+          if (processedOrders.includes(transactionId)) {
+            // Already processed, skip
+            clearCart();
+            setCleaned(true);
+            return;
+          }
+          
+          // Mark this order as processed
+          processedOrders.push(transactionId);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('processed-orders', JSON.stringify(processedOrders.slice(-50))); // Keep last 50
+          }
+          
+          // Track GA4 Purchase
           trackPurchase({
-            transaction_id: params.order || `ORD-${purchaseData.timestamp}`,
+            transaction_id: transactionId,
             currency: 'ARS',
             value: purchaseData.total,
             items: purchaseData.items.map(item => 
@@ -61,7 +79,7 @@ export default function CheckoutSuccessPage({ searchParams }: { searchParams: Pr
           
           // Track Meta Pixel Purchase
           const contentIds = purchaseData.items.map(item => item.productId);
-          trackMetaPurchase(purchaseData.total, params.order || `ORD-${purchaseData.timestamp}`, contentIds);
+          trackMetaPurchase(purchaseData.total, transactionId, contentIds);
           
           // Clear the stored purchase data
           if (typeof window !== 'undefined') {

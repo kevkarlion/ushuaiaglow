@@ -139,18 +139,20 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Price */}
-        <div className="flex items-baseline gap-2 pt-1">
-          {product.discount && product.discount > 0 && (
-            <span className="text-sm font-semibold text-accent">{product.discount}% OFF</span>
-          )}
-          <span className="text-xl font-bold text-white">
-            ${(product.price || 0).toLocaleString('es-AR')}
-          </span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-sm text-white/40 line-through">
-              ${(product.originalPrice || 0).toLocaleString('es-AR')}
+        <div className="space-y-0.5 pt-1">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            {product.discount && product.discount > 0 && (
+              <span className="text-xs font-semibold text-accent">{product.discount}% OFF</span>
+            )}
+            <span className="text-lg font-bold text-white">
+              ${(product.price || 0).toLocaleString('es-AR')}
             </span>
-          )}
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="text-xs text-white/40 line-through">
+                ${(product.originalPrice || 0).toLocaleString('es-AR')}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* CTA Button */}

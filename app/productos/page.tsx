@@ -48,8 +48,19 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  // Extraer categorías únicas de los productos
-  const categories = ['all', 'Combos', ...new Set(products.map(p => p.category).filter((c): c is string => !!c))];
+  // Extraer categorías únicas de los productos, normalizadas
+  const rawCategories = products.map(p => p.category).filter((c): c is string => !!c);
+  const normalizedCategories = rawCategories.map(c => {
+    const lower = c.toLowerCase();
+    if (lower === 'combo' || lower === 'combos') return 'Combos';
+    if (lower === 'cuidado facial') return 'Cuidado Facial';
+    if (lower === 'accesorios') return 'Accesorios';
+    return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase();
+  });
+  const uniqueCategories = [...new Set(normalizedCategories)];
+  // Solo mostrar categorías válidas
+  const validCategories = ['Combos', 'Cuidado Facial', 'Accesorios'].filter(c => uniqueCategories.includes(c));
+  const categories = ['all', ...validCategories];
 
   // Filtrar productos
   const filteredProducts = products.filter(p => {

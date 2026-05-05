@@ -16,6 +16,16 @@ export interface Product {
   weight?: string;
   isCombo?: boolean;       // true si es un combo
   productsIncluded?: string[]; // IDs de productos incluidos en el combo
+  // Nuevos campos para ProductDetail
+  tagline?: string;       // Beneficio principal (ej: "El boost de energía que tu rostro necesita")
+  queEs?: string;        // Qué es el producto
+  commercialDescription?: string; // Descripción comercial
+  benefits?: string[];   // Array de beneficios
+  featuredReview?: {     // Reseña destacada
+    text: string;
+    author: string;
+  };
+  rating?: number;       // Puntuación (ej: 4.5)
   createdAt: string;
   updatedAt: string;
 }
@@ -36,4 +46,11 @@ export interface CreateProductDTO {
   weight?: string;
   isCombo?: boolean;
   productsIncluded?: string[];
+  // Nuevos campos
+  tagline?: string;
+  queEs?: string;
+  commercialDescription?: string;
+  benefits?: string[];
+  featuredReview?: { text: string; author: string };
+  rating?: number;
 }

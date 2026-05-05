@@ -94,6 +94,13 @@ export async function POST(request: Request) {
           isCombo: p.isCombo === true || p.category?.toLowerCase() === 'combo',
           productsIncluded: p.productsIncluded || [],
           slug: generateSlug(title),
+          // Nuevos campos
+          tagline: p.tagline || '',
+          queEs: p.queEs || '',
+          commercialDescription: p.commercialDescription || '',
+          benefits: p.benefits || [],
+          featuredReview: p.featuredReview || undefined,
+          rating: p.rating ? Number(p.rating) : undefined,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -144,5 +151,64 @@ export async function DELETE() {
     });
   } catch (error) {
     return NextResponse.json({ error: 'Error al borrar' }, { status: 500 });
+  }
+}
+
+// PUT - Bulk update products
+export async function PUT(request: Request) {
+  try {
+    const mongoClient = await getClient();
+    const collection = mongoClient.db('ushuaia').collection('products');
+    
+    const body = await request.json();
+    
+    if (!Array.isArray(body)) {
+      return NextResponse.json({ error: 'Se esperaba un array de productos' }, { status: 400 });
+    }
+    
+    const results = [];
+    
+    for (const item of body) {
+      const { id, slug, ...updates } = item;
+      
+      let query = {};
+      if (id) {
+        query = { _id: id };
+      } else if (slug) {
+        query = { slug };
+      }
+      
+      if (Object.keys(query).length === 0) {
+        results.push({ error: 'Se requiere id o slug', item });
+        continue;
+      }
+      
+      // Agregar updatedAt
+      const updateData = {
+        ...updates,
+        updatedAt: new Date(),
+      };
+      
+      const result = await collection.updateOne(query, { $set: updateData });
+      
+      results.push({
+        matched: result.matchedCount,
+        modified: result.modifiedCount,
+        id: id || slug,
+      });
+    }
+    
+    const successful = results.filter(r => r.matched).length;
+    const failed = results.filter(r => r.error).length;
+    
+    return NextResponse.json({
+      success: true,
+      updated: successful,
+      failed,
+      details: results,
+    });
+  } catch (error) {
+    console.error('Error en bulk update:', error);
+    return NextResponse.json({ error: 'Error updating products' }, { status: 500 });
   }
 }

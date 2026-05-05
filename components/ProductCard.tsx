@@ -7,6 +7,7 @@ import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackSelectItem, buildGA4Item } from '@/lib/ga4-ecommerce';
 import { trackAddToCart } from '@/lib/meta-pixel';
+import { Star, ShoppingBag, Check } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -17,31 +18,25 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const [isAdding, setIsAdding] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const hasDiscount = product.price > 100;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Validar que la URL de imagen sea válida
   const isValidImageUrl = (url: string | undefined): boolean => {
     if (!url || url.trim() === '') return false;
     return true;
   };
 
   const productImage = product.images?.[0] || '/placeholder.png';
-
-  // Usar slug si está disponible, si no usar id (compatibilidad hacia atrás)
   const productSlug = product.slug || product.id;
 
   const handleProductClick = () => {
-    // Track select_item when user clicks on product
     trackSelectItem({
       item_list_id: 'products_list',
       item_list_name: 'Todos los productos',
       items: [buildGA4Item(product.id, product.title, product.price, 1, product.category, product.brand)]
     });
-    
     router.push(`/productos/${productSlug}`);
   };
 
@@ -56,21 +51,20 @@ export default function ProductCard({ product }: ProductCardProps) {
       image: product.images?.[0] || '',
     });
     
-    // Track Meta Pixel AddToCart
     trackAddToCart(product.id, product.title, product.price);
     
-    setTimeout(() => setIsAdding(false), 500);
+    setTimeout(() => setIsAdding(false), 1000);
   };
 
   if (!mounted) return null;
 
   return (
-    <div className="group bg-white rounded-lg overflow-hidden hover:shadow-apple transition-all duration-300">
-      {/* Image - clickable div */}
-      <div 
-        onClick={handleProductClick}
-        className="block relative aspect-square bg-surface-light overflow-hidden cursor-pointer"
-      >
+    <div 
+      onClick={handleProductClick}
+      className="group bg-surface-darker/50 rounded-2xl overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-300 cursor-pointer"
+    >
+      {/* Image */}
+      <div className="relative aspect-square bg-surface-darker overflow-hidden">
         {product.images && product.images.length > 0 && isValidImageUrl(product.images[0]) ? (
           <Image
             src={product.images[0]}
@@ -80,79 +74,110 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-100 to-gray-200">
-            <div className="text-center p-4">
-              <div className="w-16 h-16 mx-auto mb-2 bg-primary/20 rounded-full"></div>
-              <p className="text-xs text-gray-400">Producto</p>
+          <div className="flex items-center justify-center h-full">
+            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <ShoppingBag className="w-8 h-8 text-primary/40" />
             </div>
           </div>
         )}
         
-{/* Badges */}
+        {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {product.discount && product.discount > 0 && (
-            <span className="bg-accent text-white text-[10px] font-semibold px-2 py-1 rounded">
+            <span className="bg-accent text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
               -{product.discount}%
             </span>
           )}
           {product.isCombo && (
-            <span className="bg-primary text-white text-[10px] font-semibold px-2 py-1 rounded">
+            <span className="bg-primary text-black text-[10px] font-bold px-2.5 py-1 rounded-full">
               COMBO
             </span>
           )}
-          {product.stock < 5 && (
-            <span className="bg-orange-500 text-white text-[10px] font-semibold px-2 py-1 rounded">
+          {product.stock > 0 && product.stock < 5 && (
+            <span className="bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
               Ultimas
             </span>
           )}
         </div>
+
+        {/* Rating badge */}
+        {product.rating && (
+          <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1">
+            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+            <span className="text-[10px] text-white font-medium">{product.rating}</span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-2">
+      <div className="p-4 space-y-3">
         {/* Category + Brand */}
         <div className="flex items-center justify-between text-[10px]">
           {product.category && (
-            <span className="text-gray-400 uppercase tracking-wider">{product.category}</span>
+            <span className="text-white/40 uppercase tracking-wider">{product.category}</span>
           )}
           {product.brand && (
             <span className="text-primary font-medium">{product.brand}</span>
           )}
         </div>
 
-        <h3 
-          onClick={handleProductClick}
-          className="font-semibold text-sm text-surface-darker leading-[1.19] group-hover:text-primary transition-colors line-clamp-2 cursor-pointer"
-        >
+        {/* Title */}
+        <h3 className="font-semibold text-sm text-white leading-[1.2] line-clamp-2 group-hover:text-primary transition-colors">
           {product.title}
         </h3>
 
-        {/* Quick info */}
-        {product.weight && (
-          <p className="text-xs text-gray-500">{product.weight}</p>
-        )}
-        {product.ingredients && (
-          <p className="text-xs text-gray-400 line-clamp-1">{product.ingredients}</p>
+        {/* Tagline (nuevo campo) */}
+        {product.tagline && (
+          <p className="text-xs text-white/50 line-clamp-1">
+            {product.tagline}
+          </p>
         )}
 
-        <div className="flex items-center gap-2 pt-1">
+        {/* Weight */}
+        {product.weight && (
+          <p className="text-xs text-white/40">{product.weight}</p>
+        )}
+
+        {/* Price */}
+        <div className="flex items-baseline gap-2 pt-1">
           {product.discount && product.discount > 0 && (
             <span className="text-sm font-semibold text-accent">{product.discount}% OFF</span>
           )}
-          <span className="text-lg font-semibold text-surface-darker">${(product.price || 0).toLocaleString('es-AR')}</span>
+          <span className="text-xl font-bold text-white">
+            ${(product.price || 0).toLocaleString('es-AR')}
+          </span>
           {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-sm text-gray-400 line-through">${(product.originalPrice || 0).toLocaleString('es-AR')}</span>
+            <span className="text-sm text-white/40 line-through">
+              ${(product.originalPrice || 0).toLocaleString('es-AR')}
+            </span>
           )}
         </div>
 
+        {/* CTA Button */}
         <button
           onClick={handleAddToCart}
           disabled={product.stock === 0 || isAdding}
-          className={`w-full py-2.5 bg-surface-darker hover:bg-primary disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-normal rounded-lg transition-colors duration-200 ${
-            isAdding ? 'bg-primary' : ''
+          className={`w-full py-3 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${
+            product.stock === 0 
+              ? 'bg-white/10 text-white/40 cursor-not-allowed'
+              : isAdding
+                ? 'bg-green-500 text-white'
+                : 'bg-primary hover:bg-primary/90 text-black'
           }`}
         >
-          {isAdding ? 'Agregado' : product.stock === 0 ? 'Sin stock' : 'Añadir'}
+          {isAdding ? (
+            <>
+              <Check className="w-4 h-4" />
+              Agregado
+            </>
+          ) : product.stock === 0 ? (
+            'Sin stock'
+          ) : (
+            <>
+              <ShoppingBag className="w-4 h-4" />
+              Agregar
+            </>
+          )}
         </button>
       </div>
     </div>

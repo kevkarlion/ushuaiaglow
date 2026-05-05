@@ -17,10 +17,28 @@ export class ProductRepositoryMongo implements IProductRepository {
   async create(input: CreateProductInput): Promise<Product> {
     const doc = await ProductModel.create({
       title: input.title,
+      slug: input.slug,
       description: input.description,
       price: input.price,
+      originalPrice: input.originalPrice,
+      discount: input.discount,
       category: input.category,
+      brand: input.brand,
       stock: input.stock,
+      images: input.images || [],
+      ingredients: input.ingredients,
+      howToUse: input.howToUse,
+      warnings: input.warnings,
+      weight: input.weight,
+      isCombo: input.isCombo,
+      productsIncluded: input.productsIncluded,
+      // Nuevos campos
+      tagline: input.tagline,
+      queEs: input.queEs,
+      commercialDescription: input.commercialDescription,
+      benefits: input.benefits,
+      featuredReview: input.featuredReview,
+      rating: input.rating,
     });
     return ProductMapper.fromDocument(doc as unknown as ProductDoc);
   }

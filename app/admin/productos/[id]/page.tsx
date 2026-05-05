@@ -52,6 +52,7 @@ export default function EditProductPage() {
   const [message, setMessage] = useState('');
   const [form, setForm] = useState<ProductFormData>(initialForm);
   const [localPreview, setLocalPreview] = useState<string>('');
+  const [imageError, setImageError] = useState<string>('');
 
   useEffect(() => {
     if (id) {
@@ -380,10 +381,28 @@ export default function EditProductPage() {
               onChange={(e) => {
                 handleChange('imageUrl', e.target.value);
                 setLocalPreview(''); // Clear local preview when using URL
+                setImageError('');
               }}
-              className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm"
-              placeholder="O pega una URL directamente"
+              onBlur={async () => {
+                if (form.imageUrl && !form.imageUrl.startsWith('data:')) {
+                  // Verify URL is accessible
+                  try {
+                    const res = await fetch(form.imageUrl, { method: 'HEAD' });
+                    if (!res.ok) {
+                      setImageError('⚠️ La URL no es accesible');
+                    } else {
+                      setImageError('');
+                    }
+                  } catch {
+                    setImageError('⚠️ URL inválida');
+                  }
+                }
+              }}
+              className={`mt-2 w-full px-4 py-2 bg-white/10 border rounded-lg text-white text-sm ${imageError ? 'border-red-500' : 'border-white/20'}`}
+              placeholder="O pega una URL directa (ej: https://...)"
             />
+            {imageError && <p className="text-red-400 text-xs mt-1">{imageError}</p>}
+            <p className="text-gray-500 text-xs mt-1">💡 Podés usar URLs de Cloudinary, Imgur, o cualquier hosting de imágenes</p>
           </div>
 
           {/* Info adicional */}

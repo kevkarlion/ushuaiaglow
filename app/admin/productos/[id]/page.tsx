@@ -48,8 +48,10 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [form, setForm] = useState<ProductFormData>(initialForm);
+  const [localPreview, setLocalPreview] = useState<string>('');
 
   useEffect(() => {
     if (id) {
@@ -310,40 +312,75 @@ export default function EditProductPage() {
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-sm text-gray-400">Subir imagen</span>
+                <span className="text-sm text-gray-400">{uploading ? 'Subiendo...' : 'Subir imagen'}</span>
                 <input
                   type="file"
                   accept="image/*"
+                  disabled={uploading}
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     
+                    // Preview local primero
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      setLocalPreview(event.target?.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    // Subir al servidor
+                    setUploading(true);
                     const formData = new FormData();
                     formData.append('file', file);
                     
                     try {
                       const res = await fetch('/api/upload', { method: 'POST', body: formData });
                       const data = await res.json();
+                      
                       if (data.url) {
                         handleChange('imageUrl', data.url);
+                        setMessage('✅ Imagen subida');
+                      } else {
+                        setMessage('⚠️ ' + (data.error || 'Error al subir'));
+                        // Still use local preview as fallback
+                        setLocalPreview(URL.createObjectURL(file));
                       }
-                    } catch {
-                      console.error('Error uploading');
+                    } catch (error) {
+                      setMessage('⚠️ Error de conexión - podés usar URL directa');
+                      // Use local preview as fallback
+                      setLocalPreview(URL.createObjectURL(file));
+                    } finally {
+                      setUploading(false);
                     }
                   }}
                   className="hidden"
                 />
               </label>
-              {form.imageUrl && (
+              {(localPreview || form.imageUrl) && (
                 <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/20">
-                  <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={localPreview || form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  {localPreview && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLocalPreview('');
+                        handleChange('imageUrl', '');
+                      }}
+                      className="absolute top-0 right-0 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               )}
             </div>
             <input
               type="text"
               value={form.imageUrl}
-              onChange={(e) => handleChange('imageUrl', e.target.value)}
+              onChange={(e) => {
+                handleChange('imageUrl', e.target.value);
+                setLocalPreview(''); // Clear local preview when using URL
+              }}
               className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm"
               placeholder="O pega una URL directamente"
             />

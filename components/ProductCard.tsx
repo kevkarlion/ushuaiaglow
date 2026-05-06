@@ -28,7 +28,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     return true;
   };
 
-  const productImage = getMainImage(product.images);
+  const productImage = getMainImage(product.images) || '/productos/placeholder.png';
   const productSlug = product.slug || product.id;
 
   const handleProductClick = () => {
@@ -48,7 +48,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       productId: product.id,
       title: product.title,
       price: product.price,
-      image: product.images?.[0] || '',
+      image: getMainImage(product.images) || '',
     });
     
     trackAddToCart(product.id, product.title, product.price);

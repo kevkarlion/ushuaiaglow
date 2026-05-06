@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product, getOrderedImages } from '@/types/product';
+import { Product, getOrderedImages, getMainImage } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackAddToCart } from '@/lib/meta-pixel';
 
@@ -412,7 +412,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                 >
                   <div className="aspect-square relative overflow-hidden">
                     <Image
-                      src={p.images?.[0] || '/placeholder.png'}
+                      src={getMainImage(p.images) || '/placeholder.png'}
                       alt={p.title}
                       fill
                       sizes="(max-width: 768px) 50vw, 25vw"
@@ -653,7 +653,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                 >
                   <div className="aspect-square relative overflow-hidden">
                     <Image
-                      src={p.images?.[0] || '/placeholder.png'}
+                      src={getMainImage(p.images) || '/placeholder.png'}
                       alt={p.title}
                       fill
                       sizes="160px"

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product } from '@/types/product';
+import { Product, getMainImage } from '@/types/product';
 import ComboDetail from '@/components/ComboDetail';
 import { trackViewItem, buildGA4Item } from '@/lib/ga4-ecommerce';
 import { trackViewContent } from '@/lib/meta-pixel';
@@ -131,7 +131,7 @@ export default function ComboDetailPage({ params }: PageProps) {
           price: found.price,
           originalPrice: found.originalPrice || found.price * 1.3,
           discount: found.discount || Math.round((1 - found.price / (found.originalPrice || found.price * 1.3)) * 100),
-          image: found.images?.[0] || '/productos/combo-full.jpeg',
+          image: (found.images?.[0] && typeof found.images[0] === 'string' ? found.images[0] : (found.images?.[0] as any)?.url) || '/productos/combo-full.jpeg',
           products: comboProducts,
           stock: found.stock || 10,
           // Nuevos campos
@@ -201,7 +201,7 @@ export default function ComboDetailPage({ params }: PageProps) {
           originalPrice: p.originalPrice || p.price * 1.3,
           discount: p.discount || 0,
           products: [],
-          image: p.images?.[0] || '/productos/combo-full.jpeg',
+          image: getMainImage(p.images) || '/productos/combo-full.jpeg',
           stock: p.stock || 10,
         }));
         setRelatedCombos(related);

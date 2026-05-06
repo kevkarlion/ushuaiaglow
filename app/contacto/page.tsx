@@ -96,7 +96,11 @@ export default function ContactoPage() {
               <div className="flex gap-4">
                 <a href="https://instagram.com/ushuaia" target="_blank" rel="noopener noreferrer" 
                   className="p-3 bg-white/10 hover:bg-primary rounded-lg transition-colors text-white">
-                  <Instagram className="w-5 h-5" strokeWidth={1.5} />
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="18" cy="6" r="1" fill="currentColor" />
+                  </svg>
                 </a>
                 <a href="https://wa.me/5491167667548" target="_blank" rel="noopener noreferrer" 
                   className="p-3 bg-white/10 hover:bg-primary rounded-lg transition-colors text-white">

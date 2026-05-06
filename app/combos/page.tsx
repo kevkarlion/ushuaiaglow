@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/types/product';
+import { Product, getMainImage } from '@/types/product';
 import { trackViewItemList, buildGA4Item } from '@/lib/ga4-ecommerce';
 import { Search, Package, Check, ArrowRight, Flame, Timer, Lock, CreditCard, Truck, ShieldCheck, Sparkles } from 'lucide-react';
 
@@ -137,8 +137,9 @@ export default function CombosPage() {
               let image = '';
               if (matched?.images && matched.images.length > 0) {
                 const firstImage = matched.images[0];
-                if (typeof firstImage === 'string' && (firstImage.startsWith('/') || firstImage.startsWith('http'))) {
-                  image = firstImage;
+                const url = typeof firstImage === 'string' ? firstImage : (firstImage as any)?.url;
+                if (url && (url.startsWith('/') || url.startsWith('http'))) {
+                  image = url;
                 }
               }
               
@@ -355,9 +356,7 @@ export default function CombosPage() {
                   {/* Image */}
                   <div className="relative aspect-video bg-surface-darker overflow-hidden">
                     <Image
-                      src={combo.images?.[0]?.startsWith('/') || combo.images?.[0]?.startsWith('http') 
-                        ? combo.images[0] 
-                        : '/productos/combo-full.jpeg'}
+                      src={getMainImage(combo.images) || '/productos/combo-full.jpeg'}
                       alt={combo.title}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

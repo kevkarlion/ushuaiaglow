@@ -1,7 +1,10 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Usar ruta relativa en cliente, o variable de entorno en servidor
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function fetchProducts() {
-  const res = await fetch(`${API_URL}/api/products`, {
+  // Si hay API_URL configurado usarlo, si no usar ruta relativa
+  const url = API_URL ? `${API_URL}/api/products` : '/api/products';
+  const res = await fetch(url, {
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('Failed to fetch products');
@@ -9,7 +12,8 @@ export async function fetchProducts() {
 }
 
 export async function fetchProductById(id: string) {
-  const res = await fetch(`${API_URL}/api/products/${id}`, {
+  const url = API_URL ? `${API_URL}/api/products/${id}` : `/api/products/${id}`;
+  const res = await fetch(url, {
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('Failed to fetch product');

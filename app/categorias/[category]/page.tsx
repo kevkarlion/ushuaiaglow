@@ -29,7 +29,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       // Rest of the code...
       
       try {
-        const res = await fetch('http://localhost:3000/api/products');
+        const res = await fetch('/api/products');
         const data = await res.json();
         
         const categoryMap: Record<string, string> = {

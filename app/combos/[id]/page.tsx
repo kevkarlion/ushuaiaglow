@@ -106,8 +106,10 @@ export default function ComboDetailPage({ params }: PageProps) {
           let image = '';
           if (matched?.images && matched.images.length > 0) {
             const firstImage = matched.images[0];
-            if (typeof firstImage === 'string' && (firstImage.startsWith('/') || firstImage.startsWith('http'))) {
-              image = firstImage;
+            // Handle both string and ProductImage formats
+            const url = typeof firstImage === 'string' ? firstImage : (firstImage as any)?.url;
+            if (url && (url.startsWith('/') || url.startsWith('http'))) {
+              image = url;
             }
           }
           

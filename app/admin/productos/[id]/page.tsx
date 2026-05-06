@@ -97,7 +97,7 @@ export default function EditProductPage() {
     }
   };
 
-  const handleChange = (field: keyof ProductFormData, value: string | boolean) => {
+  const handleChange = (field: keyof ProductFormData, value: string | boolean | string[]) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 

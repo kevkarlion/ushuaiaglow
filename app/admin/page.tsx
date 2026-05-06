@@ -12,7 +12,7 @@ interface ProductFormData {
   price: string;
   category: string;
   stock: string;
-  imageUrl: string;
+  images: string[];
 }
 
 const initialForm: ProductFormData = {
@@ -21,7 +21,7 @@ const initialForm: ProductFormData = {
   price: '',
   category: 'Cuidado Facial',
   stock: '',
-  imageUrl: '',
+  images: [],
 };
 
 const categories = ['Cuidado Facial', 'Cuidado Corporal', 'Cuidado Capilar', 'Maquillaje'];

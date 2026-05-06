@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Product } from '@/types/product';
+import { Product, getMainImage } from '@/types/product';
 import { useRouter } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import Pagination from '@/components/Pagination';
@@ -116,7 +116,9 @@ export default function AdminPage() {
         price: parseFloat(form.price),
         category: form.category,
         stock: parseInt(form.stock),
-        images: form.imageUrl ? [form.imageUrl] : [],
+        images: form.images.length > 0 
+  ? form.images.map((url, i) => ({ url, order: i })) 
+  : [],
       };
 
       const res = await fetch('/api/products', {
@@ -270,9 +272,9 @@ export default function AdminPage() {
                     className="flex items-center gap-4 p-4 bg-surface-darker/30 rounded-lg"
                   >
                     <div className="w-16 h-16 md:w-12 md:h-12 bg-white/10 rounded-lg overflow-hidden flex-shrink-0">
-                      {product.images?.[0] && (
+                      {product.images && (
                         <img
-                          src={product.images[0]}
+                          src={getMainImage(product.images)}
                           alt={product.title}
                           className="w-full h-full object-cover"
                         />

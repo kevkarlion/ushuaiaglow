@@ -1,59 +1,30 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { ShoppingCart, Package, Users, BarChart3, Settings, Home, LogOut, Menu, ChevronLeft, X } from 'lucide-react';
 
-interface NavItem {
-  name: string;
-  href: string;
-  icon: React.ReactNode;
-}
-
-const navItems: NavItem[] = [
-  {
-    name: 'Productos',
-    href: '/admin',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4m0 0l-8 4m8-4m-8 8m0 0l8-4m-8 4l8 4m0 0l-8 4" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Stock',
-    href: '/admin/stock',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012 2h2a2 2 0 012-2" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Compradores',
-    href: '/admin/buyers',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Ventas',
-    href: '/admin/sales',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
-];
-
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<{ nombre: string } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const navItems = [
+    { href: '/admin', icon: Home, label: 'Dashboard' },
+    { href: '/admin/sales', icon: ShoppingCart, label: 'Pedidos' },
+    { href: '/admin/stock', icon: Package, label: 'Productos' },
+    { href: '/admin/buyers', icon: Users, label: 'Usuarios' },
+    { href: '/admin/estadisticas', icon: BarChart3, label: 'Estadísticas' },
+    { href: '/admin/configuracion', icon: Settings, label: 'Configuración' },
+  ];
 
   // Skip auth check on login/register pages
   const isAuthPage = pathname === '/admin/login' || pathname === '/admin/register';
@@ -138,8 +109,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  {item.icon}
-                  <span className="font-medium">{item.name}</span>
+                  <item.icon className="w-5 h-5" strokeWidth={1.5} />
+                  <span className="font-medium">{item.label}</span>
                 </Link>
               );
             })}

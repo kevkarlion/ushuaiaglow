@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/types/product';
 import { trackViewItemList, buildGA4Item } from '@/lib/ga4-ecommerce';
-import { Search, Grid3X3, LayoutGrid, X } from 'lucide-react';
+import { Search, Grid3X3, LayoutGrid, X, SlidersHorizontal } from 'lucide-react';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Product } from '@/types/product';
+import { Product, getMainImage } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackSelectItem, buildGA4Item } from '@/lib/ga4-ecommerce';
 import { trackAddToCart } from '@/lib/meta-pixel';
@@ -28,7 +28,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     return true;
   };
 
-  const productImage = product.images?.[0] || '/placeholder.png';
+  const productImage = getMainImage(product.images);
   const productSlug = product.slug || product.id;
 
   const handleProductClick = () => {
@@ -65,9 +65,9 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       {/* Image */}
       <div className="relative aspect-square bg-surface-darker overflow-hidden">
-        {product.images && product.images.length > 0 && isValidImageUrl(product.images[0]) ? (
-          <Image
-            src={product.images[0]}
+{product.images && product.images.length > 0 ? (
+          <Image 
+            src={getMainImage(product.images)}
             alt={product.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

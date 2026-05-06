@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as XLSX from 'xlsx';
 import Pagination from '@/components/Pagination';
+import { getMainImage } from '@/types/product';
 
 interface ProductStock {
   id: string;
@@ -20,7 +21,7 @@ interface ProductFormData {
   price: string;
   stock: string;
   category: string;
-  imageUrl: string;
+  images: string[];
 }
 
 const initialForm: ProductFormData = {
@@ -29,7 +30,7 @@ const initialForm: ProductFormData = {
   price: '',
   stock: '',
   category: 'Cuidado Facial',
-  imageUrl: '',
+  images: [] as string[],
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -106,7 +107,9 @@ export default function StockPage() {
           price: parseFloat(form.price),
           stock: parseInt(form.stock),
           category: form.category,
-          images: form.imageUrl ? [form.imageUrl] : [],
+          images: form.images.length > 0 
+  ? form.images.map((url, i) => ({ url, order: i })) 
+  : [],
         }]),
       });
 
@@ -145,7 +148,9 @@ export default function StockPage() {
         price: row.price || row.Price || 0,
         stock: row.stock || row.Stock || 0,
         category: row.category || row.Category || 'Cuidado Facial',
-        images: row.images || row.Images || row.url || row.URL ? [row.images?.[0] || row.images || row.url || row.URL] : [],
+        images: row.images || row.Images || row.imagen || row.Imagen || row.url || row.URL 
+          ? [row.images?.[0] || row.images || row.imagen || row.Imagen || row.url || row.URL]
+          : [],
       })).filter(p => p.title);
 
       if (products.length === 0) {
@@ -183,7 +188,9 @@ export default function StockPage() {
       price: product.price?.toString() || '',
       stock: product.stock?.toString() || '',
       category: product.category || 'Cuidado Facial',
-      imageUrl: product.images?.[0] || '',
+      images: Array.isArray(product.images) 
+  ? product.images.map((img: any) => typeof img === 'string' ? img : img.url).filter(Boolean) 
+  : [],
     });
   };
 
@@ -431,14 +438,15 @@ export default function StockPage() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">URL Imagen</label>
-              <input
-                type="url"
-                value={form.imageUrl}
-                onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+              <label className="block text-sm text-gray-400 mb-1">Imágenes (una por línea)</label>
+              <textarea
+                value={form.images.join('\n')}
+                onChange={(e) => setForm({ ...form, images: e.target.value.split('\n').filter(url => url.trim()) })}
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                placeholder="https://..."
+                placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"
+                rows={4}
               />
+              <p className="text-xs text-gray-500 mt-1">Una URL por línea. La primera será la imagen principal.</p>
             </div>
 
             <div className="flex gap-3">

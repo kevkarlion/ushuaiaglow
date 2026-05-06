@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/types/product';
+import { Product, getMainImage } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackAddToCart } from '@/lib/meta-pixel';
 import { 

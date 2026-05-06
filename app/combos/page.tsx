@@ -531,9 +531,9 @@ export default function CombosPage() {
       <div className="bg-surface-darker/30 border-t border-white/10 py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
           {/* Urgency message */}
-          <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-full mb-6">
-            <Timer className="w-4 h-4 text-red-400" />
-            <span className="text-red-400 text-sm font-medium">¡Promo por tiempo limitado!</span>
+          <div className="inline-flex items-center gap-2 bg-[#35de80] px-4 py-2 rounded-full mb-6 shadow-lg shadow-green-500/30">
+            <Timer className="w-4 h-4 text-black" strokeWidth={2} />
+            <span className="text-black text-sm font-bold">¡Promo por tiempo limitado!</span>
           </div>
           
           <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">

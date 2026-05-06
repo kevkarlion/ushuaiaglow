@@ -1,3 +1,34 @@
+// Imagen individual con orden
+export interface ProductImage {
+  url: string;
+  order: number; // 0 = imagen principal
+}
+
+// Función helper para obtener imagen principal
+export function getMainImage(images: ProductImage[] | string[] | undefined): string {
+  if (!images || images.length === 0) return '/productos/placeholder.png';
+  
+  // Si es array de strings (formato antiguo), usar el primero
+  if (typeof images[0] === 'string') {
+    return (images as string[])[0];
+  }
+  
+  // Si es array de ProductImage, ordenar por order
+  const sorted = [...(images as ProductImage[])].sort((a, b) => a.order - b.order);
+  return sorted[0]?.url || '/productos/placeholder.png';
+}
+
+// Función helper para obtener todas las URLs ordenadas
+export function getOrderedImages(images: ProductImage[] | string[] | undefined): string[] {
+  if (!images || images.length === 0) return ['/productos/placeholder.png'];
+  
+  if (typeof images[0] === 'string') {
+    return images as string[];
+  }
+  
+  return [...(images as ProductImage[])].sort((a, b) => a.order - b.order).map(img => img.url);
+}
+
 export interface Product {
   id: string;
   title: string;
@@ -9,7 +40,7 @@ export interface Product {
   category?: string;
   brand?: string;
   stock: number;
-  images: string[];
+  images: ProductImage[]; // Nuevo formato con orden
   ingredients?: string;
   howToUse?: string;
   warnings?: string;
@@ -39,7 +70,7 @@ export interface CreateProductDTO {
   category?: string;
   brand?: string;
   stock: number;
-  images?: string[];
+  images?: ProductImage[];
   ingredients?: string;
   howToUse?: string;
   warnings?: string;

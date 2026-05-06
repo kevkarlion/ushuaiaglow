@@ -12,7 +12,7 @@ interface ProductFormData {
   discount: string;
   category: string;
   stock: string;
-  imageUrl: string;
+  images: string[];
   ingredients: string;
   howToUse: string;
   warnings: string;
@@ -31,7 +31,7 @@ const initialForm: ProductFormData = {
   discount: '',
   category: 'Cuidado Facial',
   stock: '',
-  imageUrl: '',
+  images: [],
   ingredients: '',
   howToUse: '',
   warnings: '',
@@ -77,7 +77,9 @@ export default function EditProductPage() {
         discount: data.discount?.toString() || '',
         category: data.category || 'Cuidado Facial',
         stock: data.stock?.toString() || '0',
-        imageUrl: data.images?.[0] || '',
+        images: Array.isArray(data.images) 
+  ? data.images.map((img: any) => typeof img === 'string' ? img : img.url).filter(Boolean) 
+  : [],
         ingredients: data.ingredients || '',
         howToUse: data.howToUse || '',
         warnings: data.warnings || '',
@@ -113,7 +115,7 @@ export default function EditProductPage() {
         discount: form.discount ? parseInt(form.discount) : null,
         category: form.category,
         stock: parseInt(form.stock) || 0,
-        images: form.imageUrl ? [form.imageUrl] : [],
+        images: form.images.length > 0 ? form.images.map((url, i) => ({ url, order: i })) : [],
         ingredients: form.ingredients,
         howToUse: form.howToUse,
         warnings: form.warnings,
@@ -325,7 +327,7 @@ export default function EditProductPage() {
                       const res = await fetch('/api/upload', { method: 'POST', body: formData });
                       const data = await res.json();
                       if (data.url) {
-                        handleChange('imageUrl', data.url);
+                        handleChange('images', [...form.images, data.url]);
                         setMessage('✅ Imagen subida');
                       } else {
                         setMessage('⚠️ ' + (data.error || 'Error al subir'));
@@ -337,19 +339,25 @@ export default function EditProductPage() {
                   className="hidden"
                 />
               </label>
-              {form.imageUrl && (
-                <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/20">
-                  <img src={form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+              {form.images.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {form.images.map((url, idx) => (
+                    <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/20">
+                      <img src={url} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                      {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-primary text-black text-[10px] text-center">Principal</span>}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-            <input
-              type="text"
-              value={form.imageUrl}
-              onChange={(e) => handleChange('imageUrl', e.target.value)}
+            <textarea
+              value={form.images.join('\n')}
+              onChange={(e) => handleChange('images', e.target.value.split('\n').filter(url => url.trim()))}
               className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-              placeholder="O pega una URL directamente"
+              placeholder="https://ejemplo.com/img1.jpg&#10;https://ejemplo.com/img2.jpg"
+              rows={3}
             />
+            <p className="text-xs text-gray-500 mt-1">Una URL por línea. La primera será la imagen principal.</p>
           </div>
 
           {/* Info adicional */}

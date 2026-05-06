@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/types/product';
+import { Product, getOrderedImages } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackAddToCart } from '@/lib/meta-pixel';
 
@@ -45,15 +45,8 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
     setMounted(true);
   }, []);
 
-  const isValidImageUrl = (url: string | undefined): boolean => {
-    if (!url || url.trim() === '') return false;
-    if (url.startsWith('/')) return true;
-    if (url.startsWith('http://') || url.startsWith('https://')) return true;
-    return false;
-  };
-
-  const validImages = (product.images || []).filter(isValidImageUrl);
-  const images = validImages.length > 0 ? validImages : ['/productos/combo-full.jpeg'];
+  // Imágenes ordenadas (primera = principal)
+  const imageUrls = getOrderedImages(product.images);
 
   // Datos del producto (reales desde la API)
   const benefitText = product.tagline || "Ilumina y unifica el tono de tu piel";
@@ -101,7 +94,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
       productId: product.id,
       title: product.title,
       price: product.price,
-      image: images[0],
+      image: imageUrls[0],
     }, quantity);
     
     trackAddToCart(product.id, product.title, product.price);
@@ -122,7 +115,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
     const diffY = touchStart.current.y - touchEnd.y;
     
     if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
-      if (diffX > 0 && activeImage < images.length - 1) {
+      if (diffX > 0 && activeImage < imageUrls.length - 1) {
         setActiveImage(activeImage + 1);
       } else if (diffX < 0 && activeImage > 0) {
         setActiveImage(activeImage - 1);
@@ -155,7 +148,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               onClick={() => setIsImageZoomed(true)}
             >
               <Image
-                src={images[activeImage]}
+                src={imageUrls[activeImage]}
                 alt={product.title}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -168,9 +161,9 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               </div>
             </div>
             
-            {images.length > 1 && (
+            {imageUrls.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
-                {images.map((img, idx) => (
+                {imageUrls.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
@@ -451,7 +444,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
           onTouchEnd={handleTouchEnd}
         >
           <Image
-            src={images[activeImage]}
+            src={imageUrls[activeImage]}
             alt={product.title}
             fill
             sizes="100vw"
@@ -459,9 +452,9 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             priority
           />
           
-          {images.length > 1 && (
+          {imageUrls.length > 1 && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-              {images.map((_, idx) => (
+              {imageUrls.map((_, idx) => (
                 <span 
                   key={idx}
                   className={`h-1.5 rounded-full transition-all ${
@@ -737,7 +730,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
         >
           <div className="relative w-full h-full max-w-4xl max-h-[80vh]">
             <Image
-              src={images[activeImage]}
+              src={imageUrls[activeImage]}
               alt={product.title}
               fill
               sizes="100vw"

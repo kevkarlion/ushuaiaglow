@@ -5,7 +5,76 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types/product';
 import { trackViewItemList, buildGA4Item } from '@/lib/ga4-ecommerce';
-import { Search, Star, Package, Check, ArrowRight } from 'lucide-react';
+import { Search, Package, Check, ArrowRight, Flame, Timer, Lock, CreditCard, Truck, ShieldCheck, Sparkles } from 'lucide-react';
+
+// Custom Star Component - Diseño personalizado
+function StarRating({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="currentColor" 
+      className={className}
+    >
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  );
+}
+
+// Helper para obtener mensaje de resultado basado en el combo
+function getComboResultMessage(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes('glow') || t.includes('lumino')) return 'Piel luminosa y radiante en días';
+  if (t.includes('hidra') || t.includes('moist')) return 'Hidratación profunda 24h';
+  if (t.includes('anti') || t.includes('edad')) return 'Reduce líneas de expresión';
+  if (t.includes('limpie') || t.includes('pure')) return 'Piel limpia y libre de impurezas';
+  if (t.includes('sensible') || t.includes('delic')) return 'Calma y repara piel sensible';
+  if (t.includes('oil') || t.includes('grasa')) return 'Control de brillo y poros';
+  return 'Transforma tu piel con rutina completa';
+}
+
+// Helper para obtener para quién es
+function getComboForWho(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes('sensible') || t.includes('delic')) return 'Ideal para piel sensible';
+  if (t.includes('grasa') || t.includes('oil')) return 'Perfecto para piel mixta/grasa';
+  if (t.includes('seca') || t.includes('dry')) return 'Para piel seca que necesita hidratación';
+  if (t.includes('anti') || t.includes('edad')) return 'A partir de los 25 años';
+  return 'Para todo tipo de piel';
+}
+
+// Helper para obtener beneficios
+function getComboBenefits(title: string): string[] {
+  const t = title.toLowerCase();
+  if (t.includes('glow') || t.includes('lumino')) {
+    return ['Ilumina y unifica el tono', 'Efecto glow instantáneo', 'Vitaminas Antioxidantes'];
+  }
+  if (t.includes('hidra') || t.includes('moist')) {
+    return ['Hidratación profunda', 'Piel suave y sedosa', 'Efecto barrera protectora'];
+  }
+  if (t.includes('anti') || t.includes('edad')) {
+    return ['Reduce arrugas finas', 'Firmeza visible', 'Previene envejecimiento'];
+  }
+  return ['Limpia en profundidad', 'Equilibra la piel', 'Mejora textura'];
+}
+
+// Helper para badge de diferenciación
+function getComboBadge(index: number, title: string): { text: string; type: 'best-seller' | 'recommended' | 'new' } | null {
+  if (index === 0) return { text: 'MÁS VENDIDO', type: 'best-seller' };
+  if (index === 1) return { text: 'RECOMENDADO', type: 'recommended' };
+  if (title.toLowerCase().includes('nuevo') || title.toLowerCase().includes('new')) {
+    return { text: 'NUEVO', type: 'new' };
+  }
+  return null;
+}
+
+// Helper para CTA personalizado
+function getComboCTA(index: number): string {
+  if (index === 0) return 'Aprovechar Oferta';
+  if (index === 1) return 'Quiero Este Combo';
+  return 'Comprar Ahora';
+}
 
 interface ComboDisplay extends Product {
   products: { name: string; displayName: string; image: string }[];
@@ -122,17 +191,111 @@ export default function CombosPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
+      {/* HERO SECTION - CRO Optimization */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-surface-darker/80 to-black border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+          <div className="flex flex-col gap-6">
+            {/* Headline - Clear Value Proposition */}
+            <div className="space-y-3">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight">
+                Tu Rutina de{' '}
+                <span className="text-primary">Piel Perfecta</span>
+                <br className="md:hidden" /> en Un Solo Click
+              </h1>
+              
+              {/* Subheadline - Emotional reinforcement */}
+              <p className="text-lg md:text-xl text-white/60 max-w-xl">
+                Combos skincare diseñados por expertos.{' '}
+                <span className="text-white/80">Resultados visibles desde la primera semana.</span>
+              </p>
+            </div>
+
+            {/* CTA - Visible & Direct */}
+            <div className="flex flex-col sm:flex-row gap-3 items-start">
+              <button 
+                onClick={() => {
+                  const element = document.getElementById('combos-grid');
+                  if (element) {
+                    const offset = 80; // offset para el navbar
+                    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                    window.scrollTo({
+                      top: elementPosition - offset,
+                      behavior: 'smooth'
+                    });
+                  }
+                }}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary hover:bg-primary/90 text-black font-bold text-base rounded-xl transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Ver Combos
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              <p className="text-xs text-white/40 flex items-center gap-2 pt-2">
+                <span className="flex items-center gap-1">
+                  <StarRating size={12} className="text-yellow-400" />
+                  4.9/5
+                </span>
+                • +500 clientas satisfechas
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Wave divider */}
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black to-transparent"></div>
+      </div>
+
+      {/* SOCIAL PROOF - Below Hero */}
+      <div className="bg-surface-darker/30 border-y border-white/5 py-6">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="flex justify-center mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <StarRating key={i} size={16} className="text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-sm text-white/80">"Me cambió la piel en 7 días"</p>
+              <p className="text-xs text-white/40 mt-1">- María, Buenos Aires</p>
+            </div>
+            <div className="text-center">
+              <div className="flex justify-center mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <StarRating key={i} size={16} className="text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-sm text-white/80">"El mejor precio del mercado"</p>
+              <p className="text-xs text-white/40 mt-1">- Carolina, Córdoba</p>
+            </div>
+            <div className="text-center">
+              <div className="flex justify-center mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <StarRating key={i} size={16} className="text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-sm text-white/80">"Envío rápido y packaging premium"</p>
+              <p className="text-xs text-white/40 mt-1">- Luciana, Mendoza</p>
+            </div>
+            <div className="text-center">
+              <div className="flex justify-center mb-2">
+                {[...Array(5)].map((_, i) => (
+                  <StarRating key={i} size={16} className="text-yellow-400" />
+                ))}
+              </div>
+              <p className="text-sm text-white/80">"Volvería a comprar 100 veces"</p>
+              <p className="text-xs text-white/40 mt-1">- Antonella, Rosario</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header & Search - Simplified */}
       <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-semibold text-white leading-[1.1] tracking-tight">
-                Combos <span className="text-primary">Especiales</span>
-              </h1>
-              <p className="text-white/40 text-sm mt-1">
-                {sortedCombos.length} {sortedCombos.length === 1 ? 'combo' : 'combos'} con descuento
-              </p>
+              <h2 className="text-xl md:text-2xl font-semibold text-white">
+                {sortedCombos.length} {sortedCombos.length === 1 ? 'Combo' : 'Combos'} Disponibles
+              </h2>
             </div>
 
             {/* Search */}
@@ -166,16 +329,28 @@ export default function CombosPage() {
             ))}
           </div>
         ) : sortedCombos.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedCombos.map((combo) => {
+          <div id="combos-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedCombos.map((combo, index) => {
               const comboSlug = combo.slug || combo.id;
               const savings = (combo.originalPrice || 0) - (combo.price || 0);
+              const isBestSeller = index === 0;
+              
+              // CRO: Mensajes dinámicos
+              const resultMessage = getComboResultMessage(combo.title);
+              const forWho = getComboForWho(combo.title);
+              const benefits = getComboBenefits(combo.title);
+              const badge = getComboBadge(index, combo.title);
+              const ctaText = getComboCTA(index);
               
               return (
                 <Link 
                   key={combo.id} 
                   href={`/combos/${comboSlug}`}
-                  className="group bg-surface-darker/50 rounded-2xl overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-300 flex flex-col"
+                  className={`group bg-surface-darker/50 rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col ${
+                    isBestSeller 
+                      ? 'border-primary/50 shadow-lg shadow-primary/10' 
+                      : 'border-white/5 hover:border-primary/40'
+                  }`}
                 >
                   {/* Image */}
                   <div className="relative aspect-video bg-surface-darker overflow-hidden">
@@ -189,34 +364,76 @@ export default function CombosPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     
-                    {/* Badge descuento */}
-                    <div className="absolute top-3 left-3 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full">
-                      -{combo.discount || Math.round((1 - combo.price / (combo.originalPrice || combo.price)) * 100)}%
-                    </div>
+                    {/* BADGE de diferenciación */}
+                    {badge && (
+                      <div className={`absolute top-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 ${
+                        badge.type === 'best-seller' 
+                          ? 'bg-primary text-black animate-pulse' 
+                          : badge.type === 'recommended'
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-blue-500 text-white'
+                      }`}>
+                        {badge.type === 'best-seller' && <Flame className="w-3 h-3" />}
+                        {badge.type === 'recommended' && <Sparkles className="w-3 h-3" />}
+                        {badge.type === 'new' && <Sparkles className="w-3 h-3" />}
+                        {badge.text}
+                      </div>
+                    )}
+                    
+                    {/* Badge descuento (solo si no hay badge) */}
+                    {!badge && (
+                      <div className="absolute top-3 left-3 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full">
+                        -{combo.discount || Math.round((1 - combo.price / (combo.originalPrice || combo.price)) * 100)}%
+                      </div>
+                    )}
+
+                    {/* URGENCY: Últimas unidades (solo best seller) */}
+                    {isBestSeller && (
+                      <div className="absolute bottom-3 left-3 bg-red-500/90 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1">
+                        <Timer className="w-3 h-3" />
+                        Últimas unidades
+                      </div>
+                    )}
 
                     {/* Rating */}
                     {combo.rating && (
                       <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1">
-                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                        <StarRating size={12} className="text-yellow-400" />
                         <span className="text-[10px] text-white font-medium">{combo.rating}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Content */}
+                  {/* Content - Jerarquía Visual CRO */}
                   <div className="p-5 flex flex-col flex-1">
-                    {/* Tagline */}
-                    {combo.tagline && (
-                      <p className="text-xs text-primary mb-1">{combo.tagline}</p>
-                    )}
                     
-                    {/* Title */}
-                    <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors">
+                    {/* 1. RESULTADO (emocional) - Lo primero que se ve */}
+                    <p className="text-sm text-primary font-medium mb-1 leading-tight">
+                      ✨ {resultMessage}
+                    </p>
+                    
+                    {/* 2. Title - Nombre del combo */}
+                    <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors mb-1">
                       {combo.title}
                     </h3>
+                    
+                    {/* 3. CONTEXTO: Para quién es */}
+                    <p className="text-xs text-white/50 mb-3">
+                      {forWho}
+                    </p>
+
+                    {/* 4. BENEFICIOS CONCRETOS */}
+                    <div className="space-y-1 mb-4">
+                      {benefits.slice(0, 3).map((benefit, i) => (
+                        <p key={i} className="text-xs text-white/70 flex items-start gap-1.5">
+                          <Check className="w-3 h-3 text-green-400 mt-0.5 flex-shrink-0" />
+                          {benefit}
+                        </p>
+                      ))}
+                    </div>
 
                     {/* Products included */}
-                    <div className="flex items-center gap-2 mt-3 mb-4">
+                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
                       <div className="flex -space-x-2">
                         {combo.products.slice(0, 4).map((p, idx) => (
                           <div 
@@ -240,20 +457,28 @@ export default function CombosPage() {
                         )}
                       </div>
                       <span className="text-xs text-white/40">
-                        {combo.products.length} {combo.products.length === 1 ? 'producto' : 'productos'}
+                        {combo.products.length} productos
                       </span>
                     </div>
 
-                    {/* Price + CTA */}
+                    {/* 5. Precio + Ahorro emocional + CTA */}
                     <div className="mt-auto">
-                      {/* Ahorro */}
+                      {/* AHORRO EMOCIONAL */}
                       {savings > 0 && (
-                        <p className="text-xs text-green-400 mb-2 flex items-center gap-1">
-                          <Check className="w-3 h-3" />
-                          Ahorrás ${savings.toLocaleString('es-AR')}
+                        <p className="text-xs font-medium text-green-400 mb-2 flex items-center gap-1.5">
+                          <Flame className="w-3 h-3" />
+                          ¡Ahorrás ${savings.toLocaleString('es-AR')} con este combo!
                         </p>
                       )}
                       
+                      {/* Confianza rápida */}
+                      <div className="flex items-center gap-2 text-[10px] text-white/40 mb-3">
+                        <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Compra segura</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> Envío gratis</span>
+                      </div>
+                      
+                      {/* Precio + CTA */}
                       <div className="flex items-end justify-between gap-3">
                         <div>
                           {combo.originalPrice && combo.originalPrice > combo.price && (
@@ -265,9 +490,18 @@ export default function CombosPage() {
                             ${(combo.price || 0).toLocaleString('es-AR')}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 text-primary text-sm group-hover:translate-x-1 transition-transform">
-                          Ver <ArrowRight className="w-4 h-4" />
-                        </div>
+                        
+                        {/* CTA PERSUASIVO */}
+                        <button 
+                          className={`px-5 py-2.5 font-bold text-sm rounded-xl transition-all hover:shadow-lg active:scale-95 ${
+                            isBestSeller 
+                              ? 'bg-primary hover:bg-primary/90 text-black hover:shadow-primary/20' 
+                              : 'bg-primary/90 hover:bg-primary text-black'
+                          }`}
+                          onClick={(e) => e.preventDefault()}
+                        >
+                          {ctaText}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -293,20 +527,35 @@ export default function CombosPage() {
         )}
       </div>
 
-      {/* CTA Section */}
+      {/* CTA Final Section - CRO Optimized */}
       <div className="bg-surface-darker/30 border-t border-white/10 py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-semibold text-white mb-4">
-            ¿Querés crear tu propio combo?
+          {/* Urgency message */}
+          <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-full mb-6">
+            <Timer className="w-4 h-4 text-red-400" />
+            <span className="text-red-400 text-sm font-medium">¡Promo por tiempo limitado!</span>
+          </div>
+          
+          <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
+            ¿No Encontraste lo que buscabas?
           </h2>
-          <p className="text-white/60 mb-8 max-w-md mx-auto">
-            Escribinos y armamos un combo personalizado vos eligiendo los productos.
+          <p className="text-white/60 mb-6 max-w-md mx-auto">
+            Armamos un combo personalizado con los productos que vos elijas.
           </p>
+          
+          {/* Confidence badges */}
+          <div className="flex flex-wrap justify-center gap-4 mb-8 text-xs text-white/50">
+            <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Compra 100% segura</span>
+            <span className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Pagos con MercadoPago</span>
+            <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> Envíos a todo el país</span>
+          </div>
+          
           <Link
             href="/contacto"
-            className="inline-block px-8 py-3 bg-primary hover:bg-primary/90 text-black font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-primary/20"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary/90 text-black font-bold rounded-xl transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
           >
-            Contactanos
+            Crear Mi Combo
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </div>

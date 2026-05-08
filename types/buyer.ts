@@ -6,6 +6,7 @@ export interface Buyer {
   direccion: string;
   codigoPostal: string;
   provincia: string;
+  localidad: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,4 +18,5 @@ export interface CreateBuyerDTO {
   direccion: string;
   codigoPostal: string;
   provincia: string;
+  localidad: string;
 }

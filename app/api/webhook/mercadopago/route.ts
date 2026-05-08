@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { MongoClient, ObjectId } from 'mongodb';
 import { sendEmail } from '@/lib/email';
+import { trackPurchase } from '@/lib/meta-pixel';
 
 let client: MongoClient | null = null;
 
@@ -206,6 +207,7 @@ async function processPayment(paymentId: string, mongoClient: any) {
     buyerDireccion: pendingCheckout.buyerDireccion || '',
     buyerCodigoPostal: pendingCheckout.buyerCodigoPostal || '',
     buyerProvincia: pendingCheckout.buyerProvincia || '',
+    buyerLocalidad: (pendingCheckout as any).buyerLocalidad || '',
     items: pendingCheckout.items,
     total: pendingCheckout.total,
     preferenceId: externalReference,
@@ -217,6 +219,12 @@ async function processPayment(paymentId: string, mongoClient: any) {
 
   await pendingCollection.deleteOne({ _id: pendingCheckout._id });
   console.log('✅ Venta creada en sales:', saleResult.insertedId);
+
+  // 🎯 Meta Pixel - Purchase event
+  const contentIds = pendingCheckout.items.map((item: any) => item.productId || item.title);
+  const numItems = pendingCheckout.items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+  trackPurchase(pendingCheckout.total, externalReference, contentIds);
+  console.log('✅ Pixel Purchase enviado:', { value: pendingCheckout.total, transactionId: externalReference, numItems });
 
   // Actualizar contador de compras del buyer
   if (pendingCheckout.buyerId) {

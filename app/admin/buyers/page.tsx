@@ -20,6 +20,7 @@ interface Buyer {
   direccion: string;
   codigoPostal: string;
   provincia: string;
+  localidad: string;
   purchaseCount: number;
   purchases?: Purchase[];
   createdAt: string;
@@ -181,7 +182,7 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
                     <p className="text-gray-300 text-base">{buyer.email}</p>
                     {buyer.telefono && <p className="text-gray-400 text-base">📞 {buyer.telefono}</p>}
                     <div className="text-gray-500 text-sm mt-1">
-                      {buyer.direccion && <span>{buyer.direccion}, {buyer.codigoPostal}, {buyer.provincia}</span>}
+                      {buyer.direccion && <span>{buyer.direccion}, {buyer.localidad}, {buyer.codigoPostal}, {buyer.provincia}</span>}
                     </div>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="px-2 py-1 bg-primary/20 text-primary text-sm rounded">
@@ -196,7 +197,7 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
                   <div className="hidden md:table-cell px-4 py-3 text-gray-400">{buyer.telefono}</div>
                   <div className="hidden md:table-cell px-4 py-3 text-gray-400">
                     {buyer.direccion && (
-                      <span>{buyer.direccion}, {buyer.codigoPostal}, {buyer.provincia}</span>
+                      <span>{buyer.direccion}, {buyer.localidad}, {buyer.codigoPostal}, {buyer.provincia}</span>
                     )}
                   </div>
                   <div className="hidden md:table-cell px-4 py-3">
@@ -249,6 +250,7 @@ const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
                   <p className="text-gray-400 text-base mb-1">Dirección</p>
                   <p className="text-white text-lg">
                     {selectedBuyer.direccion || 'No registrada'}
+                    {selectedBuyer.localidad && `, ${selectedBuyer.localidad}`}
                     {selectedBuyer.codigoPostal && `, CP: ${selectedBuyer.codigoPostal}`}
                     {selectedBuyer.provincia && `, ${selectedBuyer.provincia}`}
                   </p>

@@ -29,6 +29,7 @@ interface BuyerData {
   direccion: string;
   codigoPostal: string;
   provincia: string;
+  localidad: string;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_URL || process.env.BASE_URL || 'http://localhost:3000';
@@ -78,6 +79,7 @@ export async function POST(request: Request) {
               direccion: buyer.direccion,
               codigoPostal: buyer.codigoPostal,
               provincia: buyer.provincia,
+              localidad: buyer.localidad,
               updatedAt: new Date(),
             } 
           }
@@ -90,6 +92,7 @@ export async function POST(request: Request) {
           direccion: buyer.direccion,
           codigoPostal: buyer.codigoPostal,
           provincia: buyer.provincia,
+          localidad:buyer.localidad,
           purchaseCount: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -97,7 +100,7 @@ export async function POST(request: Request) {
         buyerId = result.insertedId.toString();
       }
 
-      // Guardar checkout pendiente SOLO para referencia (no crear venta a priori)
+// Guardar checkout pendiente
       const pendingCollection = mongoClient.db('ushuaia').collection('pending_checkouts');
       await pendingCollection.insertOne({
         buyerId,
@@ -107,6 +110,7 @@ export async function POST(request: Request) {
         buyerDireccion: buyer.direccion,
         buyerCodigoPostal: buyer.codigoPostal,
         buyerProvincia: buyer.provincia,
+        buyerLocalidad: buyer.localidad,
         items: items.map(item => ({
           productId: item.id,
           title: item.title,

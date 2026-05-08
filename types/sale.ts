@@ -10,6 +10,11 @@ export interface Sale {
   buyerId: string;
   buyerNombre: string;
   buyerEmail: string;
+  buyerTelefono?: string;
+  buyerDireccion?: string;
+  buyerLocalidad?: string;
+  buyerCodigoPostal?: string;
+  buyerProvincia?: string;
   items: SaleItem[];
   total: number;
   preferenceId?: string;
@@ -23,6 +28,11 @@ export interface CreateSaleDTO {
   buyerId: string;
   buyerNombre: string;
   buyerEmail: string;
+  buyerTelefono?: string;
+  buyerDireccion?: string;
+  buyerLocalidad?: string;
+  buyerCodigoPostal?: string;
+  buyerProvincia?: string;
   items: SaleItem[];
   total: number;
   preferenceId?: string;

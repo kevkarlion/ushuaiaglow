@@ -18,6 +18,7 @@ interface Sale {
   buyerEmail: string;
   buyerTelefono?: string;
   buyerDireccion?: string;
+  buyerLocalidad?: string;
   buyerCodigoPostal?: string;
   buyerProvincia?: string;
   items: SaleItem[];
@@ -261,10 +262,11 @@ export default function SalesPage() {
                 )}
               </div>
 
-              {(selectedSale.buyerDireccion || selectedSale.buyerCodigoPostal || selectedSale.buyerProvincia) && (
+              {(selectedSale.buyerDireccion || selectedSale.buyerCodigoPostal || selectedSale.buyerProvincia || selectedSale.buyerLocalidad) && (
                 <div className="mb-6">
                   <p className="text-gray-400 text-base mb-1">Dirección de envío</p>
                   {selectedSale.buyerDireccion && <p className="text-white text-lg">{selectedSale.buyerDireccion}</p>}
+                  {selectedSale.buyerLocalidad && <p className="text-white text-lg">{selectedSale.buyerLocalidad}</p>}
                   {selectedSale.buyerCodigoPostal && <p className="text-white text-lg">CP: {selectedSale.buyerCodigoPostal}</p>}
                   {selectedSale.buyerProvincia && <p className="text-white text-lg">{selectedSale.buyerProvincia}</p>}
                 </div>

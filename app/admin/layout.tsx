@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingCart, Package, Users, BarChart3, Settings, Home, LogOut, Menu, ChevronLeft, X } from 'lucide-react';
+import { ShoppingCart, Package, Users, BarChart3, Settings, Home, LogOut, Menu, ChevronLeft, X, ArrowUpDown } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -21,6 +21,7 @@ export default function AdminLayout({
     { href: '/admin', icon: Home, label: 'Dashboard' },
     { href: '/admin/sales', icon: ShoppingCart, label: 'Pedidos' },
     { href: '/admin/stock', icon: Package, label: 'Productos' },
+    { href: '/admin/inventory', icon: ArrowUpDown, label: 'Inventario' },
     { href: '/admin/buyers', icon: Users, label: 'Usuarios' },
     { href: '/admin/estadisticas', icon: BarChart3, label: 'Estadísticas' },
     { href: '/admin/configuracion', icon: Settings, label: 'Configuración' },

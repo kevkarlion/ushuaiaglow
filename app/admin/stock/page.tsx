@@ -302,37 +302,37 @@ export default function StockPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Total Productos</p>
-            <p className="text-xl lg:text-2xl text-white">{totalProducts}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-4 lg:p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Total Productos</p>
+            <p className="text-2xl lg:text-3xl text-white">{totalProducts}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Stock Total</p>
-            <p className="text-xl lg:text-2xl text-white">{totalStock}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-4 lg:p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Stock Total</p>
+            <p className="text-2xl lg:text-3xl text-white">{totalStock}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Bajo Stock (&lt;{LOW_STOCK_THRESHOLD})</p>
-            <p className="text-xl lg:text-2xl text-orange-400">{lowStockProducts.length}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-4 lg:p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Bajo Stock (&lt;{LOW_STOCK_THRESHOLD})</p>
+            <p className="text-2xl lg:text-3xl text-orange-400">{lowStockProducts.length}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Stock Crítico (&lt;3)</p>
-            <p className="text-xl lg:text-2xl text-red-400">{products.filter(p => p.stock < 3).length}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-4 lg:p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Stock Crítico (&lt;3)</p>
+            <p className="text-2xl lg:text-3xl text-red-400">{products.filter(p => p.stock < 3).length}</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-4">
+        <div className="flex flex-col md:flex-row gap-3 mb-6">
           <input
             type="text"
             placeholder="Buscar producto..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-500 flex-1"
+            className="px-5 py-3 bg-white border border-gray-300 rounded-lg text-black placeholder-gray-500 flex-1 text-lg"
           />
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-black"
+            className="px-5 py-3 bg-white border border-gray-300 rounded-lg text-black text-lg"
           >
             <option value="">Todas</option>
             <option value="Cuidado Facial">Cuidado Facial</option>
@@ -343,7 +343,7 @@ export default function StockPage() {
           <select
             value={lowStockFilter}
             onChange={(e) => setLowStockFilter(e.target.value)}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-black"
+            className="px-5 py-3 bg-white border border-gray-300 rounded-lg text-black text-lg"
           >
             <option value="">Todo el stock</option>
             <option value="low">Bajo stock (&lt;5)</option>
@@ -504,20 +504,20 @@ export default function StockPage() {
                   <div className="hidden md:grid md:grid-cols-5 md:gap-4 md:items-center">
                     <div className="flex items-center gap-3">
                       {product.image && (
-                        <img src={product.image} alt={product.title} className="w-10 h-10 rounded object-cover" />
+                        <img src={product.image} alt={product.title} className="w-12 h-12 rounded object-cover" />
                       )}
                       <div>
-                        <p className="text-white">{product.title}</p>
-                        {isLow && <p className="text-orange-400 text-xs">⚠️ Bajo stock</p>}
+                        <p className="text-white text-lg">{product.title}</p>
+                        {isLow && <p className="text-orange-400 text-sm">⚠️ Bajo stock</p>}
                       </div>
                     </div>
-                    <div className="text-gray-400">{product.category}</div>
+                    <div className="text-gray-400 text-base">{product.category}</div>
                     <div className="text-right">
-                      <span className={isLow ? 'text-orange-400 font-semibold' : 'text-white'}>
+                      <span className={isLow ? 'text-orange-400 font-semibold text-xl' : 'text-white text-xl'}>
                         {product.stock}
                       </span>
                     </div>
-                    <div className="text-right text-gray-400">
+                    <div className="text-right text-gray-400 text-lg">
                       ${(product.price || 0).toLocaleString('es-AR')}
                     </div>
                     <div className="flex items-center gap-2 justify-center">

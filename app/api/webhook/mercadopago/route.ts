@@ -88,40 +88,112 @@ async function processPayment(paymentId: string, mongoClient: any) {
     return { skipped: true, reason: 'already_paid' };
   }
 
-  // Descontar stock
+  // Descontar stock - handles combos y productos individuales
   const productsCollection = mongoClient.db('ushuaia').collection('products');
+  const inventoryLogCollection = mongoClient.db('ushuaia').collection('inventoryLog');
   const stockDeduction: string[] = [];
   const stockErrors: string[] = [];
 
   for (const item of pendingCheckout.items) {
     try {
-      let product;
       const productIdStr = item.productId?.toString() || '';
       const itemTitle = item.title?.trim() || '';
       
+      // 1. Detectar si es un combo (por ID que empieza con "combo-" o por buscar el producto)
+      let isCombo = false;
+      let comboProduct = null;
+      
+      // Buscar por ID o por título
       if (/^[a-f0-9]{24}$/i.test(productIdStr)) {
-        product = await productsCollection.findOne({ _id: new ObjectId(productIdStr) });
+        comboProduct = await productsCollection.findOne({ _id: new ObjectId(productIdStr) });
       }
-      if (!product && itemTitle) {
-        product = await productsCollection.findOne({ title: itemTitle });
+      if (!comboProduct && itemTitle) {
+        comboProduct = await productsCollection.findOne({ title: itemTitle });
       }
-      if (!product && itemTitle) {
+      if (!comboProduct && itemTitle) {
         const slug = itemTitle.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        product = await productsCollection.findOne({ slug });
+        comboProduct = await productsCollection.findOne({ slug });
       }
-
-      if (product) {
-        const newStock = Math.max(0, (product.stock || 0) - item.quantity);
+      
+      // Verificar si es combo
+      if (comboProduct?.isCombo === true || productIdStr.startsWith('combo-')) {
+        isCombo = true;
+      }
+      
+      // 2. Si es COMBO: descontar cada producto incluido
+      if (isCombo && comboProduct?.productsIncluded) {
+        const productsInCombo = Array.isArray(comboProduct.productsIncluded) 
+          ? comboProduct.productsIncluded 
+          : JSON.parse(comboProduct.productsIncluded);
+        
+        for (const includedName of productsInCombo) {
+          const includedNameTrim = includedName.trim();
+          
+          // Buscar cada producto del combo por nombre (exact o fuzzy)
+          let individualProduct = await productsCollection.findOne({ 
+            title: { $regex: new RegExp(`^${includedNameTrim}$`, 'i') }
+          });
+          
+          // Si no encuentra exact, buscar fuzzy (partial match)
+          if (!individualProduct) {
+            const fuzzySearch = includedNameTrim.toLowerCase().replace(/\s+/g, ' ').trim();
+            individualProduct = await productsCollection.findOne({
+              title: { $regex: new RegExp(fuzzySearch, 'i') }
+            });
+          }
+          
+          if (individualProduct) {
+            const newStock = Math.max(0, (individualProduct.stock || 0) - item.quantity);
+            await productsCollection.updateOne(
+              { _id: individualProduct._id },
+              { $set: { stock: newStock, updatedAt: new Date() } }
+            );
+            // Log de inventario
+            await inventoryLogCollection.insertOne({
+              tipo: 'salida',
+              origen: 'compra',
+              productId: individualProduct._id.toString(),
+              productTitle: individualProduct.title,
+              cantidad: item.quantity,
+              stockAnterior: individualProduct.stock || 0,
+              stockNuevo: newStock,
+              motivo: `Venta: ${itemTitle} (combo)`,
+              orderId: externalReference,
+              createdAt: new Date(),
+            });
+            stockDeduction.push(`${individualProduct.title} (-1)`);
+          } else {
+            stockErrors.push(`No encontrado en combo: ${includedName}`);
+          }
+        }
+        stockDeduction.push(`[COMBO] ${itemTitle}`);
+      } 
+      // 3. Si es producto individual: descontar normalmente
+      else if (comboProduct) {
+        const newStock = Math.max(0, (comboProduct.stock || 0) - item.quantity);
         await productsCollection.updateOne(
-          { _id: product._id },
+          { _id: comboProduct._id },
           { $set: { stock: newStock, updatedAt: new Date() } }
         );
+        // Log de inventario
+        await inventoryLogCollection.insertOne({
+          tipo: 'salida',
+          origen: 'compra',
+          productId: comboProduct._id.toString(),
+          productTitle: comboProduct.title,
+          cantidad: item.quantity,
+          stockAnterior: comboProduct.stock || 0,
+          stockNuevo: newStock,
+          motivo: `Venta: ${itemTitle}`,
+          orderId: externalReference,
+          createdAt: new Date(),
+        });
         stockDeduction.push(itemTitle);
       } else {
         stockErrors.push(`No encontrado: ${itemTitle}`);
       }
     } catch (err) {
-      stockErrors.push(`Error: ${item.title}`);
+      stockErrors.push(`Error: ${item.title} - ${err}`);
     }
   }
 

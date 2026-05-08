@@ -87,6 +87,21 @@ export async function PUT(
       }
     );
 
+    // Register in inventory log
+    const inventoryLog = mongoClient.db('ushuaia').collection('inventoryLog');
+    await inventoryLog.insertOne({
+      tipo: operation.toLowerCase() === 'add' ? 'entrada' : 'salida',
+      origen: 'manual',
+      productId: product._id.toString(),
+      productTitle: product.title,
+      cantidad: qty,
+      stockAnterior: currentStock,
+      stockNuevo: newStock,
+      motivo: `Ajuste manual: ${operation.toLowerCase() === 'add' ? 'agregar' : 'descontar'}`,
+      adminId: 'admin',
+      createdAt: new Date(),
+    });
+
     return NextResponse.json({
       success: true,
       id: product._id.toString(),

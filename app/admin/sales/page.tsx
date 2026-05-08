@@ -122,21 +122,21 @@ export default function SalesPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Total</p>
-            <p className="text-xl lg:text-2xl text-white">{totalSales}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-surface-darker/30 rounded-lg p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Total</p>
+            <p className="text-2xl lg:text-3xl text-white">{totalSales}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Ingresos</p>
-            <p className="text-xl lg:text-2xl text-green-400">${totalRevenue.toFixed(2)}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Ingresos</p>
+            <p className="text-2xl lg:text-3xl text-green-400">${totalRevenue.toFixed(2)}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Pagadas</p>
-            <p className="text-xl lg:text-2xl text-green-400">{paidCount}</p>
+          <div className="bg-surface-darker/30 rounded-lg p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Pagadas</p>
+            <p className="text-2xl lg:text-3xl text-green-400">{paidCount}</p>
           </div>
-          <div className="bg-surface-darker/30 rounded-lg p-3 lg:p-4">
-            <p className="text-gray-400 text-xs lg:text-sm">Pendientes</p>
+          <div className="bg-surface-darker/30 rounded-lg p-5">
+            <p className="text-gray-400 text-base lg:text-lg">Pendientes</p>
             <p className="text-xl lg:text-2xl text-yellow-400">{pendingCount}</p>
           </div>
         </div>
@@ -185,37 +185,37 @@ export default function SalesPage() {
                 {sales.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((sale) => (
                 <div 
                   key={sale.id}
-                  className="md:table-row border-t border-white/5 hover:bg-white/5 cursor-pointer mb-2 md:mb-0 md:border-0 p-3 md:p-0 bg-surface-darker/30 md:bg-transparent rounded-lg md:rounded-none"
+                  className="md:table-row border-t border-white/5 hover:bg-white/5 cursor-pointer mb-3 md:mb-0 md:border-0 p-4 md:p-0 bg-surface-darker/30 md:bg-transparent rounded-lg md:rounded-none"
                   onClick={() => setSelectedSale(sale)}
                 >
                   {/* Mobile view */}
-                  <div className="md:hidden flex justify-between items-start mb-2">
+                  <div className="md:hidden flex justify-between items-start mb-3">
                     <div>
-                      <p className="text-white font-medium">${sale.total.toFixed(2)}</p>
-                      <p className="text-gray-400 text-xs">{formatDate(sale.createdAt)}</p>
+                      <p className="text-white text-xl font-bold">${sale.total.toFixed(2)}</p>
+                      <p className="text-gray-400 text-base">{formatDate(sale.createdAt)}</p>
                     </div>
                     {getStatusBadge(sale.status)}
                   </div>
                   <div className="md:hidden">
-                    <p className="text-white text-sm">{sale.buyerNombre}</p>
-                    <p className="text-gray-500 text-xs">{sale.buyerEmail}</p>
+                    <p className="text-white text-lg">{sale.buyerNombre}</p>
+                    <p className="text-gray-500 text-base">{sale.buyerEmail}</p>
                   </div>
                   
                   {/* Desktop view */}
-                  <div className="hidden md:table-cell px-4 py-3 text-gray-400 text-sm">
+                  <div className="hidden md:table-cell px-5 py-4 text-gray-400 text-lg">
                     {sale.id.substring(0, 8)}...
                   </div>
-                  <div className="hidden md:table-cell px-4 py-3 text-gray-400">
+                  <div className="hidden md:table-cell px-5 py-4 text-gray-400 text-lg">
                     {formatDate(sale.createdAt)}
                   </div>
-                  <div className="hidden md:table-cell px-4 py-3 text-white">
-                    <p>{sale.buyerNombre}</p>
-                    <p className="text-gray-500 text-sm">{sale.buyerEmail}</p>
+                  <div className="hidden md:table-cell px-5 py-4 text-white">
+                    <p className="text-lg">{sale.buyerNombre}</p>
+                    <p className="text-gray-500 text-base">{sale.buyerEmail}</p>
                   </div>
-                  <div className="hidden md:table-cell px-4 py-3 text-right text-white font-medium">
+                  <div className="hidden md:table-cell px-5 py-4 text-right text-white font-bold text-xl">
                     ${sale.total.toFixed(2)}
                   </div>
-                  <div className="hidden md:table-cell px-4 py-3 text-center">
+                  <div className="hidden md:table-cell px-5 py-4 text-center">
                     {getStatusBadge(sale.status)}
                   </div>
                 </div>

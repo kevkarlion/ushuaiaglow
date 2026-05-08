@@ -103,6 +103,12 @@
       "namedRegex": "^/admin/buyers(?:/)?$"
     },
     {
+      "page": "/admin/inventory",
+      "regex": "^/admin/inventory(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/inventory(?:/)?$"
+    },
+    {
       "page": "/admin/login",
       "regex": "^/admin/login(?:/)?$",
       "routeKeys": {},
@@ -173,6 +179,12 @@
       "regex": "^/api/combos(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/combos(?:/)?$"
+    },
+    {
+      "page": "/api/inventory",
+      "regex": "^/api/inventory(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/inventory(?:/)?$"
     },
     {
       "page": "/api/migrate-slugs",

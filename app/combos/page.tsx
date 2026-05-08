@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product, getMainImage } from '@/types/product';
 import { trackViewItemList, buildGA4Item } from '@/lib/ga4-ecommerce';
+import { useCart } from '@/context/CartContext';
+import { trackAddToCart } from '@/lib/meta-pixel';
 import { Search, Package, Check, ArrowRight, Flame, Timer, Lock, CreditCard, Truck, ShieldCheck, Sparkles } from 'lucide-react';
 
 // Custom Star Component - Diseño personalizado
@@ -86,6 +88,8 @@ export default function CombosPage() {
   const [combos, setCombos] = useState<ComboDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [addingId, setAddingId] = useState<string | null>(null);
+  const { addItem } = useCart();
 
   useEffect(() => {
     async function fetchCombos() {
@@ -189,6 +193,23 @@ export default function CombosPage() {
 
   // Ordenar por precio (menor a mayor)
   const sortedCombos = [...filteredCombos].sort((a, b) => a.price - b.price);
+
+  // Agregar combo al carrito
+  const handleAddToCart = (combo: ComboDisplay, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setAddingId(combo.id);
+    addItem({
+      productId: combo.id,
+      title: combo.title,
+      price: combo.price,
+      image: getMainImage(combo.images) || '',
+    });
+    trackAddToCart(combo.id, combo.title, combo.price);
+    
+    setTimeout(() => setAddingId(null), 1000);
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -344,84 +365,86 @@ export default function CombosPage() {
               const ctaText = getComboCTA(index);
               
               return (
-                <Link 
+                <div 
                   key={combo.id} 
-                  href={`/combos/${comboSlug}`}
                   className={`group bg-surface-darker/50 rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col ${
                     isBestSeller 
                       ? 'border-primary/50 shadow-lg shadow-primary/10' 
                       : 'border-white/5 hover:border-primary/40'
                   }`}
                 >
-                  {/* Image */}
-                  <div className="relative aspect-video bg-surface-darker overflow-hidden">
-                    <Image
-                      src={getMainImage(combo.images) || '/productos/combo-full.jpeg'}
-                      alt={combo.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    
-                    {/* BADGE de diferenciación */}
-                    {badge && (
-                      <div className={`absolute top-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 ${
-                        badge.type === 'best-seller' 
-                          ? 'bg-primary text-black animate-pulse' 
-                          : badge.type === 'recommended'
-                            ? 'bg-purple-500 text-white'
-                            : 'bg-blue-500 text-white'
+                  {/* Imagen - clickeable para ver detalle */}
+                  <Link href={`/combos/${comboSlug}`}>
+                    <div className="relative aspect-video bg-surface-darker overflow-hidden cursor-pointer">
+                      <Image
+                        src={getMainImage(combo.images) || '/productos/combo-full.jpeg'}
+                        alt={combo.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      
+                      {/* BADGE de diferenciación */}
+                      {badge && (
+                        <div className={`absolute top-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 ${
+                          badge.type === 'best-seller' 
+                            ? 'bg-primary text-black animate-pulse' 
+                            : badge.type === 'recommended'
+                              ? 'bg-purple-500 text-white'
+                              : 'bg-blue-500 text-white'
                       }`}>
-                        {badge.type === 'best-seller' && <Flame className="w-3 h-3" />}
-                        {badge.type === 'recommended' && <Sparkles className="w-3 h-3" />}
-                        {badge.type === 'new' && <Sparkles className="w-3 h-3" />}
-                        {badge.text}
-                      </div>
-                    )}
-                    
-                    {/* Badge descuento (solo si no hay badge) */}
-                    {!badge && (
-                      <div className="absolute top-3 left-3 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full">
-                        -{combo.discount || Math.round((1 - combo.price / (combo.originalPrice || combo.price)) * 100)}%
-                      </div>
-                    )}
+                          {badge.type === 'best-seller' && <Flame className="w-3 h-3" />}
+                          {badge.type === 'recommended' && <Sparkles className="w-3 h-3" />}
+                          {badge.type === 'new' && <Sparkles className="w-3 h-3" />}
+                          {badge.text}
+                        </div>
+                      )}
+                      
+                      {/* Badge descuento (solo si no hay badge) */}
+                      {!badge && (
+                        <div className="absolute top-3 left-3 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full">
+                          -{combo.discount || Math.round((1 - combo.price / (combo.originalPrice || combo.price)) * 100)}%
+                        </div>
+                      )}
 
-                    {/* URGENCY: Últimas unidades (solo best seller) */}
-                    {isBestSeller && (
-                      <div className="absolute bottom-3 left-3 bg-red-500/90 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1">
-                        <Timer className="w-3 h-3" />
-                        Últimas unidades
-                      </div>
-                    )}
+                      {/* URGENCY: Últimas unidades (solo best seller) */}
+                      {isBestSeller && (
+                        <div className="absolute bottom-3 left-3 bg-red-500/90 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1">
+                          <Timer className="w-3 h-3" />
+                          Últimas unidades
+                        </div>
+                      )}
 
-                    {/* Rating */}
-                    {combo.rating && (
-                      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1">
-                        <StarRating size={12} className="text-yellow-400" />
-                        <span className="text-[10px] text-white font-medium">{combo.rating}</span>
-                      </div>
-                    )}
-                  </div>
+                      {/* Rating */}
+                      {combo.rating && (
+                        <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1">
+                          <StarRating size={12} className="text-yellow-400" />
+                          <span className="text-[10px] text-white font-medium">{combo.rating}</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
 
-                  {/* Content - Jerarquía Visual CRO */}
+                  {/* Content */}
                   <div className="p-5 flex flex-col flex-1">
-                    
-                    {/* 1. RESULTADO (emocional) - Lo primero que se ve */}
+                    {/* 1. RESULTADO */}
                     <p className="text-sm text-primary font-medium mb-1 leading-tight">
                       ✨ {resultMessage}
                     </p>
                     
-                    {/* 2. Title - Nombre del combo */}
-                    <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors mb-1">
-                      {combo.title}
-                    </h3>
+                    {/* 2. Title - clickeable */}
+                    <Link href={`/combos/${comboSlug}`}>
+                      <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors mb-1 cursor-pointer">
+                        {combo.title}
+                      </h3>
+                    </Link>
                     
-                    {/* 3. CONTEXTO: Para quién es */}
+                    {/* 3. CONTEXTO */}
                     <p className="text-xs text-white/50 mb-3">
                       {forWho}
                     </p>
 
-                    {/* 4. BENEFICIOS CONCRETOS */}
+                    {/* 4. BENEFICIOS */}
                     <div className="space-y-1 mb-4">
                       {benefits.slice(0, 3).map((benefit, i) => (
                         <p key={i} className="text-xs text-white/70 flex items-start gap-1.5">
@@ -460,51 +483,58 @@ export default function CombosPage() {
                       </span>
                     </div>
 
-                    {/* 5. Precio + Ahorro emocional + CTA */}
+                    {/* 5. Precio */}
                     <div className="mt-auto">
-                      {/* AHORRO EMOCIONAL */}
                       {savings > 0 && (
                         <p className="text-xs font-medium text-green-400 mb-2 flex items-center gap-1.5">
                           <Flame className="w-3 h-3" />
                           ¡Ahorrás ${savings.toLocaleString('es-AR')} con este combo!
                         </p>
                       )}
-                      
-                      {/* Confianza rápida */}
+                        
                       <div className="flex items-center gap-2 text-[10px] text-white/40 mb-3">
                         <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Compra segura</span>
                         <span>•</span>
                         <span className="flex items-center gap-1"><Truck className="w-3 h-3" /> Envío gratis</span>
                       </div>
-                      
-                      {/* Precio + CTA */}
-                      <div className="flex items-end justify-between gap-3">
-                        <div>
-                          {combo.originalPrice && combo.originalPrice > combo.price && (
-                            <span className="text-sm text-white/40 line-through">
-                              ${(combo.originalPrice || 0).toLocaleString('es-AR')}
-                            </span>
-                          )}
-                          <span className="text-2xl font-bold text-white block">
-                            ${(combo.price || 0).toLocaleString('es-AR')}
-                          </span>
-                        </div>
                         
-                        {/* CTA PERSUASIVO */}
-                        <button 
-                          className={`px-5 py-2.5 font-bold text-sm rounded-xl transition-all hover:shadow-lg active:scale-95 ${
-                            isBestSeller 
-                              ? 'bg-primary hover:bg-primary/90 text-black hover:shadow-primary/20' 
-                              : 'bg-primary/90 hover:bg-primary text-black'
-                          }`}
-                          onClick={(e) => e.preventDefault()}
-                        >
-                          {ctaText}
-                        </button>
+                      <div className="flex items-baseline gap-2">
+                        {combo.originalPrice && combo.originalPrice > combo.price && (
+                          <span className="text-sm text-white/40 line-through">
+                            ${(combo.originalPrice || 0).toLocaleString('es-AR')}
+                          </span>
+                        )}
+                        <span className="text-2xl font-bold text-white">
+                          ${(combo.price || 0).toLocaleString('es-AR')}
+                        </span>
                       </div>
                     </div>
                   </div>
-                </Link>
+                  
+                  {/* DOS BOTONES */}
+                  <div className="p-4 pt-0 mt-auto space-y-2">
+                    {/* Botón agregar al carrito */}
+                    <button 
+                      className={`w-full py-3 font-bold text-sm rounded-xl transition-all hover:shadow-lg active:scale-95 ${
+                        isBestSeller 
+                          ? 'bg-primary hover:bg-primary/90 text-black hover:shadow-primary/20' 
+                          : 'bg-primary/90 hover:bg-primary text-black'
+                      } ${addingId === combo.id ? 'bg-green-500 text-white' : ''}`}
+                      onClick={(e) => handleAddToCart(combo, e)}
+                      disabled={addingId === combo.id}
+                    >
+                      {addingId === combo.id ? '✓ Agregado!' : 'Agregar al carrito'}
+                    </button>
+                    
+                    {/* Botón ver detalle */}
+                    <Link 
+                      href={`/combos/${comboSlug}`}
+                      className="w-full py-3 font-bold text-sm rounded-xl border border-white/20 text-white hover:bg-white/5 transition-all block text-center"
+                    >
+                      Ver detalle
+                    </Link>
+                  </div>
+                </div>
               );
             })}
           </div>

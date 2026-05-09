@@ -289,7 +289,8 @@ export async function GET(request: NextRequest) {
           totalRevenue: 0,
           paidOrders: 0,
           failedOrders: 0,
-          aov: 0
+          aov: 0,
+          pendingOrders: 0
         },
         revenueChart: [],
         topProducts: [],
@@ -305,7 +306,8 @@ export async function GET(request: NextRequest) {
       totalRevenue: 0,
       paidOrders: 0,
       failedOrders: 0,
-      aov: 0
+      aov: 0,
+      pendingOrders: 0
     };
 
     const previousData = data.previousPeriod[0] || {
@@ -362,9 +364,10 @@ export async function GET(request: NextRequest) {
         paidOrders: kpisData.paidOrders || 0,
         failedOrders: kpisData.failedOrders || 0,
         aov: kpisData.aov || 0,
+        pendingOrders: kpisData.pendingOrders || 0,
         previousTotalRevenue: previousData.totalRevenue,
         previousPaidOrders: previousData.paidOrders,
-        previousAOV: previousData.aov
+        previousAov: previousData.aov
       },
       revenueChart,
       topProducts: data.topProducts || [],

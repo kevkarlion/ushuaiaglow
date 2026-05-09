@@ -17,7 +17,9 @@ import { ChartDataPoint } from '@/types/analytics';
 
 interface RevenueChartProps {
   /** Revenue data points */
-  data: ChartDataPoint[];
+  data?: ChartDataPoint[];
+  /** Show loading state */
+  isLoading?: boolean;
 }
 
 /**
@@ -69,7 +71,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
   );
 }
 
-export default function RevenueChart({ data }: RevenueChartProps) {
+export default function RevenueChart({ data = [], isLoading = false }: RevenueChartProps) {
   return (
     <div className="bg-surface-darker/50 rounded-2xl border border-white/5 p-5">
       {/* Header */}
@@ -77,45 +79,51 @@ export default function RevenueChart({ data }: RevenueChartProps) {
 
       {/* Chart */}
       <div className="h-[200px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(255, 255, 255, 0.05)"
-              vertical={false}
-            />
-            <XAxis
-              dataKey="date"
-              tickFormatter={formatDate}
-              stroke="rgba(255, 255, 255, 0.3)"
-              fontSize={11}
-              tickLine={false}
-              axisLine={false}
-              dy={10}
-            />
-            <YAxis
-              tickFormatter={formatCurrency}
-              stroke="rgba(255, 255, 255, 0.3)"
-              fontSize={11}
-              tickLine={false}
-              axisLine={false}
-              dx={-10}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="revenue"
-              stroke="#53D1F9"
-              strokeWidth={2}
-              dot={{ fill: '#53D1F9', r: 3, strokeWidth: 0 }}
-              activeDot={{ r: 5, fill: '#53D1F9', strokeWidth: 2, stroke: '#fff' }}
-              isAnimationActive={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="w-full h-4 rounded bg-white/5 animate-pulse" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255, 255, 255, 0.05)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="date"
+                tickFormatter={formatDate}
+                stroke="rgba(255, 255, 255, 0.3)"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                dy={10}
+              />
+              <YAxis
+                tickFormatter={formatCurrency}
+                stroke="rgba(255, 255, 255, 0.3)"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                dx={-10}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#53D1F9"
+                strokeWidth={2}
+                dot={{ fill: '#53D1F9', r: 3, strokeWidth: 0 }}
+                activeDot={{ r: 5, fill: '#53D1F9', strokeWidth: 2, stroke: '#fff' }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

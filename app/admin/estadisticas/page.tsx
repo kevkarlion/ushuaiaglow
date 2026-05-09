@@ -7,7 +7,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { Suspense, useCallback, useMemo } from 'react';
 import { useAnalytics, useAnalyticsFromUrl } from '@/hooks/useAnalytics';
 
 // Components
@@ -24,7 +24,7 @@ import DashboardSkeleton from '@/components/analytics/DashboardSkeleton';
 
 type Period = 'today' | '7d' | '30d' | 'custom';
 
-export default function EstadisticasPage() {
+function EstadisticasContent() {
   const searchParams = useSearchParams();
 
   // Get analytics data from URL params
@@ -176,5 +176,13 @@ export default function EstadisticasPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EstadisticasPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <EstadisticasContent />
+    </Suspense>
   );
 }

@@ -8,7 +8,7 @@ import type { RecentSale } from '@/types/analytics';
 
 interface RecentSalesTableProps {
   /** Array of recent sales to display */
-  sales: RecentSale[];
+  sales?: RecentSale[];
   /** Loading state */
   isLoading?: boolean;
 }
@@ -108,7 +108,7 @@ function TableSkeleton() {
   );
 }
 
-export default function RecentSalesTable({ sales, isLoading }: RecentSalesTableProps) {
+export default function RecentSalesTable({ sales = [], isLoading = false }: RecentSalesTableProps) {
   if (isLoading) {
     return (
       <div className="bg-surface-darker/50 rounded-2xl border border-white/5 overflow-hidden">

@@ -11,6 +11,8 @@ import { DollarSign, ShoppingCart, Ticket, Clock } from 'lucide-react';
 interface KPICardsProps {
   /** KPI metrics data from analytics API */
   kpis: KPIMetrics;
+  /** Show loading skeleton state */
+  isLoading?: boolean;
 }
 
 /**
@@ -32,7 +34,7 @@ function formatCount(value: number): string {
   return new Intl.NumberFormat('es-AR').format(value);
 }
 
-export default function KPICards({ kpis }: KPICardsProps) {
+export default function KPICards({ kpis, isLoading }: KPICardsProps) {
   const cards = [
     {
       icon: DollarSign,
@@ -42,6 +44,7 @@ export default function KPICards({ kpis }: KPICardsProps) {
       previousValue: kpis.previousTotalRevenue,
       format: 'currency' as const,
       iconColor: 'bg-green-500/10 text-green-400',
+      isLoading,
     },
     {
       icon: ShoppingCart,
@@ -51,6 +54,7 @@ export default function KPICards({ kpis }: KPICardsProps) {
       previousValue: kpis.previousPaidOrders,
       format: 'number' as const,
       iconColor: 'bg-primary/10 text-primary',
+      isLoading,
     },
     {
       icon: Ticket,
@@ -60,6 +64,7 @@ export default function KPICards({ kpis }: KPICardsProps) {
       previousValue: kpis.previousAov,
       format: 'currency' as const,
       iconColor: 'bg-purple-500/10 text-purple-400',
+      isLoading,
     },
     {
       icon: Clock,
@@ -68,6 +73,7 @@ export default function KPICards({ kpis }: KPICardsProps) {
       subtext: 'en espera',
       format: 'number' as const,
       iconColor: 'bg-yellow-500/10 text-yellow-400',
+      isLoading,
     },
   ];
 

@@ -16,7 +16,9 @@ import { StatusBreakdown, SaleStatus } from '@/types/analytics';
 
 interface StatusPieChartProps {
   /** Status breakdown data */
-  data: StatusBreakdown[];
+  data?: StatusBreakdown[];
+  /** Show loading state */
+  isLoading?: boolean;
 }
 
 /**
@@ -87,34 +89,38 @@ function CustomTooltip({ active, payload }: TooltipProps) {
  * Custom legend renderer
  */
 interface LegendPayloadItem {
-  value: SaleStatus;
-  payload: {
-    count: number;
-    percentage: number;
+  value?: SaleStatus | string;
+  payload?: {
+    count?: number;
+    percentage?: number;
   };
 }
 
-function renderLegend({ payload }: { payload?: LegendPayloadItem[] }) {
+function renderLegend({ payload }: { payload?: readonly LegendPayloadItem[] }) {
   if (!payload) return null;
 
   return (
     <div className="flex flex-wrap justify-center gap-3 mt-4">
-      {payload.map((entry) => (
-        <div key={entry.value} className="flex items-center gap-1.5">
-          <div
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: STATUS_COLORS[entry.value] || '#9ca3af' }}
-          />
-          <span className="text-xs text-white/60">
-            {STATUS_LABELS[entry.value] || entry.value}
-          </span>
-        </div>
-      ))}
+      {payload.map((entry, index) => {
+        if (!entry.value) return null;
+        const colorKey = entry.value as SaleStatus;
+        return (
+          <div key={index} className="flex items-center gap-1.5">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: STATUS_COLORS[colorKey] || '#9ca3af' }}
+            />
+            <span className="text-xs text-white/60">
+              {STATUS_LABELS[colorKey] || entry.value}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-export default function StatusPieChart({ data }: StatusPieChartProps) {
+export default function StatusPieChart({ data = [], isLoading = false }: StatusPieChartProps) {
   // Calculate percentages from counts
   const total = data.reduce((sum, item) => sum + item.count, 0);
   const chartData = data.map((item) => ({
@@ -129,30 +135,36 @@ export default function StatusPieChart({ data }: StatusPieChartProps) {
 
       {/* Chart */}
       <div className="h-[200px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={45}
-              outerRadius={75}
-              paddingAngle={2}
-              dataKey="count"
-              isAnimationActive={false}
-            >
-              {chartData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={STATUS_COLORS[entry.status] || '#9ca3af'}
-                  stroke="transparent"
-                />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend content={renderLegend} />
-          </PieChart>
-        </ResponsiveContainer>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="w-32 h-32 rounded-full bg-white/5 animate-pulse" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={45}
+                outerRadius={75}
+                paddingAngle={2}
+                dataKey="count"
+                isAnimationActive={false}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={STATUS_COLORS[entry.status] || '#9ca3af'}
+                    stroke="transparent"
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              <Legend content={renderLegend} />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

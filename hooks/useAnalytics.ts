@@ -118,7 +118,7 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
 
   return {
     data,
-    error,
+    error: error ?? null,
     isLoading,
     isValidating,
     setPeriod,
@@ -131,13 +131,23 @@ export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsRet
 
 // Hook for getting analytics from URL params
 export function useAnalyticsFromUrl(searchParams: URLSearchParams): UseAnalyticsReturn {
-  const period = searchParams.get('period') as 'today' | '7d' | '30d' | null;
+  const periodParam = searchParams.get('period');
   const startDate = searchParams.get('startDate') || undefined;
   const endDate = searchParams.get('endDate') || undefined;
   const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : undefined;
 
+  // Determine period: if URL has valid period, use it. Otherwise use custom dates if provided, or default to '7d'
+  let period: 'today' | '7d' | '30d' | undefined;
+  
+  if (periodParam === 'today' || periodParam === '7d' || periodParam === '30d') {
+    period = periodParam;
+  } else if (!startDate || !endDate) {
+    // No period in URL and no custom dates -> default to '7d'
+    period = '7d';
+  }
+
   return useAnalytics({
-    period: period || undefined,
+    period,
     startDate,
     endDate,
     limit,

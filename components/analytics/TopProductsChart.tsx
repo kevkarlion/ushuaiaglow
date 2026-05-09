@@ -18,7 +18,9 @@ import { TopProduct } from '@/types/analytics';
 
 interface TopProductsChartProps {
   /** Top products data (max 10) */
-  data: TopProduct[];
+  data?: TopProduct[];
+  /** Show loading state */
+  isLoading?: boolean;
 }
 
 /**
@@ -83,7 +85,7 @@ const BAR_COLORS = [
   '#c084fc', // purple-400
 ];
 
-export default function TopProductsChart({ data }: TopProductsChartProps) {
+export default function TopProductsChart({ data = [], isLoading = false }: TopProductsChartProps) {
   // Prepare data for horizontal bar chart
   // Recharts horizontal bars use XAxis for the numeric axis
   const chartData = data.slice(0, 10).map((product, index) => ({
@@ -99,42 +101,48 @@ export default function TopProductsChart({ data }: TopProductsChartProps) {
 
       {/* Chart */}
       <div className="h-[200px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            layout="vertical"
-            margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(255, 255, 255, 0.05)"
-              horizontal={false}
-            />
-            <XAxis
-              type="number"
-              tickFormatter={(value) => formatCurrency(value)}
-              stroke="rgba(255, 255, 255, 0.3)"
-              fontSize={10}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              type="category"
-              dataKey="displayName"
-              width={100}
-              stroke="rgba(255, 255, 255, 0.3)"
-              fontSize={10}
-              tickLine={false}
-              axisLine={false}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="revenue" radius={[0, 4, 4, 0]} isAnimationActive={false}>
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="w-full h-4 rounded bg-white/5 animate-pulse" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255, 255, 255, 0.05)"
+                horizontal={false}
+              />
+              <XAxis
+                type="number"
+                tickFormatter={(value) => formatCurrency(value)}
+                stroke="rgba(255, 255, 255, 0.3)"
+                fontSize={10}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="displayName"
+                width={100}
+                stroke="rgba(255, 255, 255, 0.3)"
+                fontSize={10}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="revenue" radius={[0, 4, 4, 0]} isAnimationActive={false}>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

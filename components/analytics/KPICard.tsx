@@ -21,6 +21,8 @@ interface KPICardProps {
   format?: 'currency' | 'number';
   /** Custom color for icon background */
   iconColor?: string;
+  /** Show loading skeleton state */
+  isLoading?: boolean;
 }
 
 /**
@@ -63,9 +65,10 @@ export default function KPICard({
   previousValue,
   format = 'currency',
   iconColor = 'bg-primary/10 text-primary',
+  isLoading = false,
 }: KPICardProps) {
   // Calculate trend if previous value is provided
-  const trend = previousValue !== undefined ? calculateTrend(value, previousValue) : null;
+  const trend = !isLoading && previousValue !== undefined ? calculateTrend(value, previousValue) : null;
 
   // Format value based on type
   const formattedValue = format === 'currency' ? formatCurrency(value) : formatNumber(value);
@@ -78,20 +81,34 @@ export default function KPICard({
         <span className="text-sm text-white/60">{label}</span>
         
         {/* Icon */}
-        <div className={`p-2.5 rounded-xl ${iconColor}`}>
-          <Icon className="w-5 h-5" />
-        </div>
+        {isLoading ? (
+          <div className={`p-2.5 rounded-xl animate-pulse bg-white/5 ${iconColor}`}>
+            <Icon className="w-5 h-5" />
+          </div>
+        ) : (
+          <div className={`p-2.5 rounded-xl ${iconColor}`}>
+            <Icon className="w-5 h-5" />
+          </div>
+        )}
       </div>
 
       {/* Value */}
       <div className="space-y-1">
-        <span className="text-2xl font-bold text-white">
-          {formattedValue}
-        </span>
+        {isLoading ? (
+          <div className="h-8 w-24 rounded bg-white/5 animate-pulse" />
+        ) : (
+          <span className="text-2xl font-bold text-white">
+            {formattedValue}
+          </span>
+        )}
         
         {/* Subtext with optional trend indicator */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-white/50">{subtext}</span>
+          {isLoading ? (
+            <div className="h-4 w-16 rounded bg-white/5 animate-pulse" />
+          ) : (
+            <span className="text-xs text-white/50">{subtext}</span>
+          )}
           
           {trend && (
             <div

@@ -96,24 +96,22 @@ function CartContent() {
             
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.productId} className="flex gap-4 p-4 bg-surface-darker/30 rounded-xl">
+                <div key={item.productId} className="flex flex-col sm:flex-row gap-4 p-4 bg-surface-darker/30 rounded-xl sm:overflow-visible">
                   {item.image && (
-                    <Image src={item.image} alt={item.title} width={80} height={80} className="w-20 h-20 rounded-lg object-cover" />
+                    <Image src={item.image} alt={item.title} width={80} height={80} className="w-20 h-20 rounded-lg object-cover shrink-0 self-start" />
                   )}
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <h4 className="text-white font-medium text-base line-clamp-2">{item.title}</h4>
                     <p className="text-primary font-bold mt-1">${(item.price || 0).toLocaleString('es-AR')}</p>
-                    <div className="flex items-center gap-3 mt-3">
+                    <div className="flex flex-wrap items-center gap-3 mt-3">
                       <div className="flex items-center gap-2 bg-white/10 rounded-lg">
                         <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-l-lg text-white">−</button>
                         <span className="text-white font-medium w-8 text-center">{item.quantity}</span>
                         <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-r-lg text-white">+</button>
                       </div>
-                      <button onClick={() => removeItem(item.productId)} className="ml-auto text-gray-500 hover:text-red-400 text-sm">Eliminar</button>
+                      <button onClick={() => removeItem(item.productId)} className="text-gray-500 hover:text-red-400 text-sm">Eliminar</button>
+                      <span className="ml-auto text-white font-bold text-lg">${((item.price || 0) * item.quantity).toLocaleString('es-AR')}</span>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white font-bold text-lg">${((item.price || 0) * item.quantity).toLocaleString('es-AR')}</p>
                   </div>
                 </div>
               ))}

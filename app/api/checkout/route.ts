@@ -32,7 +32,7 @@ interface BuyerData {
   localidad: string;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_URL || process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
 
 console.log('🔍 BASE_URL para back_urls:', BASE_URL);
 
@@ -176,7 +176,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       preferenceId: data.id,
-      initPoint: data.init_point,
+      init_point: data.init_point,
+      sandbox_init_point: data.sandbox_init_point,
       buyerId,
       externalRef,
     });

@@ -70,10 +70,11 @@ function CartContent() {
       });
 
       const data = await response.json();
-      if (data.preferenceId && (data.init_point || data.sandbox_init_point)) {
-        window.location.href = data.init_point || data.sandbox_init_point;
+      console.log('Checkout response:', data);
+      if (data.preferenceId && (data.init_point || data.sandbox_init_point || data.initPoint)) {
+        window.location.href = data.init_point || data.sandbox_init_point || data.initPoint;
       } else {
-        setError(data.error || 'Error al procesar');
+        setError(data.error || data.message || 'Error al procesar');
         setIsProcessing(false);
       }
     } catch {

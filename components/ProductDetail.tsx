@@ -247,14 +247,6 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               <span className="text-sm">Pagá en cuotas con Mercado Pago</span>
             </div>
 
-            {/* Stock */}
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-400' : 'bg-red-400'} animate-pulse`} />
-              <span className="text-sm text-white/60">
-                {product.stock > 0 ? `${product.stock} unidades disponibles` : 'Sin stock'}
-              </span>
-            </div>
-
             {/* Quantity */}
             <div className="flex items-center gap-4 py-2">
               <label className="text-sm text-white/60">Cantidad:</label>

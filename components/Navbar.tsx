@@ -91,7 +91,8 @@ export default function Navbar() {
 
               {/* Mobile menu button */}
               <button
-                className="md:hidden p-2 text-white/80"
+                type="button"
+                className="md:hidden p-2 text-white/80 hover:text-white z-50 relative"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Menu"
               >

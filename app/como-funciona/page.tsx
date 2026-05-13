@@ -585,16 +585,16 @@ function MistakeCard({ mistake, index }: { mistake: typeof commonMistakes[0]; in
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
-      className="group bg-gradient-to-br from-white/5 to-white/10 rounded-3xl p-6 border border-white/10 hover:border-pink-300/30 transition-all duration-500"
+      transition={{ delay: index * 0.1, duration: 0.5, ease: 'easeOut' }}
+      className="bg-surface-darker/30 rounded-3xl p-6 border border-white/5"
     >
       {/* Icono */}
-      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-100 to-pink-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-lg shadow-rose-100/10">
-        <AlertCircle className="w-6 h-6 text-rose-400" />
+      <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-4">
+        <AlertCircle className="w-5 h-5 text-rose-400" />
       </div>
 
       {/* Error */}
-      <h4 className="font-semibold text-white text-lg mb-3 group-hover:text-rose-200 transition-colors">
+      <h4 className="font-semibold text-white text-lg mb-3">
         {mistake.mistake}
       </h4>
 
@@ -604,8 +604,8 @@ function MistakeCard({ mistake, index }: { mistake: typeof commonMistakes[0]; in
       </p>
 
       {/* Solución */}
-      <div className="flex items-start gap-3 bg-gradient-to-r from-emerald-50/10 to-teal-50/10 rounded-2xl p-4 border border-emerald-200/10">
-        <CheckCircle2 className="w-5 h-5 text-emerald-300 mt-0.5 flex-shrink-0" />
+      <div className="flex items-start gap-3 bg-emerald-500/10 rounded-2xl p-4 border border-emerald-500/10">
+        <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
         <span className="text-sm text-white/70 leading-relaxed">{mistake.solution}</span>
       </div>
     </motion.div>

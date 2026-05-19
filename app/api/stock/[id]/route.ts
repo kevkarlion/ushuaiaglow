@@ -74,9 +74,57 @@ export async function PUT(
           { status: 400 }
         );
       }
+
+      // Si es un combo, descontar también los productos individuales
+      if (product.isCombo === true && product.productsIncluded && Array.isArray(product.productsIncluded)) {
+        const comboProducts = product.productsIncluded;
+        
+        // Obtener los productos individuales para verificar stock
+        const individualProducts = await collection.find({
+          _id: { $in: comboProducts.map((id: string) => {
+            try { return new ObjectId(id); } catch { return null; }
+          }).filter(Boolean) }
+        }).toArray();
+
+        // Verificar stock suficiente en todos los productos individuales
+        for (const indProd of individualProducts) {
+          const indStock = indProd.stock || 0;
+          if (indStock < qty) {
+            return NextResponse.json(
+              { error: `Stock insuficiente en producto individual: ${indProd.title}. Stock actual: ${indStock}` },
+              { status: 400 }
+            );
+          }
+        }
+
+        // Descontar stock de cada producto individual
+        for (const indProd of individualProducts) {
+          await collection.updateOne(
+            { _id: indProd._id },
+            { 
+              $inc: { stock: -qty },
+              $set: { updatedAt: new Date() }
+            }
+          );
+
+          // Log para cada producto individual
+          await inventoryLog.insertOne({
+            tipo: 'salida',
+            origen: 'combo',
+            productId: indProd._id.toString(),
+            productTitle: `${product.title} → ${indProd.title}`,
+            cantidad: qty,
+            stockAnterior: indProd.stock,
+            stockNuevo: indProd.stock - qty,
+            motivo: `Descontado por combo: ${product.title}`,
+            adminId: 'admin',
+            createdAt: new Date(),
+          });
+        }
+      }
     }
 
-    // Update
+    // Update main product (combo)
     await collection.updateOne(
       { _id: objectId },
       { 
@@ -112,7 +160,6 @@ export async function PUT(
       quantity: qty,
     });
   } catch (error) {
-    console.error('Error updating stock:', error);
     return NextResponse.json({ error: 'Error updating stock' }, { status: 500 });
   }
 }

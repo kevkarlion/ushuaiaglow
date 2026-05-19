@@ -59,6 +59,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
     }
 
+    // DEBUG: Log del producto para verificar campos
+    console.log('=== DEBUG STOCK ADJUSTMENT ===');
+    console.log('Product title:', product.title);
+    console.log('Product isCombo:', product.isCombo, typeof product.isCombo);
+    console.log('Product productsIncluded:', product.productsIncluded, typeof product.productsIncluded);
+    console.log('Operation:', operation, 'Quantity:', qty);
+
     // Calculate new stock
     const currentStock = product.stock || 0;
     let newStock: number;
@@ -79,19 +86,67 @@ export async function PUT(
       }
 
       // Si es un combo, descontar también los productos individuales
-      if (product.isCombo === true && product.productsIncluded && Array.isArray(product.productsIncluded)) {
-        const comboProducts = product.productsIncluded;
+      let comboProducts: string[] = [];
+      
+      // Manejar ambos formatos: array o string JSON
+      if (Array.isArray(product.productsIncluded)) {
+        comboProducts = product.productsIncluded;
+      } else if (typeof product.productsIncluded === 'string' && product.productsIncluded) {
+        try {
+          comboProducts = JSON.parse(product.productsIncluded);
+        } catch (e) {
+          // Maybe comma-separated string
+          comboProducts = product.productsIncluded.split(',').map(s => s.trim()).filter(Boolean);
+        }
+      }
+      
+      console.log('Parsed comboProducts:', comboProducts);
+      
+      if (comboProducts.length === 0) {
+        console.log('WARNING: Combo sin productsIncluded configurados');
+      }
+      
+      // Si es combo y tiene productos incluidos, descontar también los individuales
+      if (product.isCombo === true && comboProducts.length > 0) {
         
-        // Obtener los productos individuales para verificar stock
-        const validIds = comboProducts
-          .map((id: string) => {
-            try { return new ObjectId(id); } catch { return null; }
-          })
-          .filter((id): id is ObjectId => id !== null);
+        // Los productos están guardados por NOMBRE, no por ID - buscar por nombre
+        // Usar búsqueda más flexible (contiene, no exacta)
+        const individualProducts = [];
+        for (const prodName of comboProducts) {
+          // Escapar caracteres especiales del regex
+          const escapedName = prodName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          
+          // Primero intentar búsqueda exacta
+          let found = await collection.findOne({ 
+            title: { $regex: new RegExp('^' + escapedName + '$', 'i') }
+          });
+          
+          // Si no encuentra, buscar por coincidencia parcial
+          if (!found) {
+            found = await collection.findOne({ 
+              title: { $regex: new RegExp(escapedName, 'i') }
+            });
+          }
+          
+          // Última instancia: buscar cualquier producto que CONTENGA el nombre
+          if (!found) {
+            const partialName = prodName.toLowerCase().split(' ')[0]; // Primer palabra
+            found = await collection.findOne({ 
+              title: { $regex: new RegExp(partialName, 'i') }
+            });
+            console.log(`Fallback search for first word "${partialName}" -> found: ${found?.title || 'NOT FOUND'}`);
+          }
+          
+          console.log(`Searching for: "${prodName}" -> found: ${found?.title || 'NOT FOUND'}`);
+          
+          if (found) {
+            individualProducts.push(found);
+          } else {
+            console.log('WARNING: No se encontró producto:', prodName);
+          }
+        }
         
-        const individualProducts = await collection.find({
-          _id: { $in: validIds }
-        }).toArray();
+        console.log('Found individual products:', individualProducts.map(p => p.title));
 
         // Verificar stock suficiente en todos los productos individuales
         for (const indProd of individualProducts) {
@@ -106,13 +161,16 @@ export async function PUT(
 
         // Descontar stock de cada producto individual
         for (const indProd of individualProducts) {
-          await collection.updateOne(
+          const previousStock = indProd.stock || 0;
+          const result = await collection.updateOne(
             { _id: indProd._id },
             { 
               $inc: { stock: -qty },
               $set: { updatedAt: new Date() }
             }
           );
+          
+          console.log(`UPDATE ${indProd.title}: ${previousStock} -> ${previousStock - qty}, matched: ${result.matchedCount}, modified: ${result.modifiedCount}`);
 
           // Log para cada producto individual
           await inventoryLog.insertOne({
@@ -166,6 +224,7 @@ export async function PUT(
       quantity: qty,
     });
   } catch (error) {
+    console.error('Error updating stock:', error);
     return NextResponse.json({ error: 'Error updating stock' }, { status: 500 });
   }
 }

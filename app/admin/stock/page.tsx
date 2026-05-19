@@ -13,6 +13,8 @@ interface ProductStock {
   price: number;
   category: string;
   image: string | null;
+  isCombo?: boolean;
+  productsIncluded?: string[];
 }
 
 interface ProductFormData {
@@ -507,7 +509,12 @@ export default function StockPage() {
                         <img src={product.image} alt={product.title} className="w-12 h-12 rounded object-cover" />
                       )}
                       <div>
-                        <p className="text-white text-lg">{product.title}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-white text-lg">{product.title}</p>
+                          {product.isCombo && (
+                            <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded">Combo</span>
+                          )}
+                        </div>
                         {isLow && <p className="text-orange-400 text-sm">⚠️ Bajo stock</p>}
                       </div>
                     </div>
@@ -553,7 +560,12 @@ export default function StockPage() {
                         <img src={product.image} alt={product.title} className="w-20 h-20 rounded-lg object-cover" />
                       )}
                       <div className="flex-1">
-                        <p className="text-white font-medium">{product.title}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-white font-medium">{product.title}</p>
+                          {product.isCombo && (
+                            <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded">Combo</span>
+                          )}
+                        </div>
                         <p className="text-gray-400 text-xs">{product.category}</p>
                         {isLow && <p className="text-orange-400 text-xs">⚠️ Bajo stock</p>}
                       </div>

@@ -68,6 +68,8 @@ export async function GET(request: Request) {
         price: p.price,
         category: p.category,
         image: mainImage,
+        isCombo: p.isCombo || false,
+        productsIncluded: p.productsIncluded || [],
       };
     });
     

@@ -62,6 +62,9 @@ export async function PUT(
     // Calculate new stock
     const currentStock = product.stock || 0;
     let newStock: number;
+    
+    // Inventory log collection
+    const inventoryLog = mongoClient.db('ushuaia').collection('inventoryLog');
 
     if (operation.toLowerCase() === 'add') {
       newStock = currentStock + qty;
@@ -80,10 +83,14 @@ export async function PUT(
         const comboProducts = product.productsIncluded;
         
         // Obtener los productos individuales para verificar stock
-        const individualProducts = await collection.find({
-          _id: { $in: comboProducts.map((id: string) => {
+        const validIds = comboProducts
+          .map((id: string) => {
             try { return new ObjectId(id); } catch { return null; }
-          }).filter(Boolean) }
+          })
+          .filter((id): id is ObjectId => id !== null);
+        
+        const individualProducts = await collection.find({
+          _id: { $in: validIds }
         }).toArray();
 
         // Verificar stock suficiente en todos los productos individuales
@@ -136,7 +143,6 @@ export async function PUT(
     );
 
     // Register in inventory log
-    const inventoryLog = mongoClient.db('ushuaia').collection('inventoryLog');
     await inventoryLog.insertOne({
       tipo: operation.toLowerCase() === 'add' ? 'entrada' : 'salida',
       origen: 'manual',

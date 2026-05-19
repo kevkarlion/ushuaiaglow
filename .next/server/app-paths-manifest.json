@@ -40,6 +40,7 @@
   "/checkout/success/page": "app/checkout/success/page.js",
   "/combos/[id]/page": "app/combos/[id]/page.js",
   "/combos/page": "app/combos/page.js",
+  "/como-funciona/page": "app/como-funciona/page.js",
   "/contacto/page": "app/contacto/page.js",
   "/nosotros/page": "app/nosotros/page.js",
   "/page": "app/page.js",

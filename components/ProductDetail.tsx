@@ -517,14 +517,6 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             <CreditCard className="w-4 h-4" />
             <span className="text-sm">Pagá en cuotas</span>
           </div>
-
-          {/* Stock */}
-          <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-400' : 'bg-red-400'} animate-pulse`} />
-            <span className="text-sm text-white/60">
-              {product.stock > 0 ? `${product.stock} disponibles` : 'Sin stock'}
-            </span>
-          </div>
         </div>
 
         {/* Descripción */}

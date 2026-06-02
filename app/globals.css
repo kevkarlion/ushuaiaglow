@@ -28,6 +28,13 @@
   
   /* Accent */
   --accent: #eb7690;
+  
+  /* Premium easing */
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: auto;
 }
 
 body {
@@ -49,6 +56,19 @@ p {
   line-height: 1.47;
 }
 
+/* Premium selection */
+::selection {
+  background: rgba(83, 209, 249, 0.3);
+  color: #ffffff;
+}
+
+/* Focus ring premium */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -59,10 +79,15 @@ p {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Smooth image loading */
+img {
+  transition: opacity 0.3s var(--ease-premium);
 }

@@ -44,33 +44,33 @@ export default function Navbar() {
   return (
     <>
       <nav 
-        className={`sticky top-0 z-50 transition-all duration-300 ${
+        className={`sticky top-0 z-50 transition-all duration-500 ease-premium ${
           scrolled 
-            ? 'bg-black/80 backdrop-blur-md saturate-180 border-b border-white/10' 
-            : 'bg-black/40 backdrop-blur-sm'
+            ? 'bg-black/70 backdrop-blur-xl saturate-150 border-b border-white/[0.06] shadow-premium' 
+            : 'bg-black/20 backdrop-blur-sm'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-18">
             {/* Logo */}
-            <Link href="/" className="flex items-center py-2">
+            <Link href="/" className="flex items-center py-2 relative group">
               <Image 
                 src="/us-logo-final.png" 
                 alt="Ushuaia" 
                 width={80} 
                 height={80} 
-                className="h-10 w-auto object-contain md:h-12"
+                className="h-10 w-auto object-contain md:h-12 transition-transform duration-500 ease-premium group-hover:scale-[1.02]"
                 priority
               />
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-sm font-normal text-white/80 hover:text-white transition-colors"
+                  className="relative px-4 py-2 text-sm font-normal text-white/70 hover:text-white transition-all duration-300 ease-premium rounded-lg hover:bg-white/[0.04]"
                 >
                   {link.name}
                 </Link>
@@ -78,12 +78,15 @@ export default function Navbar() {
             </div>
 
             {/* Cart & Menu */}
-            <div className="flex items-center space-x-4">
-              <Link href="/cart" className="relative p-2 text-white/80 hover:text-white transition-colors">
+            <div className="flex items-center gap-2">
+              <Link 
+                href="/cart" 
+                className="relative p-2.5 text-white/70 hover:text-white transition-all duration-300 ease-premium rounded-xl hover:bg-white/[0.04]"
+              >
                 <span className="sr-only">Carrito</span>
                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center font-medium">
+                  <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-semibold shadow-glow">
                     {totalItems}
                   </span>
                 )}
@@ -92,14 +95,14 @@ export default function Navbar() {
               {/* Mobile menu button */}
               <button
                 type="button"
-                className="md:hidden p-2 text-white/80 hover:text-white z-50 relative"
+                className="md:hidden p-2.5 text-white/70 hover:text-white z-50 relative transition-all duration-300 ease-premium rounded-xl hover:bg-white/[0.04]"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Menu"
               >
                 {isOpen ? (
-                  <X className="w-6 h-6" strokeWidth={1.5} />
+                  <X className="w-5 h-5" strokeWidth={1.5} />
                 ) : (
-                  <Menu className="w-6 h-6" strokeWidth={1.5} />
+                  <Menu className="w-5 h-5" strokeWidth={1.5} />
                 )}
               </button>
             </div>
@@ -107,57 +110,34 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay - fixed, covers entire screen */}
+      {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-40 md:hidden animate-fade-in">
           <div 
-            className="absolute inset-0 bg-black/95 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/90 backdrop-blur-xl"
             onClick={() => setIsOpen(false)}
           />
           
-          {/* Menu Content - slides in from top */}
-          <div className="relative pt-20 px-4 animate-slide-down">
-            <div className="flex flex-col space-y-1">
-              {navLinks.map((link) => (
+          <div className="relative pt-24 px-6 animate-fade-in-up">
+            <div className="flex flex-col gap-1">
+              {navLinks.map((link, i) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="block py-4 text-xl text-white/90 hover:text-white transition-colors font-normal border-b border-white/10"
+                  className="group flex items-center justify-between py-4 px-4 text-xl text-white/80 hover:text-white transition-all duration-300 ease-premium rounded-2xl hover:bg-white/[0.03]"
                   onClick={() => setIsOpen(false)}
+                  style={{ animationDelay: `${i * 60}ms` }}
                 >
-                  {link.name}
+                  <span>{link.name}</span>
+                  <span className="text-white/20 group-hover:text-primary/50 transition-colors duration-300">
+                    →
+                  </span>
                 </Link>
               ))}
             </div>
-            
-            {/* Close button */}
-            <button
-              className="mt-8 w-full py-4 bg-primary text-white font-semibold rounded-lg"
-              onClick={() => setIsOpen(false)}
-            >
-              Cerrar menú
-            </button>
           </div>
         </div>
       )}
-
-      {/* CSS for animation */}
-      <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slide-down {
-          animation: slideDown 0.2s ease-out forwards;
-        }
-      `}</style>
     </>
   );
 }

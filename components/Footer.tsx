@@ -23,7 +23,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-surface-darker text-white/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           {/* Brand & Social */}
           <div className="col-span-2 md:col-span-1">
@@ -41,7 +41,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               <a href="https://www.instagram.com/ushuaia_07?igsh=d2licTc0a25zbHB1" target="_blank" rel="noopener noreferrer"
-                className="p-2 bg-white/10 hover:bg-primary rounded-lg transition-colors text-white">
+                className="p-2 bg-white/10 hover:bg-primary/90 rounded-xl transition-all duration-300 ease-premium text-white">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                   <rect x="2" y="2" width="20" height="20" rx="5" />
                   <circle cx="12" cy="12" r="4" />
@@ -49,11 +49,11 @@ export default function Footer() {
                 </svg>
               </a>
               <a href="https://wa.me/5492984210435" target="_blank" rel="noopener noreferrer"
-                className="p-2 bg-white/10 hover:bg-primary rounded-lg transition-colors text-white flex items-center justify-center">
+                className="p-2 bg-white/10 hover:bg-primary/90 rounded-xl transition-all duration-300 ease-premium text-white flex items-center justify-center">
                 <WhatsAppIcon className="w-4 h-4" />
               </a>
               <a href="mailto:info@ushuaiaglow.com" target="_blank" rel="noopener noreferrer"
-                className="p-2 bg-white/10 hover:bg-primary rounded-lg transition-colors text-white flex items-center justify-center">
+                className="p-2 bg-white/10 hover:bg-primary/90 rounded-xl transition-all duration-300 ease-premium text-white flex items-center justify-center">
                 <MailIcon className="w-4 h-4" />
               </a>
             </div>
@@ -61,11 +61,11 @@ export default function Footer() {
 
           {/* Shop Links */}
           <div>
-            <h3 className="text-white font-semibold text-sm mb-4">Tienda</h3>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-tight">Tienda</h3>
             <ul className="space-y-3">
               {footerLinks.shop.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors duration-300 ease-premium">
                     {link.name}
                   </Link>
                 </li>
@@ -75,11 +75,11 @@ export default function Footer() {
 
           {/* Company Links */}
           <div>
-            <h3 className="text-white font-semibold text-sm mb-4">Empresa</h3>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-tight">Empresa</h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors duration-300 ease-premium">
                     {link.name}
                   </Link>
                 </li>
@@ -89,11 +89,11 @@ export default function Footer() {
 
           {/* Legal Links */}
           <div>
-            <h3 className="text-white font-semibold text-sm mb-4">Legal</h3>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-tight">Legal</h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors">
+                  <Link href={link.href} className="text-sm text-white/60 hover:text-white transition-colors duration-300 ease-premium">
                     {link.name}
                   </Link>
                 </li>
@@ -103,13 +103,13 @@ export default function Footer() {
 
           {/* Contacto directo */}
           <div>
-            <h3 className="text-white font-semibold text-sm mb-4">Contactanos</h3>
+            <h3 className="text-white font-semibold text-sm mb-4 tracking-tight">Contactanos</h3>
             <div className="space-y-3">
-              <a href="https://wa.me/5492984210435" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
+              <a href="https://wa.me/5492984210435" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-all duration-300 ease-premium">
                 <WhatsAppIcon className="w-4 h-4" />
                 <span>+54 9 2984-210435</span>
               </a>
-              <a href="mailto:info@ushuaiaglow.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
+              <a href="mailto:info@ushuaiaglow.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-all duration-300 ease-premium">
                 <MailIcon className="w-4 h-4" />
                 <span>info@ushuaiaglow.com</span>
               </a>
@@ -122,19 +122,19 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-white/[0.06] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-white/40">
             {currentYear} Ushuaia. Todos los derechos reservados.
           </p>
           <div className="flex gap-6">
-            <Link href="/privacidad" className="text-xs text-white/40 hover:text-white/60 transition-colors">
+            <Link href="/privacidad" className="text-xs text-white/40 hover:text-white/60 transition-colors duration-300 ease-premium">
               Privacidad
             </Link>
-            <Link href="/terminos" className="text-xs text-white/40 hover:text-white/60 transition-colors">
+            <Link href="/terminos" className="text-xs text-white/40 hover:text-white/60 transition-colors duration-300 ease-premium">
               Términos
             </Link>
           </div>
-          <a href="https://devwebpatagonia.com" target="_blank" rel="noopener noreferrer" className="text-xs text-white/40 hover:text-white/60 transition-colors">
+          <a href="https://devwebpatagonia.com" target="_blank" rel="noopener noreferrer" className="text-xs text-white/30 hover:text-white/50 transition-colors duration-300 ease-premium">
             Diseño y desarrollo DevWebPatagonia
           </a>
         </div>

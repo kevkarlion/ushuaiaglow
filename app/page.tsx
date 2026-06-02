@@ -9,7 +9,7 @@ export default function HomePage() {
       <Hero />
       
       {/* Combos CTA Section - optimizado CRO */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             {/* 1. RESULTADO - Título persuasivo */}
@@ -37,7 +37,7 @@ export default function HomePage() {
             {/* 4. CTA - Persuasivo */}
             <a
               href="/combos"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-darker hover:bg-primary text-white font-bold rounded-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-darker hover:bg-primary/90 text-white font-bold rounded-xl transition-all duration-500 ease-premium hover:shadow-glow-lg hover:scale-[1.02] active:scale-[0.98]"
             >
               Elegir mi rutina
               <ArrowRight className="w-5 h-5" />
@@ -51,7 +51,7 @@ export default function HomePage() {
       <Categories />
       
       {/* Promotions Section - Apple dark style */}
-      <section className="py-20 bg-black">
+      <section className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <span className="inline-block px-3 py-1 bg-white/10 text-primary text-xs font-medium rounded-full mb-4">
@@ -65,7 +65,7 @@ export default function HomePage() {
             </p>
             <a
               href="/productos"
-              className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-white font-normal rounded-lg transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-white font-normal rounded-xl transition-all duration-500 ease-premium hover:shadow-glow"
             >
               Ver Ofertas
             </a>

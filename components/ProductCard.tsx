@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Product, getMainImage } from '@/types/product';
@@ -56,12 +57,22 @@ export default function ProductCard({ product }: ProductCardProps) {
     setTimeout(() => setIsAdding(false), 1000);
   };
 
+  const fadeUp = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const } }
+  };
+
   if (!mounted) return null;
 
   return (
-    <div 
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={fadeUp}
+      whileHover={{ scale: 1.02, y: -4, transition: { duration: 0.3, ease: 'easeOut' } }}
       onClick={handleProductClick}
-      className="group bg-surface-darker/50 rounded-2xl overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-300 cursor-pointer"
+      className="group bg-surface-darker/50 rounded-2xl overflow-hidden border border-white/5 hover:border-primary/40 transition-all duration-300 hover:shadow-premium hover:-translate-y-0.5 cursor-pointer"
     >
       {/* Image */}
       <div className="relative aspect-square bg-surface-darker overflow-hidden">
@@ -71,7 +82,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             alt={product.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-premium"
           />
         ) : (
           <div className="flex items-center justify-center h-full">
@@ -110,7 +121,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
+      <div className="p-5 space-y-3">
         {/* Category + Brand */}
         <div className="flex items-center justify-between text-[10px]">
           {product.category && (
@@ -159,12 +170,12 @@ export default function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={handleAddToCart}
           disabled={product.stock === 0 || isAdding}
-          className={`w-full py-3 text-sm font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${
+          className={`w-full py-3 text-sm font-semibold rounded-xl transition-all duration-500 ease-premium flex items-center justify-center gap-2 ${
             product.stock === 0 
-              ? 'bg-white/10 text-white/40 cursor-not-allowed'
+              ? 'bg-white/[0.06] text-white/30 cursor-not-allowed'
               : isAdding
                 ? 'bg-green-500 text-white'
-                : 'bg-primary hover:bg-primary/90 text-black'
+                : 'bg-primary hover:bg-primary/90 hover:shadow-glow text-black'
           }`}
         >
           {isAdding ? (
@@ -182,6 +193,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

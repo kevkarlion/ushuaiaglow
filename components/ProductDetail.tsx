@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Product, getOrderedImages, getMainImage } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackAddToCart } from '@/lib/meta-pixel';
+import { motion } from 'framer-motion';
 
 // Lucide icons
 import { 
@@ -37,6 +38,20 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
   const [isAdding, setIsAdding] = useState(false);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const } }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } }
+  };
+
+  const stagger = {
+    visible: { transition: { staggerChildren: 0.08 } }
+  };
   
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -130,21 +145,24 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
   return (
     <div className="min-h-screen bg-black pb-24 md:pb-8">
       {/* Breadcrumb */}
-      <div className="md:hidden px-4 py-3 border-b border-white/5">
+      <motion.div initial="hidden" animate="visible" variants={fadeUp}>
+      <div className="md:hidden px-4 py-3 border-b border-white/[0.06]">
         <nav className="flex items-center gap-2 text-xs text-white/40">
           <Link href="/" className="hover:text-white">Inicio</Link>
           <span>/</span>
           <Link href="/productos" className="hover:text-white">Productos</Link>
         </nav>
       </div>
+      </motion.div>
 
       {/* DESKTOP */}
       <div className="hidden md:block max-w-7xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
           {/* Images */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}>
           <div className="space-y-4">
             <div 
-              className="aspect-square bg-surface-darker rounded-2xl overflow-hidden relative cursor-zoom-in"
+              className="aspect-square bg-surface-darker rounded-2xl shadow-premium hover:shadow-premium transition-shadow duration-500 ease-premium overflow-hidden relative cursor-zoom-in"
               onClick={() => setIsImageZoomed(true)}
             >
               <Image
@@ -155,7 +173,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                 className="object-cover"
                 priority
               />
-              <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs text-white/80 flex items-center gap-1.5">
+              <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-xl px-3 py-1.5 rounded-full text-xs text-white/80 flex items-center gap-1.5 border border-white/[0.06]">
                 <ZoomIn className="w-3.5 h-3.5" />
                 Toca para zoom
               </div>
@@ -167,7 +185,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                   <button
                     key={idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative border-2 transition-all duration-200 ${
+                    className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden relative border-2 transition-all duration-500 ease-premium ${
                       activeImage === idx 
                         ? 'border-primary shadow-lg shadow-primary/20' 
                         : 'border-transparent opacity-50 hover:opacity-80'
@@ -185,13 +203,15 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               </div>
             )}
           </div>
+          </motion.div>
 
           {/* Info */}
-          <div className="space-y-6">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const, delay: 0.15 }}>
+          <div className="space-y-7">
             {/* Category + Brand */}
             <div className="flex items-center gap-3 text-xs">
               {product.category && (
-                <span className="text-white/40 uppercase tracking-[0.2em]">{product.category}</span>
+                <span className="text-white/50 uppercase tracking-[0.2em]">{product.category}</span>
               )}
               {product.brand && (
                 <>
@@ -242,7 +262,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             </div>
 
             {/* Cuotas - Financiación dinámica */}
-            <div className="flex items-center gap-2 text-white/60 bg-surface-darker/30 px-4 py-2 rounded-lg w-fit">
+            <div className="flex items-center gap-2 text-white/60 bg-white/[0.04] px-4 py-2 rounded-xl w-fit border border-white/[0.06]">
               <CreditCard className="w-4 h-4" />
               <span className="text-sm">Pagá en cuotas con Mercado Pago</span>
             </div>
@@ -250,19 +270,19 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             {/* Quantity */}
             <div className="flex items-center gap-4 py-2">
               <label className="text-sm text-white/60">Cantidad:</label>
-              <div className="flex items-center bg-surface-darker border border-white/10 rounded-xl">
+              <div className="flex items-center bg-surface-darker border border-white/[0.06] rounded-xl">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-colors text-lg font-medium"
+                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-all duration-300 ease-premium text-lg font-medium"
                 >
                   −
                 </button>
-                <span className="px-6 py-3 text-base font-semibold text-white min-w-[50px] text-center border-x border-white/10">
+                <span className="px-6 py-3 text-base font-semibold text-white min-w-[50px] text-center border-x border-white/[0.06]">
                   {quantity}
                 </span>
                 <button 
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} 
-                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-colors text-lg font-medium"
+                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-all duration-300 ease-premium text-lg font-medium"
                 >
                   +
                 </button>
@@ -273,7 +293,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             <button 
               onClick={handleAddToCart}
               disabled={product.stock === 0 || isAdding}
-              className={`w-full py-4 text-lg font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] ${
+              className={`w-full py-4 text-lg font-semibold rounded-xl transition-all duration-500 ease-premium active:scale-[0.98] hover:shadow-glow-lg ${
                 product.stock === 0 
                   ? 'bg-white/10 text-white/40 cursor-not-allowed' 
                   : isAdding 
@@ -285,7 +305,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             </button>
 
             {/* Trust badges */}
-            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/[0.06]">
               {trustItems.map((item, i) => {
                 const Icon = item.icon;
                 return (
@@ -297,10 +317,12 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               })}
             </div>
           </div>
+          </motion.div>
         </div>
 
         {/* Description sections */}
         <div className="mt-16 space-y-12">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
           <section className="max-w-2xl">
             <h2 className="text-2xl font-semibold text-white mb-6">Descripción</h2>
             
@@ -314,7 +336,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             <div className="grid md:grid-cols-2 gap-6">
               {/* Qué es */}
               {product.queEs && (
-                <div className="bg-surface-darker/50 rounded-xl p-5 border border-white/5">
+                <div className="bg-surface-darker/50 rounded-xl p-5 border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium">
                   <div className="flex items-center gap-2.5 text-white font-medium mb-2">
                     <Sparkles className="w-4 h-4 text-primary" />
                     <h3>Qué es</h3>
@@ -325,7 +347,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               
               {/* Cómo usar */}
               {product.howToUse && (
-                <div className="bg-surface-darker/50 rounded-xl p-5 border border-white/5">
+                <div className="bg-surface-darker/50 rounded-xl p-5 border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium">
                   <div className="flex items-center gap-2.5 text-white font-medium mb-2">
                     <FileText className="w-4 h-4 text-primary" />
                     <h3>Cómo usar</h3>
@@ -336,7 +358,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               
               {/* Ingredientes */}
               {product.ingredients && (
-                <div className="bg-surface-darker/50 rounded-xl p-5 border border-white/5 md:col-span-2">
+                <div className="bg-surface-darker/50 rounded-xl p-5 border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium md:col-span-2">
                   <div className="flex items-center gap-2.5 text-white font-medium mb-2">
                     <Package className="w-4 h-4 text-primary" />
                     <h3>Ingredientes</h3>
@@ -346,37 +368,45 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               )}
             </div>
           </section>
+          </motion.div>
 
           {/* Benefits */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
           <section>
             <h2 className="text-2xl font-semibold text-white mb-6">Beneficios</h2>
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {benefits.map((benefit, i) => {
                 const Icon = benefit.icon;
                 return (
+                  <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                   <div 
-                    key={i} 
-                    className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/10 text-center hover:border-primary/30 transition-colors group"
+                    className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/[0.06] text-center hover:shadow-premium hover:-translate-y-0.5 transition-all duration-500 ease-premium group"
                   >
                     <Icon className={`w-6 h-6 mx-auto mb-3 ${benefit.color} group-hover:scale-110 transition-transform`} />
                     <p className="text-sm text-white/80 font-medium">{benefit.text}</p>
                   </div>
+                  </motion.div>
                 );
               })}
             </div>
+            </motion.div>
           </section>
+          </motion.div>
 
           {/* Reviews */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
           <section>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-white">Reseñas</h2>
               <span className="text-white/40 text-sm">({reviews.count} reviews)</span>
             </div>
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <div className="grid md:grid-cols-3 gap-4">
               {reviews.featured.map((review, i) => (
+                <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                 <div 
-                  key={i} 
-                  className="bg-surface-darker/30 rounded-xl p-5 border border-white/5"
+                  className="bg-surface-darker/30 rounded-xl p-5 border border-white/[0.06]"
                 >
                   <div className="flex gap-0.5 mb-3">
                     {[...Array(5)].map((_, j) => (
@@ -386,21 +416,26 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                   <p className="text-white/80 mb-3 italic">"{review.text}"</p>
                   <p className="text-xs text-primary font-medium">— {review.author}</p>
                 </div>
+                </motion.div>
               ))}
             </div>
+            </motion.div>
           </section>
+          </motion.div>
         </div>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
           <section className="mt-16">
             <h2 className="text-2xl font-semibold text-white mb-6">También te puede gustar</h2>
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {relatedProducts.slice(0, 4).map((p) => (
+                <motion.div key={p.id} variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                 <Link 
-                  key={p.id} 
                   href={`/productos/${p.slug || p.id}`}
-                  className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all"
+                  className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium"
                 >
                   <div className="aspect-square relative overflow-hidden">
                     <Image
@@ -420,9 +455,12 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                     </span>
                   </div>
                 </Link>
+                </motion.div>
               ))}
             </div>
+            </motion.div>
           </section>
+          </motion.div>
         )}
       </div>
 
@@ -520,7 +558,8 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
         </div>
 
         {/* Descripción */}
-        <div className="px-4 py-6 border-t border-white/5">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+        <div className="px-4 py-6 border-t border-white/[0.06]">
           <h2 className="text-lg font-semibold text-white mb-4">Descripción</h2>
           
           {(product.commercialDescription || product.description) && (
@@ -532,7 +571,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
           <div className="space-y-3">
             {/* Qué es */}
             {product.queEs && (
-              <div className="bg-surface-darker/40 rounded-xl p-4 border border-white/5">
+              <div className="bg-surface-darker/40 rounded-xl p-4 border border-white/[0.06]">
                 <div className="flex items-center gap-2 text-white font-medium text-sm mb-1">
                   <Sparkles className="w-4 h-4 text-primary" />
                   <h3>Qué es</h3>
@@ -548,7 +587,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                 return (
                   <div 
                     key={i} 
-                    className="bg-surface-darker/40 rounded-xl p-3 border border-white/5 text-center"
+                    className="bg-surface-darker/40 rounded-xl p-3 border border-white/[0.06] text-center"
                   >
                     <Icon className={`w-5 h-5 mx-auto mb-1 ${benefit.color}`} />
                     <p className="text-xs text-white/80">{benefit.text}</p>
@@ -559,7 +598,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
 
             {/* Cómo usar */}
             {product.howToUse && (
-              <div className="bg-surface-darker/40 rounded-xl p-4 border border-white/5">
+              <div className="bg-surface-darker/40 rounded-xl p-4 border border-white/[0.06]">
                 <div className="flex items-center gap-2 text-white font-medium text-sm mb-1">
                   <FileText className="w-4 h-4 text-primary" />
                   <h3>Cómo usar</h3>
@@ -570,7 +609,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
 
             {/* Ingredientes */}
             {product.ingredients && (
-              <div className="bg-surface-darker/40 rounded-xl p-4 border border-white/5">
+              <div className="bg-surface-darker/40 rounded-xl p-4 border border-white/[0.06]">
                 <div className="flex items-center gap-2 text-white font-medium text-sm mb-1">
                   <Package className="w-4 h-4 text-primary" />
                   <h3>Ingredientes</h3>
@@ -580,9 +619,11 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             )}
           </div>
         </div>
+        </motion.div>
 
         {/* Reseñas */}
-        <div className="px-4 py-6 border-t border-white/5">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+        <div className="px-4 py-6 border-t border-white/[0.06]">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-white">Reseñas</h2>
             <span className="text-xs text-white/40">({reviews.count})</span>
@@ -592,7 +633,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             {reviews.featured.map((review, i) => (
               <div 
                 key={i} 
-                className="bg-surface-darker/30 rounded-xl p-4 border border-white/5"
+                className="bg-surface-darker/30 rounded-xl p-4 border border-white/[0.06]"
               >
                 <div className="flex gap-0.5 mb-2">
                   {[...Array(5)].map((_, j) => (
@@ -605,9 +646,11 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             ))}
           </div>
         </div>
+        </motion.div>
 
         {/* Confianza */}
-        <div className="px-4 py-6 border-t border-white/5">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+        <div className="px-4 py-6 border-t border-white/[0.06]">
           <div className="grid grid-cols-2 gap-3">
             {trustItems.map((item, i) => {
               const Icon = item.icon;
@@ -623,17 +666,19 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             })}
           </div>
         </div>
+        </motion.div>
 
         {/* Relacionados */}
         {relatedProducts.length > 0 && (
-          <div className="px-4 py-6 border-t border-white/5">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+          <div className="px-4 py-6 border-t border-white/[0.06]">
             <h2 className="text-lg font-semibold text-white mb-4">También te puede gustar</h2>
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
               {relatedProducts.slice(0, 4).map((p) => (
                 <Link 
                   key={p.id} 
                   href={`/productos/${p.slug || p.id}`}
-                  className="flex-shrink-0 w-40 bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5"
+                  className="flex-shrink-0 w-40 bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06]"
                 >
                   <div className="aspect-square relative overflow-hidden">
                     <Image
@@ -656,18 +701,19 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
               ))}
             </div>
           </div>
+          </motion.div>
         )}
 
         <div className="h-24"></div>
       </div>
 
       {/* Sticky CTA Mobile */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg border-t border-white/10 px-4 py-4 z-40">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/[0.06] px-4 py-4 z-40 shadow-premium">
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-surface-darker border border-white/10 rounded-xl">
+          <div className="flex items-center bg-surface-darker border border-white/[0.06] rounded-xl">
             <button 
               onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-              className="px-3 py-2 text-white/60 hover:text-white transition-colors"
+              className="px-3 py-2 text-white/60 hover:text-white transition-all duration-300 ease-premium"
             >
               −
             </button>
@@ -676,7 +722,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             </span>
             <button 
               onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} 
-              className="px-3 py-2 text-white/60 hover:text-white transition-colors"
+              className="px-3 py-2 text-white/60 hover:text-white transition-all duration-300 ease-premium"
             >
               +
             </button>
@@ -685,7 +731,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
           <button 
             onClick={handleAddToCart}
             disabled={product.stock === 0 || isAdding}
-            className={`flex-1 py-3.5 text-base font-semibold rounded-xl transition-all active:scale-[0.98] ${
+            className={`flex-1 py-3.5 text-base font-semibold rounded-xl transition-all duration-500 ease-premium active:scale-[0.98] hover:shadow-glow-lg ${
               product.stock === 0 
                 ? 'bg-white/10 text-white/40 cursor-not-allowed' 
                 : isAdding 
@@ -697,7 +743,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
           </button>
         </div>
         
-        <p className="text-center text-[10px] text-white/40 mt-2 flex items-center justify-center gap-1">
+        <p className="text-center text-[10px] text-white/30 mt-2 flex items-center justify-center gap-1">
           <Lock className="w-3 h-3" />
           Compra segura 
           <span className="mx-2">•</span>

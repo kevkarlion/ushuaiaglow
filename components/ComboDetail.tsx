@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Product, getMainImage } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { trackAddToCart } from '@/lib/meta-pixel';
+import { motion } from 'framer-motion';
 import { 
   Star, 
   Truck, 
@@ -61,6 +62,20 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
   const [isAdding, setIsAdding] = useState(false);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const } }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } }
+  };
+
+  const stagger = {
+    visible: { transition: { staggerChildren: 0.08 } }
+  };
   
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -117,21 +132,24 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
   return (
     <div className="min-h-screen bg-black pb-24 md:pb-8">
       {/* Breadcrumb */}
-      <div className="md:hidden px-4 py-3 border-b border-white/5">
+      <motion.div initial="hidden" animate="visible" variants={fadeUp}>
+      <div className="md:hidden px-4 py-3 border-b border-white/[0.06]">
         <nav className="flex items-center gap-2 text-xs text-white/40">
           <Link href="/" className="hover:text-white">Inicio</Link>
           <span>/</span>
           <Link href="/combos" className="hover:text-white">Combos</Link>
         </nav>
       </div>
+      </motion.div>
 
       {/* DESKTOP */}
       <div className="hidden md:block max-w-7xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14">
           {/* Image */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}>
           <div className="space-y-4">
             <div 
-              className="aspect-square bg-surface-darker rounded-2xl overflow-hidden relative cursor-zoom-in"
+              className="aspect-square bg-surface-darker rounded-2xl shadow-premium hover:shadow-premium transition-shadow duration-500 ease-premium overflow-hidden relative cursor-zoom-in"
               onClick={() => setIsImageZoomed(true)}
             >
               <Image
@@ -142,7 +160,7 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
                 className="object-cover"
                 priority
               />
-              <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs text-white/80 flex items-center gap-1.5">
+              <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-xl px-3 py-1.5 rounded-full text-xs text-white/80 flex items-center gap-1.5 border border-white/[0.06]">
                 <ZoomIn className="w-3.5 h-3.5" />
                 Toca para zoom
               </div>
@@ -155,12 +173,14 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
               )}
             </div>
           </div>
+          </motion.div>
 
           {/* Info */}
-          <div className="space-y-6">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const, delay: 0.15 }}>
+          <div className="space-y-7">
             {/* Badge + Category */}
             <div className="flex items-center gap-3 text-xs">
-              <span className="bg-primary/20 text-primary px-3 py-1 rounded-full font-medium">COMBO</span>
+              <span className="bg-primary/10 text-primary px-4 py-1.5 rounded-full font-medium">COMBO</span>
               {combo.subtitle && <span className="text-white/40">•</span>}
               {combo.subtitle && <span className="text-white/60">{combo.subtitle}</span>}
             </div>
@@ -208,22 +228,23 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
             </div>
 
             {/* Cuotas - Financiación dinámica */}
-            <div className="flex items-center gap-2 text-white/60 bg-surface-darker/30 px-4 py-2 rounded-lg w-fit">
+            <div className="flex items-center gap-2 text-white/60 bg-white/[0.04] px-4 py-2 rounded-xl w-fit border border-white/[0.06]">
               <CreditCard className="w-4 h-4" />
               <span className="text-sm">Pagá en cuotas con Mercado Pago</span>
             </div>
 
             {/* Products included */}
             {combo.products.length > 0 && (
-              <div className="bg-surface-darker/50 rounded-xl p-5 border border-white/10">
+              <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+              <div className="bg-surface-darker/50 rounded-2xl p-6 border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium">
                 <div className="flex items-center gap-2 text-white font-medium mb-4">
                   <Package className="w-5 h-5 text-primary" />
                   <h3>Productos incluidos ({combo.products.length})</h3>
                 </div>
                 <div className="space-y-3">
                   {combo.products.map((product, idx) => (
-                    <div key={idx} className="flex items-center gap-3 bg-surface-darker/40 rounded-lg p-3">
-                      <div className="w-14 h-14 rounded-lg overflow-hidden relative flex-shrink-0 bg-surface-light">
+                    <div key={idx} className="flex items-center gap-3 bg-surface-darker/40 rounded-xl p-3">
+                      <div className="w-14 h-14 rounded-xl overflow-hidden relative flex-shrink-0 bg-surface-light">
                         {product.image ? (
                           <Image src={product.image} alt={product.name} fill sizes="56px" className="object-cover" />
                         ) : (
@@ -241,24 +262,25 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
                   ))}
                 </div>
               </div>
+              </motion.div>
             )}
 
             {/* Quantity */}
             <div className="flex items-center gap-4 py-2">
               <label className="text-sm text-white/60">Cantidad:</label>
-              <div className="flex items-center bg-surface-darker border border-white/10 rounded-xl">
+              <div className="flex items-center bg-surface-darker border border-white/[0.06] rounded-xl">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-colors text-lg font-medium"
+                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-all duration-300 ease-premium text-lg font-medium"
                 >
                   −
                 </button>
-                <span className="px-6 py-3 text-base font-semibold text-white min-w-[50px] text-center border-x border-white/10">
+                <span className="px-6 py-3 text-base font-semibold text-white min-w-[50px] text-center border-x border-white/[0.06]">
                   {quantity}
                 </span>
                 <button 
                   onClick={() => setQuantity(quantity + 1)} 
-                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-colors text-lg font-medium"
+                  className="px-5 py-3 text-white/60 hover:text-white hover:bg-white/5 transition-all duration-300 ease-premium text-lg font-medium"
                 >
                   +
                 </button>
@@ -269,7 +291,7 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
             <button 
               onClick={handleAddToCart}
               disabled={isAdding}
-              className={`w-full py-4 text-lg font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] ${
+              className={`w-full py-4 text-lg font-semibold rounded-xl transition-all duration-500 ease-premium active:scale-[0.98] hover:shadow-glow-lg ${
                 isAdding 
                   ? 'bg-green-500 text-white'
                   : 'bg-primary hover:bg-primary/90 text-black shadow-lg shadow-primary/30'
@@ -279,7 +301,7 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
             </button>
 
             {/* Trust badges */}
-            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/[0.06]">
               {trustItems.map((item, i) => {
                 const Icon = item.icon;
                 return (
@@ -291,37 +313,47 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
               })}
             </div>
           </div>
+          </motion.div>
         </div>
 
         {/* Benefits */}
         {combo.benefits.length > 0 && (
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
           <section className="mt-16">
             <h2 className="text-2xl font-semibold text-white mb-6">Beneficios del combo</h2>
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {combo.benefits.map((benefit, i) => (
+                <motion.div variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                 <div 
                   key={i} 
-                  className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/10 text-center hover:border-primary/30 transition-colors group"
+                  className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/[0.06] text-center hover:shadow-premium hover:-translate-y-0.5 transition-all duration-500 ease-premium group"
                 >
                   <Sparkles className="w-6 h-6 mx-auto mb-3 text-primary group-hover:scale-110 transition-transform" />
                   <p className="text-sm text-white/80 font-medium">{benefit}</p>
                 </div>
+                </motion.div>
               ))}
             </div>
+            </motion.div>
           </section>
+          </motion.div>
         )}
 
         {/* Reviews */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
         <section className="mt-16">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-white">Reseñas destacadas</h2>
             <span className="text-white/40 text-sm">({reviews.count} reviews)</span>
           </div>
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
           <div className="grid md:grid-cols-3 gap-4">
             {reviews.featured.map((review, i) => (
+              <motion.div variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
               <div 
                 key={i} 
-                className="bg-surface-darker/30 rounded-xl p-5 border border-white/5"
+                className="bg-surface-darker/30 rounded-xl p-5 border border-white/[0.06]"
               >
                 <div className="flex gap-0.5 mb-3">
                   {[...Array(5)].map((_, j) => (
@@ -331,20 +363,26 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
                 <p className="text-white/80 mb-3 italic">"{review.text}"</p>
                 <p className="text-xs text-primary font-medium">— {review.author}</p>
               </div>
+              </motion.div>
             ))}
           </div>
+          </motion.div>
         </section>
+        </motion.div>
 
         {/* Related Combos */}
         {relatedCombos.length > 0 && (
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
           <section className="mt-16">
             <h2 className="text-2xl font-semibold text-white mb-6">Otros combos</h2>
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {relatedCombos.slice(0, 4).map((c) => (
+                <motion.div variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                 <Link 
                   key={c.id} 
                   href={`/combos/${c.id}`}
-                  className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all"
+                  className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium"
                 >
                   <div className="aspect-square relative overflow-hidden">
                     <Image
@@ -364,9 +402,12 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
                     </span>
                   </div>
                 </Link>
+                </motion.div>
               ))}
             </div>
+            </motion.div>
           </section>
+          </motion.div>
         )}
       </div>
 
@@ -450,14 +491,15 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
 
         {/* Products included */}
         {combo.products.length > 0 && (
-          <div className="px-4 py-6 border-t border-white/5">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+          <div className="px-4 py-6 border-t border-white/[0.06]">
             <div className="flex items-center gap-2 text-white font-medium mb-4">
               <Package className="w-4 h-4 text-primary" />
               <h3 className="text-lg">Productos incluidos ({combo.products.length})</h3>
             </div>
             <div className="space-y-3">
               {combo.products.map((product, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-surface-darker/40 rounded-xl p-3 border border-white/5">
+                <div key={idx} className="flex items-center gap-3 bg-surface-darker/40 rounded-xl p-3 border border-white/[0.06]">
                   <div className="w-14 h-14 rounded-lg overflow-hidden relative flex-shrink-0 bg-surface-light">
                     {product.image ? (
                       <Image src={product.image} alt={product.name} fill sizes="56px" className="object-cover" />
@@ -476,17 +518,19 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
               ))}
             </div>
           </div>
+          </motion.div>
         )}
 
         {/* Benefits */}
         {combo.benefits.length > 0 && (
-          <div className="px-4 py-6 border-t border-white/5">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+          <div className="px-4 py-6 border-t border-white/[0.06]">
             <h2 className="text-lg font-semibold text-white mb-4">Beneficios</h2>
             <div className="grid grid-cols-2 gap-3">
               {combo.benefits.map((benefit, i) => (
                 <div 
                   key={i} 
-                  className="bg-surface-darker/40 rounded-xl p-3 border border-white/5 text-center"
+                  className="bg-surface-darker/40 rounded-xl p-3 border border-white/[0.06] text-center"
                 >
                   <Sparkles className="w-5 h-5 mx-auto mb-1 text-primary" />
                   <p className="text-xs text-white/80">{benefit}</p>
@@ -494,10 +538,12 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
               ))}
             </div>
           </div>
+          </motion.div>
         )}
 
         {/* Reviews */}
-        <div className="px-4 py-6 border-t border-white/5">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+        <div className="px-4 py-6 border-t border-white/[0.06]">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-white">Reseñas</h2>
             <span className="text-xs text-white/40">({reviews.count})</span>
@@ -507,7 +553,7 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
             {reviews.featured.map((review, i) => (
               <div 
                 key={i} 
-                className="bg-surface-darker/30 rounded-xl p-4 border border-white/5"
+                className="bg-surface-darker/30 rounded-xl p-4 border border-white/[0.06]"
               >
                 <div className="flex gap-0.5 mb-2">
                   {[...Array(5)].map((_, j) => (
@@ -520,9 +566,11 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
             ))}
           </div>
         </div>
+        </motion.div>
 
         {/* Trust */}
-        <div className="px-4 py-6 border-t border-white/5">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+        <div className="px-4 py-6 border-t border-white/[0.06]">
           <div className="grid grid-cols-2 gap-3">
             {trustItems.map((item, i) => {
               const Icon = item.icon;
@@ -538,17 +586,19 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
             })}
           </div>
         </div>
+        </motion.div>
 
         {/* Related - Mobile Carrusel */}
         {relatedCombos.length > 0 && (
-          <div className="px-4 py-6 border-t border-white/5">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+          <div className="px-4 py-6 border-t border-white/[0.06]">
             <h2 className="text-lg font-semibold text-white mb-4">Otros combos</h2>
             <div className="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
               {relatedCombos.slice(0, 4).map((c) => (
                 <Link 
                   key={c.id} 
                   href={`/combos/${c.id}`}
-                  className="flex-shrink-0 w-44 bg-surface-darker/30 rounded-xl overflow-hidden border border-white/5 snap-start"
+                  className="flex-shrink-0 w-44 bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06] snap-start"
                 >
                   <div className="aspect-[4/3] relative overflow-hidden">
                     <Image
@@ -577,18 +627,19 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
               ))}
             </div>
           </div>
+          </motion.div>
         )}
 
         <div className="h-24"></div>
       </div>
 
       {/* Sticky CTA Mobile */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg border-t border-white/10 px-4 py-4 z-40">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/[0.06] px-4 py-4 z-40 shadow-premium">
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-surface-darker border border-white/10 rounded-xl">
+          <div className="flex items-center bg-surface-darker border border-white/[0.06] rounded-xl">
             <button 
               onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-              className="px-3 py-2 text-white/60 hover:text-white transition-colors"
+              className="px-3 py-2 text-white/60 hover:text-white transition-all duration-300 ease-premium"
             >
               −
             </button>
@@ -597,7 +648,7 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
             </span>
             <button 
               onClick={() => setQuantity(quantity + 1)} 
-              className="px-3 py-2 text-white/60 hover:text-white transition-colors"
+              className="px-3 py-2 text-white/60 hover:text-white transition-all duration-300 ease-premium"
             >
               +
             </button>
@@ -606,7 +657,7 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
           <button 
             onClick={handleAddToCart}
             disabled={isAdding}
-            className={`flex-1 py-3.5 text-base font-semibold rounded-xl transition-all active:scale-[0.98] ${
+            className={`flex-1 py-3.5 text-base font-semibold rounded-xl transition-all duration-500 ease-premium active:scale-[0.98] hover:shadow-glow-lg ${
               isAdding 
                 ? 'bg-green-500 text-white'
                 : 'bg-primary hover:bg-primary/90 text-black shadow-lg shadow-primary/30'
@@ -616,7 +667,7 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
           </button>
         </div>
         
-        <p className="text-center text-[10px] text-white/40 mt-2 flex items-center justify-center gap-1">
+        <p className="text-center text-[10px] text-white/30 mt-2 flex items-center justify-center gap-1">
           <Lock className="w-3 h-3" />
           Compra segura 
           <span className="mx-2">•</span>

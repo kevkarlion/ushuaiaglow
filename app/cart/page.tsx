@@ -105,12 +105,12 @@ function CartContent() {
                     <h4 className="text-white font-medium text-base line-clamp-2">{item.title}</h4>
                     <p className="text-primary font-bold mt-1">${(item.price || 0).toLocaleString('es-AR')}</p>
                     <div className="flex flex-wrap items-center gap-3 mt-3">
-                      <div className="flex items-center gap-2 bg-white/10 rounded-lg">
-                        <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-l-lg text-white">−</button>
+                      <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.06] rounded-xl">
+                        <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-l-lg text-white transition-all duration-300 ease-premium">−</button>
                         <span className="text-white font-medium w-8 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-r-lg text-white">+</button>
+                        <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-r-lg text-white transition-all duration-300 ease-premium">+</button>
                       </div>
-                      <button onClick={() => removeItem(item.productId)} className="text-gray-500 hover:text-red-400 text-sm">Eliminar</button>
+                      <button onClick={() => removeItem(item.productId)} className="text-gray-500 hover:text-red-400 text-sm transition-all duration-300 ease-premium">Eliminar</button>
                       <span className="ml-auto text-white font-bold text-lg">${((item.price || 0) * item.quantity).toLocaleString('es-AR')}</span>
                     </div>
                   </div>
@@ -124,7 +124,7 @@ function CartContent() {
               <div className="space-y-3">
                 <div className="flex justify-between"><span className="text-gray-400">Subtotal</span><span className="text-white">${(subtotal || 0).toLocaleString('es-AR')}</span></div>
                 <div className="flex justify-between"><span className="text-gray-400">Envío</span><span className="text-primary">Gratis</span></div>
-                <div className="flex justify-between pt-3 border-t border-white/10">
+                <div className="flex justify-between pt-3 border-t border-white/[0.06]">
                   <span className="text-white font-semibold text-lg">Total</span>
                   <span className="text-primary font-bold text-2xl">${(subtotal || 0).toLocaleString('es-AR')}</span>
                 </div>
@@ -132,7 +132,7 @@ function CartContent() {
             </div>
 
             {/* Confianza */}
-            <div className="hidden lg:flex flex-wrap justify-center gap-4 mt-6 text-xs text-gray-500">
+            <div className="hidden lg:flex flex-wrap justify-center gap-4 mt-6 text-xs text-white/40">
               <span>🔒 Compra segura</span>
               <span>💳 Pago protegido</span>
               <span>📦 Envíos a todo el país</span>
@@ -147,7 +147,7 @@ function CartContent() {
               <div className="space-y-3">
                 <div className="flex justify-between"><span className="text-gray-400">Subtotal</span><span className="text-white">${(subtotal || 0).toLocaleString('es-AR')}</span></div>
                 <div className="flex justify-between"><span className="text-gray-400">Envío</span><span className="text-primary">Gratis</span></div>
-                <div className="flex justify-between pt-3 border-t border-white/10">
+                <div className="flex justify-between pt-3 border-t border-white/[0.06]">
                   <span className="text-white font-semibold text-lg">Total</span>
                   <span className="text-primary font-bold text-2xl">${(subtotal || 0).toLocaleString('es-AR')}</span>
                 </div>
@@ -159,43 +159,43 @@ function CartContent() {
               <h3 className="text-white font-semibold text-lg mb-4">Datos de envío</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Nombre completo *</label>
-                  <input type="text" value={buyerForm.nombreCompleto} onChange={(e) => handleBuyerChange('nombreCompleto', e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base" />
+                  <label className="block text-sm text-white/50 mb-2">Nombre completo *</label>
+                  <input type="text" value={buyerForm.nombreCompleto} onChange={(e) => handleBuyerChange('nombreCompleto', e.target.value)} className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white text-base transition-all duration-300 ease-premium focus:border-primary/50 focus:ring-1 focus:ring-primary/20 focus:bg-white/[0.06]" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Email *</label>
-                  <input type="email" value={buyerForm.email} onChange={(e) => handleBuyerChange('email', e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base" />
+                  <label className="block text-sm text-white/50 mb-2">Email *</label>
+                  <input type="email" value={buyerForm.email} onChange={(e) => handleBuyerChange('email', e.target.value)} className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white text-base transition-all duration-300 ease-premium focus:border-primary/50 focus:ring-1 focus:ring-primary/20 focus:bg-white/[0.06]" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Teléfono</label>
-                  <input type="tel" value={buyerForm.telefono} onChange={(e) => handleBuyerChange('telefono', e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base" />
+                  <label className="block text-sm text-white/50 mb-2">Teléfono</label>
+                  <input type="tel" value={buyerForm.telefono} onChange={(e) => handleBuyerChange('telefono', e.target.value)} className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white text-base transition-all duration-300 ease-premium focus:border-primary/50 focus:ring-1 focus:ring-primary/20 focus:bg-white/[0.06]" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Dirección *</label>
-                  <input type="text" value={buyerForm.direccion} onChange={(e) => handleBuyerChange('direccion', e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base" />
+                  <label className="block text-sm text-white/50 mb-2">Dirección *</label>
+                  <input type="text" value={buyerForm.direccion} onChange={(e) => handleBuyerChange('direccion', e.target.value)} className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white text-base transition-all duration-300 ease-premium focus:border-primary/50 focus:ring-1 focus:ring-primary/20 focus:bg-white/[0.06]" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">CP *</label>
-                    <input type="text" value={buyerForm.codigoPostal} onChange={(e) => handleBuyerChange('codigoPostal', e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base" />
+                    <label className="block text-sm text-white/50 mb-2">CP *</label>
+                    <input type="text" value={buyerForm.codigoPostal} onChange={(e) => handleBuyerChange('codigoPostal', e.target.value)} className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white text-base transition-all duration-300 ease-premium focus:border-primary/50 focus:ring-1 focus:ring-primary/20 focus:bg-white/[0.06]" />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">Localidad *</label>
-                    <input type="text" value={buyerForm.localidad} onChange={(e) => handleBuyerChange('localidad', e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base" />
+                    <label className="block text-sm text-white/50 mb-2">Localidad *</label>
+                    <input type="text" value={buyerForm.localidad} onChange={(e) => handleBuyerChange('localidad', e.target.value)} className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white text-base transition-all duration-300 ease-premium focus:border-primary/50 focus:ring-1 focus:ring-primary/20 focus:bg-white/[0.06]" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Provincia *</label>
-                  <input type="text" value={buyerForm.provincia} onChange={(e) => handleBuyerChange('provincia', e.target.value)} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white text-base" />
+                  <label className="block text-sm text-white/50 mb-2">Provincia *</label>
+                  <input type="text" value={buyerForm.provincia} onChange={(e) => handleBuyerChange('provincia', e.target.value)} className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white text-base transition-all duration-300 ease-premium focus:border-primary/50 focus:ring-1 focus:ring-primary/20 focus:bg-white/[0.06]" />
                 </div>
               </div>
             </div>
 
-            {error && <div className="mt-4 p-4 bg-red-500/20 rounded-lg text-red-400">{error}</div>}
+            {error && <div className="mt-4 p-4 bg-red-500/20 rounded-xl text-red-400">{error}</div>}
 
             {/* CTA sticky mobile */}
-            <div className="sticky bottom-0 left-0 right-0 bg-black pb-4 pt-2 -mx-4 px-4 lg:static lg:bg-transparent lg:p-0 lg:m-0">
-              <button onClick={handleCheckout} disabled={isProcessing} className="w-full py-4 bg-primary hover:bg-primary/90 disabled:bg-white/20 text-black font-bold rounded-xl flex items-center justify-center gap-2 text-lg">
+            <div className="sticky bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl shadow-premium pb-4 pt-2 -mx-4 px-4 lg:static lg:bg-transparent lg:p-0 lg:m-0 lg:shadow-none">
+              <button onClick={handleCheckout} disabled={isProcessing} className="w-full py-4 bg-primary hover:bg-primary/90 disabled:bg-white/20 text-black font-bold rounded-xl flex items-center justify-center gap-2 text-lg transition-all duration-500 ease-premium hover:shadow-glow-lg">
                 {isProcessing ? (
                   <><svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Procesando...</>
                 ) : (
@@ -204,12 +204,12 @@ function CartContent() {
               </button>
             </div>
 
-            <button onClick={clearCart} className="w-full py-3 mt-4 text-gray-500 hover:text-gray-400 text-sm text-center">Vaciar carrito</button>
+            <button onClick={clearCart} className="w-full py-3 mt-4 text-gray-500 hover:text-gray-400 text-sm text-center transition-all duration-300 ease-premium">Vaciar carrito</button>
             
-            <div className="flex justify-center gap-4 mt-6 text-sm text-gray-500">
-              <Link href="/productos" className="hover:text-primary">Seguir comprando</Link>
+            <div className="flex justify-center gap-4 mt-6 text-sm text-white/40">
+              <Link href="/productos" className="hover:text-primary transition-all duration-300 ease-premium">Seguir comprando</Link>
               <span>|</span>
-              <Link href="/terminos" className="hover:text-primary">Términos</Link>
+              <Link href="/terminos" className="hover:text-primary transition-all duration-300 ease-premium">Términos</Link>
             </div>
           </div>
         </div>
@@ -220,7 +220,7 @@ function CartContent() {
 
 export default function CartPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><div className="text-white">Cargando...</div></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><div className="text-white/60 animate-pulse">Cargando...</div></div>}>
       <CartContent />
     </Suspense>
   );

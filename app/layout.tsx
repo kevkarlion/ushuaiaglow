@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ScrollToTop from '@/components/ScrollToTop';
 import { CartProvider } from '@/context/CartContext';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import Script from 'next/script';
@@ -52,6 +53,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col">
+        <ScrollToTop />
         <GoogleAnalytics />
         <CartProvider>
           <Navbar />

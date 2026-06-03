@@ -335,18 +335,18 @@ function StarRating({ size = 14 }: { size?: number }) {
 
 function AccordionItem({ item, isOpen, onToggle }: { item: typeof faqs[0]; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div className="border-b border-white/10">
+    <div className="border-b border-black/[0.06]">
       <button
         onClick={onToggle}
         className="w-full py-5 flex items-center justify-between text-left group"
       >
-        <span className="text-sm md:text-base text-white font-medium group-hover:text-primary transition-colors pr-4">
+        <span className="text-sm md:text-base text-[#222222] font-medium group-hover:text-primary transition-colors pr-4">
           {item.question}
         </span>
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
-          className="text-white/40 flex-shrink-0"
+          className="text-[#222222]/40 flex-shrink-0"
         >
           <ChevronDown className="w-5 h-5" />
         </motion.span>
@@ -360,7 +360,7 @@ function AccordionItem({ item, isOpen, onToggle }: { item: typeof faqs[0]; isOpe
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <p className="pb-5 text-sm md:text-base text-white/70 leading-relaxed">
+            <p className="pb-5 text-sm md:text-base text-[#222222]/70 leading-relaxed">
               {item.answer}
             </p>
           </motion.div>
@@ -374,7 +374,7 @@ function Accordion({ items }: { items: typeof faqs }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className="divide-y divide-white/10">
+    <div className="divide-y divide-black/[0.06]">
       {items.map((item, index) => (
         <AccordionItem
           key={index}
@@ -396,10 +396,10 @@ function ComboCard({ combo, index }: { combo: typeof combos[0]; index: number })
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
-      className="bg-gradient-to-b from-surface-darker/60 to-surface-darker/40 rounded-3xl border border-white/10 overflow-hidden group"
+      className="bg-gradient-to-b from-white to-white rounded-3xl border border-black/[0.06] shadow-sm overflow-hidden group"
     >
       {/* Imagen del combo - estilo producto */}
-      <div className="relative h-40 md:h-44 overflow-hidden bg-surface-darker">
+      <div className="relative h-40 md:h-44 overflow-hidden bg-white">
         <Image
           src={combo.image}
           alt={combo.name}
@@ -409,10 +409,10 @@ function ComboCard({ combo, index }: { combo: typeof combos[0]; index: number })
         />
         
         {/* Overlay con opacidad para que se vea la imagen pero sea legible */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#222222]/40 via-[#222222]/20 to-transparent" />
         
         {/* Badge de duración */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-[#222222]/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
           <Clock className="w-3.5 h-3.5 text-pink-300" />
           <span className="text-xs text-white/90 font-medium">{combo.duration}</span>
         </div>
@@ -426,20 +426,20 @@ function ComboCard({ combo, index }: { combo: typeof combos[0]; index: number })
               </span>
             )}
           </div>
-          <h3 className="text-xl font-bold text-white drop-shadow-lg">{combo.name}</h3>
-          <p className="text-sm text-white/80 drop-shadow">{combo.tagline}</p>
+          <h3 className="text-xl font-bold text-[#222222] drop-shadow-lg">{combo.name}</h3>
+          <p className="text-sm text-[#222222]/80 drop-shadow">{combo.tagline}</p>
         </div>
       </div>
 
       {/* Header del dropdown - solo el chevron */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full px-5 py-3 flex items-center justify-center text-left hover:bg-white/5 transition-colors border-t border-white/5"
+        className="w-full px-5 py-3 flex items-center justify-center text-left hover:bg-black/5 transition-colors border-t border-black/[0.06]"
       >
         <motion.div
           animate={{ rotate: expanded ? 180 : 0 }}
           transition={{ duration: 0.3 }}
-          className="text-white/40"
+          className="text-[#222222]/40"
         >
           <ChevronDown className="w-5 h-5" />
         </motion.div>
@@ -455,13 +455,13 @@ function ComboCard({ combo, index }: { combo: typeof combos[0]; index: number })
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5 border-t border-white/10 pt-4 space-y-4">
+            <div className="px-5 pb-5 border-t border-black/[0.06] pt-4 space-y-4">
               {/* Products */}
               <div>
-                <p className="text-xs text-white/50 mb-2 uppercase tracking-wider">Incluye</p>
+                <p className="text-xs text-[#222222]/50 mb-2 uppercase tracking-wider">Incluye</p>
                 <div className="flex flex-wrap gap-2">
                   {combo.products.map((p, i) => (
-                    <span key={i} className="text-xs bg-white/10 text-white/80 px-3 py-1.5 rounded-full">
+                    <span key={i} className="text-xs bg-black/5 text-[#222222]/80 px-3 py-1.5 rounded-full">
                       {p}
                     </span>
                   ))}
@@ -470,26 +470,26 @@ function ComboCard({ combo, index }: { combo: typeof combos[0]; index: number })
 
               {/* Details grid */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/5 rounded-lg p-3">
-                  <p className="text-xs text-white/50 mb-1">Para piel</p>
-                  <p className="text-sm text-white font-medium">{combo.forSkin}</p>
+                <div className="bg-black/5 rounded-lg p-3">
+                  <p className="text-xs text-[#222222]/50 mb-1">Para piel</p>
+                  <p className="text-sm text-[#222222] font-medium">{combo.forSkin}</p>
                 </div>
-                <div className="bg-white/5 rounded-lg p-3">
-                  <p className="text-xs text-white/50 mb-1">Cuándo</p>
-                  <p className="text-sm text-white font-medium">{combo.whenUse}</p>
+                <div className="bg-black/5 rounded-lg p-3">
+                  <p className="text-xs text-[#222222]/50 mb-1">Cuándo</p>
+                  <p className="text-sm text-[#222222] font-medium">{combo.whenUse}</p>
                 </div>
               </div>
 
               {/* What expect */}
-              <div className="bg-white/5 rounded-lg p-3">
-                <p className="text-xs text-white/50 mb-1">Qué esperar</p>
-                <p className="text-sm text-white/80">{combo.whatExpect}</p>
+              <div className="bg-black/5 rounded-lg p-3">
+                <p className="text-xs text-[#222222]/50 mb-1">Qué esperar</p>
+                <p className="text-sm text-[#222222]/80">{combo.whatExpect}</p>
               </div>
 
               {/* How it works */}
               <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
                 <p className="text-xs text-primary mb-1">Cómo funciona</p>
-                <p className="text-sm text-white/80">{combo.howItWorks}</p>
+                <p className="text-sm text-[#222222]/80">{combo.howItWorks}</p>
               </div>
 
               {/* CTA */}
@@ -528,22 +528,22 @@ function ApplicationPhase({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-surface-darker/30 rounded-2xl border border-white/5 overflow-hidden"
+      className="bg-white rounded-2xl border border-black/[0.06] shadow-sm overflow-hidden"
     >
       <button
         onClick={onToggle}
-        className="w-full p-4 flex items-center gap-4 text-left hover:bg-white/5 transition-colors"
+        className="w-full p-4 flex items-center gap-4 text-left hover:bg-black/5 transition-colors"
       >
         <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center shadow-lg`}>
           <Icon className="w-5 h-5 text-rose-600" />
         </div>
         <div className="flex-1">
-          <h3 className="font-bold text-white">{phase.title}</h3>
-          <p className="text-xs text-white/50">{phase.description}</p>
+          <h3 className="font-bold text-[#222222]">{phase.title}</h3>
+          <p className="text-xs text-[#222222]/50">{phase.description}</p>
         </div>
         <motion.div
           animate={{ rotate: expanded ? 180 : 0 }}
-          className="text-white/40"
+          className="text-[#222222]/40"
         >
           <ChevronDown className="w-4 h-4" />
         </motion.div>
@@ -557,14 +557,14 @@ function ApplicationPhase({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 border-t border-white/10 pt-3 space-y-3">
+            <div className="px-4 pb-4 border-t border-black/[0.06] pt-3 space-y-3">
               {phase.steps.map((step, i) => (
-                <div key={i} className="bg-white/5 rounded-xl p-3">
+                <div key={i} className="bg-black/5 rounded-xl p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-bold text-white/30">0{i + 1}</span>
-                    <h4 className="text-sm font-medium text-white">{step.title}</h4>
+                    <span className="text-xs font-bold text-[#222222]/30">0{i + 1}</span>
+                    <h4 className="text-sm font-medium text-[#222222]">{step.title}</h4>
                   </div>
-                  <p className="text-xs text-white/70 mb-2">{step.description}</p>
+                  <p className="text-xs text-[#222222]/70 mb-2">{step.description}</p>
                   <div className="flex items-center gap-2 text-xs text-primary">
                     <AlertCircle className="w-3 h-3" />
                     <span>{step.tip}</span>
@@ -586,27 +586,27 @@ function MistakeCard({ mistake, index }: { mistake: typeof commonMistakes[0]; in
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5, ease: 'easeOut' }}
-      className="bg-surface-darker/30 rounded-3xl p-6 border border-white/5"
+      className="bg-white rounded-3xl p-6 border border-black/[0.06] shadow-sm"
     >
       {/* Icono */}
-      <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-4">
+      <div className="w-12 h-12 rounded-2xl bg-black/5 flex items-center justify-center mb-4">
         <AlertCircle className="w-5 h-5 text-rose-400" />
       </div>
 
       {/* Error */}
-      <h4 className="font-semibold text-white text-lg mb-3">
+      <h4 className="font-semibold text-[#222222] text-lg mb-3">
         {mistake.mistake}
       </h4>
 
       {/* Por qué está mal */}
-      <p className="text-sm text-white/50 mb-5 leading-relaxed">
+      <p className="text-sm text-[#222222]/50 mb-5 leading-relaxed">
         {mistake.whyWrong}
       </p>
 
       {/* Solución */}
-      <div className="flex items-start gap-3 bg-emerald-500/10 rounded-2xl p-4 border border-emerald-500/10">
-        <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
-        <span className="text-sm text-white/70 leading-relaxed">{mistake.solution}</span>
+      <div className="flex items-start gap-3 bg-emerald-500/5 rounded-2xl p-4 border border-emerald-500/20">
+        <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+        <span className="text-sm text-[#222222]/70 leading-relaxed">{mistake.solution}</span>
       </div>
     </motion.div>
   );
@@ -622,18 +622,18 @@ function ResultCard({ result, index }: { result: typeof resultsData[0]; index: n
       className="relative"
     >
       {/* Timeline dot */}
-      <div className="absolute -left-4 top-4 w-3 h-3 rounded-full bg-pink-300 shadow-lg shadow-pink-200/50" />
+      <div className="absolute -left-4 top-4 w-3 h-3 rounded-full bg-pink-400 shadow-lg shadow-pink-200" />
       {index < resultsData.length - 1 && (
-        <div className="absolute -left-1.5 top-7 bottom-0 w-0.5 bg-white/10" />
+        <div className="absolute -left-1.5 top-7 bottom-0 w-0.5 bg-black/5" />
       )}
       
       <div className="pl-6 pb-8">
-        <span className="text-xs text-pink-200 font-medium mb-1 block">{result.timeframe}</span>
-        <h4 className="text-base font-semibold text-white mb-2">{result.title}</h4>
-        <p className="text-sm text-white/50 mb-3">{result.description}</p>
-        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500/10 to-rose-500/10 px-3 py-2 rounded-xl border border-pink-200/10">
-          <Eye className="w-3 h-3 text-pink-300" />
-          <span className="text-xs text-white/60">{result.visual}</span>
+        <span className="text-xs text-pink-700 font-medium mb-1 block">{result.timeframe}</span>
+        <h4 className="text-base font-semibold text-[#222222] mb-2">{result.title}</h4>
+        <p className="text-sm text-[#222222]/50 mb-3">{result.description}</p>
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500/10 to-rose-500/10 px-3 py-2 rounded-xl border border-pink-200/30">
+          <Eye className="w-3 h-3 text-pink-700" />
+          <span className="text-xs text-[#222222]/60">{result.visual}</span>
         </div>
       </div>
     </motion.div>
@@ -647,33 +647,33 @@ function SkinTypeCard({ skin, index }: { skin: typeof skinTypes[0]; index: numbe
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      className="bg-surface-darker/30 rounded-2xl border border-white/5 p-4 hover:border-primary/30 transition-colors"
+      className="bg-white rounded-2xl border border-black/[0.06] shadow-sm p-4 hover:border-primary/30 transition-colors"
     >
       <div className="flex items-center gap-3 mb-3">
         <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${skin.gradient}`} />
         <div>
-          <h4 className="font-bold text-white">{skin.type}</h4>
-          <p className="text-xs text-white/50">{skin.description}</p>
+          <h4 className="font-bold text-[#222222]">{skin.type}</h4>
+          <p className="text-xs text-[#222222]/50">{skin.description}</p>
         </div>
       </div>
       
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-green-400" />
-          <span className="text-sm text-white/80">{skin.recommendation}</span>
+          <CheckCircle2 className="w-4 h-4 text-green-500" />
+          <span className="text-sm text-[#222222]/80">{skin.recommendation}</span>
         </div>
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-xs text-white/60">{skin.tip}</span>
+          <span className="text-xs text-[#222222]/60">{skin.tip}</span>
         </div>
         
         {/* Intensity bar */}
         <div className="mt-3">
-          <div className="flex items-center justify-between text-xs text-white/40 mb-1">
+          <div className="flex items-center justify-between text-xs text-[#222222]/40 mb-1">
             <span>Intensidad</span>
             <span className="capitalize">{skin.intensity}</span>
           </div>
-          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-black/5 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               whileInView={{ width: `${skin.intensity === 'suave' ? 30 : skin.intensity === 'media' ? 60 : 80}%` }}
@@ -697,11 +697,11 @@ export default function ComoFuncionaPage() {
   const [despuesExpanded, setDespuesExpanded] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[#f5f5f5]">
       {/* =====================
         1. HERO EDUCATIVO
       ===================== */}
-      <section className="relative py-16 md:py-24 bg-gradient-to-b from-surface-darker/50 to-black">
+      <section className="relative py-16 md:py-24 bg-gradient-to-b from-white to-white">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <motion.div
             initial="initial"
@@ -717,14 +717,14 @@ export default function ComoFuncionaPage() {
 
             <motion.h1
               variants={fadeUp}
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4"
+              className="text-3xl md:text-4xl lg:text-[48px] font-bold text-[#222222] leading-tight mb-4"
             >
               Cómo usar <span className="text-primary">Ushuaia Glow</span>
             </motion.h1>
 
             <motion.p
               variants={fadeUp}
-              className="text-lg md:text-xl text-white/70 max-w-xl mx-auto"
+              className="text-lg md:text-xl text-[#222222]/70 max-w-xl mx-auto"
             >
               Aprendé paso a paso cómo aplicar cada producto y elegir el combo ideal para tu piel.
             </motion.p>
@@ -734,16 +734,16 @@ export default function ComoFuncionaPage() {
               variants={fadeUp}
               className="flex flex-wrap justify-center gap-3 mt-8"
             >
-              <a href="#combos" className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white/80 text-sm rounded-full transition-colors">
+              <a href="#combos" className="px-4 py-2 bg-black/5 hover:bg-black/10 text-[#222222]/80 text-sm rounded-full transition-colors">
                 Ver combos
               </a>
-              <a href="#aplicar" className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white/80 text-sm rounded-full transition-colors">
+              <a href="#aplicar" className="px-4 py-2 bg-black/5 hover:bg-black/10 text-[#222222]/80 text-sm rounded-full transition-colors">
                 Cómo aplicar
               </a>
-              <a href="#elegir" className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white/80 text-sm rounded-full transition-colors">
+              <a href="#elegir" className="px-4 py-2 bg-black/5 hover:bg-black/10 text-[#222222]/80 text-sm rounded-full transition-colors">
                 Elegir según tu piel
               </a>
-              <a href="#errores" className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white/80 text-sm rounded-full transition-colors">
+              <a href="#errores" className="px-4 py-2 bg-black/5 hover:bg-black/10 text-[#222222]/80 text-sm rounded-full transition-colors">
                 Errores a evitar
               </a>
             </motion.div>
@@ -754,7 +754,7 @@ export default function ComoFuncionaPage() {
       {/* =====================
         2. EXPLICACIÓN REAL DE CADA COMBO
       ===================== */}
-      <section id="combos" className="py-12 md:py-20 bg-black">
+      <section id="combos" className="py-12 md:py-20 bg-[#f5f5f5]">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -762,10 +762,10 @@ export default function ComoFuncionaPage() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h2 className="text-3xl md:text-[48px] font-bold text-[#222222] mb-3 leading-tight">
               Conoce cada combo
             </h2>
-            <p className="text-white/60 text-sm md:text-base">
+            <p className="text-[#222222]/60 text-sm md:text-base">
               Tocá cada card para ver qué incluye, para quién es y qué esperar
             </p>
           </motion.div>
@@ -781,7 +781,7 @@ export default function ComoFuncionaPage() {
       {/* =====================
         3. GUÍA REAL DE APLICACIÓN
       ===================== */}
-      <section id="aplicar" className="py-12 md:py-20 bg-surface-darker/20">
+      <section id="aplicar" className="py-12 md:py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -789,10 +789,10 @@ export default function ComoFuncionaPage() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h2 className="text-3xl md:text-[48px] font-bold text-[#222222] mb-3 leading-tight">
               Guía de aplicación
             </h2>
-            <p className="text-white/60 text-sm md:text-base">
+            <p className="text-[#222222]/60 text-sm md:text-base">
               Los 3 momentos clave para que funcione correctamente
             </p>
           </motion.div>
@@ -827,7 +827,7 @@ export default function ComoFuncionaPage() {
       {/* =====================
         4. ERRORES COMUNES
       ===================== */}
-      <section id="errores" className="py-12 md:py-20 bg-black">
+      <section id="errores" className="py-12 md:py-20 bg-[#f5f5f5]">
         <div className="max-w-3xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -835,14 +835,14 @@ export default function ComoFuncionaPage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <span className="inline-flex items-center gap-2 bg-rose-500/10 text-rose-300 px-4 py-1.5 rounded-full text-xs font-medium mb-4">
+            <span className="inline-flex items-center gap-2 bg-rose-500/10 text-rose-700 px-4 py-1.5 rounded-full text-xs font-medium mb-4">
               <AlertCircle className="w-3 h-3" />
               Evita estos errores
             </span>
-            <h2 className="text-2xl md:text-3xl font-semibold text-white mb-3">
+            <h2 className="text-3xl md:text-[48px] font-semibold text-[#222222] mb-3 leading-tight">
               Lo que podría estar<br className="md:hidden" /> rompiendo tu rutina
             </h2>
-            <p className="text-white/50 text-sm md:text-base max-w-md mx-auto">
+            <p className="text-[#222222]/50 text-sm md:text-base max-w-md mx-auto">
               Estos errores son más comunes de lo que pensás. Evitalos para mejores resultados.
             </p>
           </motion.div>
@@ -858,7 +858,7 @@ export default function ComoFuncionaPage() {
       {/* =====================
         5. RESULTADOS ESPERADOS
       ===================== */}
-      <section className="py-12 md:py-20 bg-surface-darker/20">
+      <section className="py-12 md:py-20 bg-white">
         <div className="max-w-3xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -866,10 +866,10 @@ export default function ComoFuncionaPage() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h2 className="text-3xl md:text-[48px] font-bold text-[#222222] mb-3 leading-tight">
               Cuándo verás resultados
             </h2>
-            <p className="text-white/60 text-sm md:text-base">
+            <p className="text-[#222222]/60 text-sm md:text-base">
               Expectativas realistas según el tiempo de uso
             </p>
           </motion.div>
@@ -885,7 +885,7 @@ export default function ComoFuncionaPage() {
       {/* =====================
         6. ELEGÍ SEGÚN TU PIEL
       ===================== */}
-      <section id="elegir" className="py-12 md:py-20 bg-black">
+      <section id="elegir" className="py-12 md:py-20 bg-[#f5f5f5]">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -893,10 +893,10 @@ export default function ComoFuncionaPage() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h2 className="text-3xl md:text-[48px] font-bold text-[#222222] mb-3 leading-tight">
               Elegí según tu piel
             </h2>
-            <p className="text-white/60 text-sm md:text-base">
+            <p className="text-[#222222]/60 text-sm md:text-base">
               Cada piel es diferente. Encontrá el combo ideal para vos.
             </p>
           </motion.div>
@@ -912,7 +912,7 @@ export default function ComoFuncionaPage() {
       {/* =====================
         7. FAQ ÚTIL
       ===================== */}
-      <section className="py-12 md:py-20 bg-surface-darker/20">
+      <section className="py-12 md:py-20 bg-white">
         <div className="max-w-2xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -920,10 +920,10 @@ export default function ComoFuncionaPage() {
             viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h2 className="text-3xl md:text-[48px] font-bold text-[#222222] mb-3 leading-tight">
               Preguntas frecuentes
             </h2>
-            <p className="text-white/60 text-sm md:text-base">
+            <p className="text-[#222222]/60 text-sm md:text-base">
               Respondemos las dudas más comunes
             </p>
           </motion.div>
@@ -933,7 +933,7 @@ export default function ComoFuncionaPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="bg-surface-darker/40 rounded-2xl border border-white/5 p-4 md:p-6"
+            className="bg-white rounded-2xl border border-black/[0.06] shadow-sm p-4 md:p-6"
           >
             <Accordion items={faqs} />
           </motion.div>
@@ -943,17 +943,17 @@ export default function ComoFuncionaPage() {
       {/* =====================
         8. CTA FINAL
       ===================== */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-surface-darker/30 to-black">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-white to-white">
         <div className="max-w-xl mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-[48px] font-bold text-[#222222] mb-4 leading-tight">
               ¿Ya sabés cuál elegir?
             </h2>
-            <p className="text-white/60 mb-6">
+            <p className="text-[#222222]/60 mb-6">
               Encontrá el combo ideal para tu tipo de piel y empezá a ver resultados reales.
             </p>
             
@@ -966,7 +966,7 @@ export default function ComoFuncionaPage() {
             </Link>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap justify-center gap-4 mt-8 text-xs text-white/40">
+            <div className="flex flex-wrap justify-center gap-4 mt-8 text-xs text-[#222222]/40">
               <span className="flex items-center gap-1">
                 <Shield className="w-3.5 h-3.5" />
                 Testeado dermatológicamente

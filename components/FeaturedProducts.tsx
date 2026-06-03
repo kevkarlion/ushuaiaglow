@@ -46,10 +46,10 @@ export default function FeaturedProducts() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header - Apple style tight line-height */}
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-semibold text-surface-darker leading-[1.1] tracking-tight mb-3">
+          <h2 className="text-[32px] md:text-[48px] font-bold text-[#222222] leading-[1.1] tracking-tight mb-3">
             Productos <span className="text-primary">Destacados</span>
           </h2>
-          <p className="text-white/50 text-sm max-w-2xl mx-auto">
+          <p className="text-[#888888] text-sm max-w-2xl mx-auto">
             Descubrí nuestra selección de productos premium para el cuidado de tu piel
           </p>
         </motion.div>

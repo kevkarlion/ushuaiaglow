@@ -381,9 +381,9 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                 return (
                   <motion.div key={i} variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                   <div 
-                    className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/[0.06] text-center hover:shadow-premium hover:-translate-y-0.5 transition-all duration-500 ease-premium group"
+                    className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/[0.06] text-center"
                   >
-                    <Icon className={`w-6 h-6 mx-auto mb-3 ${benefit.color} group-hover:scale-110 transition-transform`} />
+                    <Icon className={`w-6 h-6 mx-auto mb-3 ${benefit.color}`} />
                     <p className="text-sm text-white/80 font-medium">{benefit.text}</p>
                   </div>
                   </motion.div>
@@ -435,19 +435,10 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
                 <motion.div key={p.id} variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                 <Link 
                   href={`/productos/${p.slug || p.id}`}
-                  className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium"
+                  className="bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06]"
                 >
-                  <div className="aspect-square relative overflow-hidden">
-                    <Image
-                      src={getMainImage(p.images) || '/placeholder.png'}
-                      alt={p.title}
-                      fill
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
                   <div className="p-4">
-                    <h3 className="text-sm text-white font-medium line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-sm text-white font-medium line-clamp-2 mb-2">
                       {p.title}
                     </h3>
                     <span className="text-lg font-bold text-white">

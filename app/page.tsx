@@ -13,12 +13,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             {/* 1. RESULTADO - Título persuasivo */}
-            <h2 className="text-3xl md:text-4xl font-bold text-surface-darker leading-[1.1] tracking-tight mb-3">
+            <h2 className="text-[32px] md:text-[48px] font-bold text-[#222222] leading-[1.1] tracking-tight mb-3">
               Tu rutina completa en un solo <span className="text-primary">combo</span>
             </h2>
             
             {/* 2. BENEFICIO - Subtexto emotivo */}
-            <p className="text-gray-600 max-w-2xl mx-auto mb-4">
+            <p className="text-[#888888] max-w-2xl mx-auto mb-4">
               Combos pensados para simplificar tu rutina y lograr resultados visibles sin complicaciones.
             </p>
             
@@ -57,7 +57,7 @@ export default function HomePage() {
             <span className="inline-block px-3 py-1 bg-white/10 text-primary text-xs font-medium rounded-full mb-4">
               Oferta Limitada
             </span>
-            <h2 className="text-3xl md:text-4xl font-semibold text-white leading-[1.1] tracking-tight mb-3">
+            <h2 className="text-[32px] md:text-[48px] font-bold text-white leading-[1.1] tracking-tight mb-3">
               Hasta 25% de descuento
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto mb-8">

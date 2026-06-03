@@ -327,9 +327,9 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
                 <motion.div variants={fadeUp} whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}>
                 <div 
                   key={i} 
-                  className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/[0.06] text-center hover:shadow-premium hover:-translate-y-0.5 transition-all duration-500 ease-premium group"
+                  className="bg-gradient-to-b from-surface-darker to-black rounded-xl p-5 border border-white/[0.06] text-center"
                 >
-                  <Sparkles className="w-6 h-6 mx-auto mb-3 text-primary group-hover:scale-110 transition-transform" />
+                  <Sparkles className="w-6 h-6 mx-auto mb-3 text-primary" />
                   <p className="text-sm text-white/80 font-medium">{benefit}</p>
                 </div>
                 </motion.div>
@@ -382,19 +382,10 @@ export default function ComboDetail({ combo, relatedCombos = [] }: ComboDetailPr
                 <Link 
                   key={c.id} 
                   href={`/combos/${c.id}`}
-                  className="group bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 ease-premium"
+                  className="bg-surface-darker/30 rounded-xl overflow-hidden border border-white/[0.06]"
                 >
-                  <div className="aspect-square relative overflow-hidden">
-                    <Image
-                      src={c.image || '/productos/combo-full.jpeg'}
-                      alt={c.title}
-                      fill
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
                   <div className="p-4">
-                    <h3 className="text-sm text-white font-medium line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-sm text-white font-medium line-clamp-2 mb-2">
                       {c.title}
                     </h3>
                     <span className="text-lg font-bold text-white">

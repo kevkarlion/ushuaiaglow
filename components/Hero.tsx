@@ -68,13 +68,13 @@ export default function Hero() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] md:leading-[1.05] tracking-tight mb-4">
+          <h1 className="text-4xl md:text-[48px] font-bold text-white leading-[1.05] md:leading-[1.05] tracking-tight mb-4">
             Piel más luminosa,{' '}
             <span className="text-primary">sin complicaciones</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-base md:text-lg lg:text-xl text-white/70 leading-relaxed mb-8 max-w-md md:max-w-xl">
+          <p className="text-base md:text-lg lg:text-xl text-white/60 leading-relaxed mb-8 max-w-md md:max-w-xl">
             Productos diseñados por expertos para transformar tu piel con rutinas simples que{' '}
             <span className="text-white font-medium">dan resultados desde la primera semana.</span>
           </p>

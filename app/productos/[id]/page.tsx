@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Product } from '@/types/product';
 import ProductDetail from '@/components/ProductDetail';
+import ProductDetailSkeleton from '@/components/ProductDetailSkeleton';
 import { trackViewItem, buildGA4Item } from '@/lib/ga4-ecommerce';
 import { trackViewContent } from '@/lib/meta-pixel';
 
@@ -94,27 +95,20 @@ export default function ProductDetailPage({ params }: PageProps) {
   }, [params]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-white/40 text-sm">Cargando producto...</p>
-        </div>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
         <div className="text-center px-4">
-          <div className="w-20 h-20 mx-auto mb-6 bg-surface-darker rounded-full flex items-center justify-center">
-            <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center shadow-sm">
+            <svg className="w-10 h-10 text-[#222222]/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-white mb-3">Producto no encontrado</h1>
-          <p className="text-white/40 mb-6">El producto que buscas no existe o fue removido.</p>
+          <h1 className="text-2xl font-semibold text-[#222222] mb-3">Producto no encontrado</h1>
+          <p className="text-[#222222]/40 mb-6">El producto que buscas no existe o fue removido.</p>
           <a 
             href="/productos" 
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-xl hover:bg-primary/90 transition-colors"

@@ -51,23 +51,13 @@ export async function GET(request: Request) {
     
     const formatted = products.map(p => {
       // Handle both legacy (strings) and new (objects) image formats
-      let mainImage: string | null = null;
-      if (Array.isArray(p.images)) {
-        if (p.images.length > 0) {
-          if (typeof p.images[0] === 'string') {
-            mainImage = p.images[0];
-          } else {
-            mainImage = (p.images[0] as any)?.url || null;
-          }
-        }
-      }
       return {
         id: p._id.toString(),
         title: p.title,
         stock: p.stock || 0,
         price: p.price,
         category: p.category,
-        image: mainImage,
+        images: p.images || [],
         isCombo: p.isCombo || false,
         productsIncluded: p.productsIncluded || [],
       };

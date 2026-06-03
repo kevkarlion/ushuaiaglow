@@ -12,9 +12,15 @@ interface ProductStock {
   stock: number;
   price: number;
   category: string;
-  image: string | null;
+  images: any[];
   isCombo?: boolean;
   productsIncluded?: string[];
+}
+
+function getDisplayImage(images: any[]): string | null {
+  if (!Array.isArray(images) || images.length === 0) return null;
+  const first = images[0];
+  return typeof first === 'string' ? first : first?.url || null;
 }
 
 interface ProductFormData {
@@ -439,16 +445,141 @@ export default function StockPage() {
               </div>
             </div>
 
+            {/* Imágenes */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Imágenes (una por línea)</label>
-              <textarea
-                value={form.images.join('\n')}
-                onChange={(e) => setForm({ ...form, images: e.target.value.split('\n').filter(url => url.trim()) })}
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"
-                rows={4}
-              />
-              <p className="text-xs text-gray-500 mt-1">Una URL por línea. La primera será la imagen principal.</p>
+              <label className="block text-sm text-gray-400 mb-2">Imágenes <span className="text-gray-500">(la primera es la principal)</span></label>
+              
+              {/* Upload button */}
+              <label className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20 transition-colors mb-3">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm text-white">Subir imágenes</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (files.length === 0) return;
+                    
+                    let ok = 0, fail = 0;
+                    for (const file of files) {
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      
+                      try {
+                        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                        const data = await res.json();
+                        if (data.url) {
+                          setForm(prev => ({ ...prev, images: [...prev.images, data.url] }));
+                          ok++;
+                        } else {
+                          setMessage('⚠️ ' + file.name + ': ' + (data.error || data.details || 'Sin respuesta'));
+                          fail++;
+                        }
+                      } catch (err) {
+                        setMessage('⚠️ ' + file.name + ': ' + (err instanceof Error ? err.message : 'Error de conexión'));
+                        fail++;
+                      }
+                    }
+                    
+                    if (ok > 0) {
+                      setMessage(ok > 1 ? `✅ ${ok} imágenes subidas` : '✅ Imagen subida');
+                    }
+                    if (fail > 0 && ok === 0) {
+                      setMessage(`⚠️ Fallaron ${fail} imagen(es)`);
+                    }
+                    e.target.value = '';
+                  }}
+                  className="hidden"
+                />
+              </label>
+
+              {/* Preview grid */}
+              {form.images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                  {form.images.map((url, idx) => (
+                    <div key={idx} className="rounded-xl overflow-hidden border border-white/20 bg-black/50">
+                      {/* Image */}
+                      <div className="aspect-[4/3] relative">
+                        <img src={url} alt={`Imagen ${idx + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                      
+                      {/* Info bar */}
+                      <div className="flex items-center justify-between px-3 py-2 bg-black/60">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-white/15 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          {idx === 0 && (
+                            <span className="bg-primary text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              Principal
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => {
+                              const newImages = [...form.images];
+                              [newImages[idx - 1], newImages[idx]] = [newImages[idx], newImages[idx - 1]];
+                              setForm(prev => ({ ...prev, images: newImages }));
+                            }}
+                            className="w-8 h-8 bg-white/10 hover:bg-white/25 rounded-lg flex items-center justify-center text-white disabled:opacity-20 transition-colors"
+                            title="Mover izquierda"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === form.images.length - 1}
+                            onClick={() => {
+                              const newImages = [...form.images];
+                              [newImages[idx], newImages[idx + 1]] = [newImages[idx + 1], newImages[idx]];
+                              setForm(prev => ({ ...prev, images: newImages }));
+                            }}
+                            className="w-8 h-8 bg-white/10 hover:bg-white/25 rounded-lg flex items-center justify-center text-white disabled:opacity-20 transition-colors"
+                            title="Mover derecha"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newImages = form.images.filter((_, i) => i !== idx);
+                              setForm(prev => ({ ...prev, images: newImages }));
+                            }}
+                            className="w-8 h-8 bg-red-500/20 hover:bg-red-500/50 rounded-lg flex items-center justify-center text-white transition-colors"
+                            title="Eliminar"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* URL fallback */}
+              <details className="text-xs text-gray-500">
+                <summary className="cursor-pointer hover:text-gray-300 transition-colors">O pegar URLs manualmente</summary>
+                <textarea
+                  value={form.images.join('\n')}
+                  onChange={(e) => setForm({ ...form, images: e.target.value.split('\n').filter(url => url.trim()) })}
+                  className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm"
+                  placeholder="https://res.cloudinary.com/.../img1.jpg&#10;https://res.cloudinary.com/.../img2.jpg"
+                  rows={3}
+                />
+              </details>
             </div>
 
             <div className="flex gap-3">
@@ -484,12 +615,12 @@ export default function StockPage() {
           <>
             <div className="space-y-3 md:space-y-0 md:bg-surface-darker/30 md:rounded-lg md:overflow-hidden">
               {/* Desktop header - grid */}
-              <div className="hidden md:grid md:grid-cols-5 md:gap-4 md:p-4 bg-white/5 text-gray-400 text-sm">
-                <div>Producto</div>
+              <div className="hidden md:grid md:grid-cols-6 md:gap-3 md:p-4 bg-white/5 text-gray-400 text-sm">
+                <div className="col-span-2">Producto</div>
                 <div>Categoría</div>
                 <div className="text-right">Stock</div>
                 <div className="text-right">Precio</div>
-                <div className="text-center">Acción</div>
+                <div className="text-right">Acción</div>
               </div>
               
               {paginatedProducts.map((product) => {
@@ -503,35 +634,53 @@ export default function StockPage() {
                   className={`p-4 rounded-lg md:rounded-none md:border-t md:border-white/5 ${isLow ? 'bg-orange-500/10 border border-orange-500/30' : 'bg-surface-darker/30 border border-white/5'}`}
                 >
                   {/* Desktop - grid layout */}
-                  <div className="hidden md:grid md:grid-cols-5 md:gap-4 md:items-center">
-                    <div className="flex items-center gap-3">
-                      {product.image && (
-                        <img src={product.image} alt={product.title} className="w-12 h-12 rounded object-cover" />
-                      )}
-                      <div>
+                  <div className="hidden md:grid md:grid-cols-6 md:gap-3 md:items-center">
+                    <div className="flex items-center gap-4 col-span-2">
+                      <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-black/40">
+                        {(() => {
+                          const img = getDisplayImage(product.images);
+                          return img ? (
+                            <img src={img} alt={product.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-600">
+                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-white text-lg">{product.title}</p>
+                          <p className="text-white text-base truncate">{product.title}</p>
                           {product.isCombo && (
-                            <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded">Combo</span>
+                            <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded flex-shrink-0">Combo</span>
                           )}
                         </div>
-                        {isLow && <p className="text-orange-400 text-sm">⚠️ Bajo stock</p>}
+                        {isLow && <p className="text-orange-400 text-xs">⚠️ Bajo stock</p>}
                       </div>
                     </div>
-                    <div className="text-gray-400 text-base">{product.category}</div>
+                    <div className="text-gray-400 text-sm truncate">{product.category}</div>
                     <div className="text-right">
-                      <span className={isLow ? 'text-orange-400 font-semibold text-xl' : 'text-white text-xl'}>
+                      <span className={isLow ? 'text-orange-400 font-semibold text-lg' : 'text-white text-lg'}>
                         {product.stock}
                       </span>
                     </div>
-                    <div className="text-right text-gray-400 text-lg">
+                    <div className="text-right text-gray-400 text-sm">
                       ${(product.price || 0).toLocaleString('es-AR')}
                     </div>
-                    <div className="flex items-center gap-2 justify-center">
+                    <div className="flex items-center gap-1 justify-end">
+                      <button
+                        onClick={() => router.push(`/admin/productos/${product.id}`)}
+                        className="px-2 py-1 bg-white/10 hover:bg-white/25 text-xs text-gray-300 rounded transition-colors"
+                        title="Editar producto"
+                      >
+                        ✎
+                      </button>
                       <select
                         value={adj?.operation || 'add'}
                         onChange={(e) => updateAdjustment(product.id, adj?.quantity || 1, e.target.value as 'add' | 'subtract')}
-                        className="px-2 py-1 bg-white border border-gray-300 rounded text-black text-sm"
+                        className="px-2 py-1 bg-white border border-gray-300 rounded text-black text-xs"
                       >
                         <option value="add">+</option>
                         <option value="subtract">−</option>
@@ -541,12 +690,12 @@ export default function StockPage() {
                         min="1"
                         value={adj?.quantity || 1}
                         onChange={(e) => updateAdjustment(product.id, parseInt(e.target.value) || 1, adj?.operation || 'add')}
-                        className="w-14 px-2 py-1 bg-white border border-gray-300 rounded text-black text-sm text-center"
+                        className="w-12 px-1 py-1 bg-white border border-gray-300 rounded text-black text-xs text-center"
                       />
                       <button
                         onClick={() => handleAdjustment(product.id)}
                         disabled={isSaving}
-                        className="px-3 py-1 bg-primary hover:bg-primary/90 text-white text-sm rounded"
+                        className="px-2 py-1 bg-primary hover:bg-primary/90 text-white text-xs rounded"
                       >
                         {isSaving ? '...' : '✓'}
                       </button>
@@ -555,10 +704,21 @@ export default function StockPage() {
 
                   {/* Mobile - card */}
                   <div className="md:hidden">
-                    <div className="flex items-start gap-3 mb-3">
-                      {product.image && (
-                        <img src={product.image} alt={product.title} className="w-20 h-20 rounded-lg object-cover" />
-                      )}
+                    <div className="flex items-start gap-4 mb-3">
+                      <div className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-black/40">
+                        {(() => {
+                          const img = getDisplayImage(product.images);
+                          return img ? (
+                            <img src={img} alt={product.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-600">
+                              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          );
+                        })()}
+                      </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-white font-medium">{product.title}</p>
@@ -596,6 +756,13 @@ export default function StockPage() {
                         className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg transition-colors"
                       >
                         {isSaving ? '...' : '✓'}
+                      </button>
+                      <button
+                        onClick={() => router.push(`/admin/productos/${product.id}`)}
+                        className="px-3 py-2 bg-white/10 hover:bg-white/25 text-white text-sm rounded-lg transition-colors"
+                        title="Editar producto"
+                      >
+                        ✎
                       </button>
                     </div>
                   </div>

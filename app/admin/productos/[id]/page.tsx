@@ -304,60 +304,144 @@ export default function EditProductPage() {
             </div>
           )}
 
-          {/* Imagen */}
+          {/* Imágenes */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Imagen</label>
-            <div className="flex gap-3">
-              <label className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20">
+            <label className="block text-sm text-gray-400 mb-2">Imágenes <span className="text-gray-500">(la primera es la principal)</span></label>
+            
+            {/* Upload buttons */}
+            <div className="flex gap-3 mb-4">
+              <label className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20 transition-colors">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-sm text-white">Elegir imagen</span>
+                <span className="text-sm text-white">Subir imágenes</span>
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
+                    const files = Array.from(e.target.files || []);
+                    if (files.length === 0) return;
                     
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    
-                    try {
-                      const res = await fetch('/api/upload', { method: 'POST', body: formData });
-                      const data = await res.json();
-                      if (data.url) {
-                        handleChange('images', [...form.images, data.url]);
-                        setMessage('✅ Imagen subida');
-                      } else {
-                        setMessage('⚠️ ' + (data.error || 'Error al subir'));
+                    let ok = 0, fail = 0;
+                    for (const file of files) {
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      
+                      try {
+                        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                        const data = await res.json();
+                        if (data.url) {
+                          handleChange('images', [...form.images, data.url]);
+                          ok++;
+                        } else {
+                          setMessage('⚠️ Error con ' + file.name + ': ' + (data.error || 'Sin respuesta'));
+                          fail++;
+                        }
+                      } catch {
+                        setMessage('⚠️ Error al subir ' + file.name);
+                        fail++;
                       }
-                    } catch {
-                      setMessage('⚠️ Error al subir imagen');
                     }
+                    
+                    if (ok > 0) setMessage(ok > 1 ? `✅ ${ok} imágenes subidas` : '✅ Imagen subida');
+                    if (fail > 0 && ok === 0) setMessage(`⚠️ Fallaron ${fail} imagen(es)`);
+                    e.target.value = '';
                   }}
                   className="hidden"
                 />
               </label>
-              {form.images.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
-                  {form.images.map((url, idx) => (
-                    <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-white/20">
-                      <img src={url} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
-                      {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-primary text-black text-[10px] text-center">Principal</span>}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
-            <textarea
-              value={form.images.join('\n')}
-              onChange={(e) => handleChange('images', e.target.value.split('\n').filter(url => url.trim()))}
-              className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-              placeholder="https://ejemplo.com/img1.jpg&#10;https://ejemplo.com/img2.jpg"
-              rows={3}
-            />
-            <p className="text-xs text-gray-500 mt-1">Una URL por línea. La primera será la imagen principal.</p>
+
+            {/* Image grid with ordering */}
+            {form.images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                {form.images.map((url, idx) => (
+                  <div key={idx} className="rounded-xl overflow-hidden border border-white/20 bg-black/50">
+                    {/* Image */}
+                    <div className="aspect-[4/3] relative">
+                      <img src={url} alt={`Imagen ${idx + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                    
+                    {/* Info bar */}
+                    <div className="flex items-center justify-between px-3 py-2 bg-black/60">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-white/15 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        {idx === 0 && (
+                          <span className="bg-primary text-black text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            Principal
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {/* Mover izquierda */}
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => {
+                            const newImages = [...form.images];
+                            [newImages[idx - 1], newImages[idx]] = [newImages[idx], newImages[idx - 1]];
+                            handleChange('images', newImages);
+                          }}
+                          className="w-8 h-8 bg-white/10 hover:bg-white/25 rounded-lg flex items-center justify-center text-white disabled:opacity-20 transition-colors"
+                          title="Mover izquierda"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+                        
+                        {/* Mover derecha */}
+                        <button
+                          type="button"
+                          disabled={idx === form.images.length - 1}
+                          onClick={() => {
+                            const newImages = [...form.images];
+                            [newImages[idx], newImages[idx + 1]] = [newImages[idx + 1], newImages[idx]];
+                            handleChange('images', newImages);
+                          }}
+                          className="w-8 h-8 bg-white/10 hover:bg-white/25 rounded-lg flex items-center justify-center text-white disabled:opacity-20 transition-colors"
+                          title="Mover derecha"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                        
+                        {/* Eliminar */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newImages = form.images.filter((_, i) => i !== idx);
+                            handleChange('images', newImages);
+                          }}
+                          className="w-8 h-8 bg-red-500/20 hover:bg-red-500/50 rounded-lg flex items-center justify-center text-white transition-colors"
+                          title="Eliminar imagen"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* URL fallback textarea */}
+            <details className="text-xs text-gray-500">
+              <summary className="cursor-pointer hover:text-gray-300 transition-colors">O pegar URLs manualmente</summary>
+              <textarea
+                value={form.images.join('\n')}
+                onChange={(e) => handleChange('images', e.target.value.split('\n').filter(url => url.trim()))}
+                className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm"
+                placeholder="https://res.cloudinary.com/.../img1.jpg&#10;https://res.cloudinary.com/.../img2.jpg"
+                rows={3}
+              />
+            </details>
           </div>
 
           {/* Info adicional */}

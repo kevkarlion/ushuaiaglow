@@ -64,7 +64,7 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
   const imageUrls = getOrderedImages(product.images);
 
   // Datos del producto (reales desde la API)
-  const benefitText = product.tagline || "Ilumina y unifica el tono de tu piel";
+  const benefitText = product.tagline || '';
   
   // Reviews - datos reales del producto o defaults
   const reviews = {
@@ -226,9 +226,11 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             </h1>
 
             {/* Tagline / Beneficio principal */}
-            <p className="text-lg text-white/70 font-light leading-relaxed">
-              {benefitText}
-            </p>
+            {benefitText && (
+              <p className="text-lg text-white/70 font-light leading-relaxed">
+                {benefitText}
+              </p>
+            )}
 
             {/* Rating */}
             <div className="flex items-center gap-2">
@@ -511,9 +513,11 @@ export default function ProductDetail({ product, relatedProducts = [] }: Product
             {product.title}
           </h1>
 
-          <p className="text-base text-white/60 font-light">
-            {benefitText}
-          </p>
+          {benefitText && (
+            <p className="text-base text-white/60 font-light">
+              {benefitText}
+            </p>
+          )}
 
           {/* Rating */}
           <div className="flex items-center gap-2">

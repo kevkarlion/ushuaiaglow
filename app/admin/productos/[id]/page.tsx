@@ -4,9 +4,21 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Product } from '@/types/product';
 
+// Parse price in Argentine format: "22,990" → 22990, "22,99" → 22.99, "1.500" → 1500
+function parsePrice(val: string): number {
+  let s = val.replace(/\./g, '');
+  if (/,\d{2}$/.test(s)) {
+    s = s.replace(',', '.');
+  } else {
+    s = s.replace(/,/g, '');
+  }
+  return parseFloat(s) || 0;
+}
+
 interface ProductFormData {
   title: string;
   description: string;
+  tagline: string;
   price: string;
   originalPrice: string;
   discount: string;
@@ -26,6 +38,7 @@ const categories = ['Cuidado Facial', 'Cuidado Corporal', 'Cuidado Capilar', 'Ma
 const initialForm: ProductFormData = {
   title: '',
   description: '',
+  tagline: '',
   price: '',
   originalPrice: '',
   discount: '',
@@ -72,6 +85,7 @@ export default function EditProductPage() {
       setForm({
         title: data.title || '',
         description: data.description || '',
+        tagline: data.tagline || '',
         price: data.price?.toString() || '',
         originalPrice: data.originalPrice?.toString() || '',
         discount: data.discount?.toString() || '',
@@ -110,8 +124,9 @@ export default function EditProductPage() {
       const productData = {
         title: form.title,
         description: form.description,
-        price: parseFloat(form.price) || 0,
-        originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : null,
+        tagline: form.tagline,
+        price: parsePrice(form.price) || 0,
+        originalPrice: form.originalPrice ? parsePrice(form.originalPrice) : null,
         discount: form.discount ? parseInt(form.discount) : null,
         category: form.category,
         stock: parseInt(form.stock) || 0,
@@ -217,15 +232,34 @@ export default function EditProductPage() {
             />
           </div>
 
+          {/* Tagline */}
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">
+              Tagline <span className="text-gray-500">(frase de beneficio principal)</span>
+            </label>
+            <input
+              type="text"
+              value={form.tagline}
+              onChange={(e) => handleChange('tagline', e.target.value)}
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+              placeholder="Ej: El boost de energía que tu rostro necesita"
+            />
+          </div>
+
           {/* Precios y Stock */}
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-1">Precio Final *</label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="numeric"
                 value={form.price}
-                onChange={(e) => handleChange('price', e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (/^[\d.,]*$/.test(v) || v === '') {
+                    handleChange('price', v);
+                  }
+                }}
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                 required
               />
@@ -233,10 +267,15 @@ export default function EditProductPage() {
             <div>
               <label className="block text-sm text-gray-400 mb-1">Precio Tachado</label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="numeric"
                 value={form.originalPrice}
-                onChange={(e) => handleChange('originalPrice', e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (/^[\d.,]*$/.test(v) || v === '') {
+                    handleChange('originalPrice', v);
+                  }
+                }}
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                 placeholder="Ej: 12000"
               />

@@ -17,6 +17,19 @@ interface ProductStock {
   productsIncluded?: string[];
 }
 
+// Parse price in Argentine format: "22,990" → 22990, "22,99" → 22.99, "1.500" → 1500
+function parsePrice(val: string): number {
+  // Remove all periods (thousands separator)
+  let s = val.replace(/\./g, '');
+  // If comma has exactly 2 digits after it and no more, it's decimal
+  if (/,\d{2}$/.test(s)) {
+    s = s.replace(',', '.');
+  } else {
+    s = s.replace(/,/g, '');
+  }
+  return parseFloat(s) || 0;
+}
+
 function getDisplayImage(images: any[]): string | null {
   if (!Array.isArray(images) || images.length === 0) return null;
   const first = images[0];
@@ -26,19 +39,37 @@ function getDisplayImage(images: any[]): string | null {
 interface ProductFormData {
   title: string;
   description: string;
+  tagline: string;
   price: string;
-  stock: string;
+  originalPrice: string;
+  discount: string;
   category: string;
+  stock: string;
   images: string[];
+  ingredients: string;
+  howToUse: string;
+  warnings: string;
+  weight: string;
+  isCombo: boolean;
+  productsIncluded: string;
 }
 
 const initialForm: ProductFormData = {
   title: '',
   description: '',
+  tagline: '',
   price: '',
-  stock: '',
+  originalPrice: '',
+  discount: '',
   category: 'Cuidado Facial',
+  stock: '',
   images: [] as string[],
+  ingredients: '',
+  howToUse: '',
+  warnings: '',
+  weight: '',
+  isCombo: false,
+  productsIncluded: '',
 };
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -112,12 +143,24 @@ export default function StockPage() {
         body: JSON.stringify([{
           id: editingId,
           title: form.title,
-          price: parseFloat(form.price),
+          description: form.description,
+          tagline: form.tagline,
+          price: parsePrice(form.price),
+          originalPrice: form.originalPrice ? parsePrice(form.originalPrice) : null,
+          discount: form.discount ? parseInt(form.discount) : null,
           stock: parseInt(form.stock),
           category: form.category,
           images: form.images.length > 0 
   ? form.images.map((url, i) => ({ url, order: i })) 
   : [],
+          ingredients: form.ingredients,
+          howToUse: form.howToUse,
+          warnings: form.warnings,
+          weight: form.weight,
+          isCombo: form.isCombo,
+          productsIncluded: form.isCombo && form.productsIncluded 
+            ? form.productsIncluded.split(',').map(s => s.trim()).filter(Boolean)
+            : [],
         }]),
       });
 
@@ -188,17 +231,33 @@ export default function StockPage() {
     }
   };
 
-  const handleEdit = (product: any) => {
+  const handleEdit = async (product: any) => {
     setEditingId(product.id);
+    // Fetch full product data
+    let data = product;
+    try {
+      const res = await fetch(`/api/products/${product.id}`);
+      if (res.ok) data = await res.json();
+    } catch {}
+    
     setForm({
-      title: product.title,
-      description: product.description || '',
-      price: product.price?.toString() || '',
-      stock: product.stock?.toString() || '',
-      category: product.category || 'Cuidado Facial',
-      images: Array.isArray(product.images) 
-  ? product.images.map((img: any) => typeof img === 'string' ? img : img.url).filter(Boolean) 
+      title: data.title || '',
+      description: data.description || '',
+      tagline: data.tagline || '',
+      price: data.price?.toString() || '',
+      originalPrice: data.originalPrice?.toString() || '',
+      discount: data.discount?.toString() || '',
+      stock: data.stock?.toString() || '',
+      category: data.category || 'Cuidado Facial',
+      images: Array.isArray(data.images) 
+  ? data.images.map((img: any) => typeof img === 'string' ? img : img.url).filter(Boolean) 
   : [],
+      ingredients: data.ingredients || '',
+      howToUse: data.howToUse || '',
+      warnings: data.warnings || '',
+      weight: data.weight || '',
+      isCombo: data.isCombo || false,
+      productsIncluded: data.productsIncluded?.join(', ') || '',
     });
   };
 
@@ -408,18 +467,75 @@ export default function StockPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">
+                Tagline <span className="text-gray-500">(frase de beneficio principal)</span>
+              </label>
+              <input
+                type="text"
+                value={form.tagline}
+                onChange={(e) => setForm({ ...form, tagline: e.target.value })}
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                placeholder="Ej: El boost de energía que tu rostro necesita"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Precio</label>
+                <label className="block text-sm text-gray-400 mb-1">Precio *</label>
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="numeric"
                   value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (/^[\d.,]*$/.test(v) || v === '') {
+                      setForm({ ...form, price: v });
+                    }
+                  }}
                   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
                   required
                 />
               </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Precio Tachado</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={form.originalPrice}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (/^[\d.,]*$/.test(v) || v === '') {
+                      setForm({ ...form, originalPrice: v });
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                  placeholder="Ej: 12000"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Descuento %</label>
+                <input
+                  type="number"
+                  value={form.discount}
+                  onChange={(e) => setForm({ ...form, discount: e.target.value })}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                  placeholder="Ej: 20"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Stock *</label>
+                <input
+                  type="number"
+                  value={form.stock}
+                  onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Categoría</label>
                 <select
@@ -434,13 +550,13 @@ export default function StockPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Stock</label>
+                <label className="block text-sm text-gray-400 mb-1">Peso / Contenido</label>
                 <input
-                  type="number"
-                  value={form.stock}
-                  onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                  type="text"
+                  value={form.weight}
+                  onChange={(e) => setForm({ ...form, weight: e.target.value })}
                   className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
-                  required
+                  placeholder="Ej: 300ml"
                 />
               </div>
             </div>
@@ -581,6 +697,62 @@ export default function StockPage() {
                 />
               </details>
             </div>
+
+            {/* Detalles */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Ingredientes</label>
+                <textarea
+                  value={form.ingredients}
+                  onChange={(e) => setForm({ ...form, ingredients: e.target.value })}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Cómo usar</label>
+                <textarea
+                  value={form.howToUse}
+                  onChange={(e) => setForm({ ...form, howToUse: e.target.value })}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Advertencias</label>
+              <textarea
+                value={form.warnings}
+                onChange={(e) => setForm({ ...form, warnings: e.target.value })}
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                rows={2}
+              />
+            </div>
+
+            {/* Combo */}
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="isCombo"
+                checked={form.isCombo}
+                onChange={(e) => setForm({ ...form, isCombo: e.target.checked })}
+                className="w-4 h-4"
+              />
+              <label htmlFor="isCombo" className="text-sm text-gray-400">Es un combo / kit</label>
+            </div>
+            {form.isCombo && (
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">IDs de productos incluidos <span className="text-gray-500">(separados por coma)</span></label>
+                <input
+                  type="text"
+                  value={form.productsIncluded}
+                  onChange={(e) => setForm({ ...form, productsIncluded: e.target.value })}
+                  className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white"
+                  placeholder="id1, id2, id3"
+                />
+              </div>
+            )}
 
             <div className="flex gap-3">
               <button

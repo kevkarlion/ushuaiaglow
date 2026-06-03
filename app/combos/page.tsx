@@ -256,7 +256,7 @@ export default function CombosPage() {
                     });
                   }
                 }}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary hover:bg-primary/90 text-black font-bold text-base rounded-xl transition-all duration-500 ease-premium hover:shadow-xl hover:shadow-glow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-black font-bold text-base rounded-xl"
               >
                 Ver Combos
                 <ArrowRight className="w-5 h-5" />
@@ -338,7 +338,7 @@ export default function CombosPage() {
                 placeholder="Buscar combos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-black/[0.06] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#222222] placeholder-[#222222]/40 focus:outline-none focus:border-primary/50 transition-colors duration-300 ease-premium"
+                className="w-full bg-white border border-black/[0.06] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#222222] placeholder-[#222222]/40 focus:outline-none focus:border-primary/50 transition-colors duration-200"
               />
             </div>
           </div>
@@ -378,11 +378,11 @@ export default function CombosPage() {
                 <motion.div 
                   key={combo.id} 
                   variants={fadeUp}
-                  whileHover={{ scale: 1.02, y: -4, transition: { duration: 0.3, ease: 'easeOut' } }}
-                  className={`group bg-white rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col ${
+                  whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                  className={`bg-white rounded-2xl overflow-hidden border flex flex-col ${
                     isBestSeller 
                       ? 'border-primary/50 shadow-lg shadow-primary/10' 
-                      : 'border-black/5 hover:border-primary/40'
+                      : 'border-black/5'
                   }`}
                 >
                   {/* Imagen - clickeable para ver detalle */}
@@ -393,7 +393,7 @@ export default function CombosPage() {
                         alt={combo.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-premium"
+                        className="object-cover"
                       />
                       
                       {/* BADGE de diferenciación */}
@@ -446,7 +446,7 @@ export default function CombosPage() {
                     
                     {/* 2. Title - clickeable */}
                     <Link href={`/combos/${comboSlug}`}>
-                      <h3 className="text-lg font-bold text-[#222222] group-hover:text-primary transition-colors mb-1 cursor-pointer">
+                      <h3 className="text-lg font-bold text-[#222222] mb-1 cursor-pointer">
                         {combo.title}
                       </h3>
                     </Link>
@@ -527,10 +527,10 @@ export default function CombosPage() {
                   <div className="p-4 pt-0 mt-auto space-y-2">
                     {/* Botón agregar al carrito */}
                     <button 
-                      className={`w-full py-3 font-bold text-sm rounded-xl transition-all duration-500 ease-premium hover:shadow-lg active:scale-95 ${
+                      className={`w-full py-3 font-bold text-sm rounded-xl transition-colors duration-200 ${
                         isBestSeller 
-                          ? 'bg-primary hover:bg-primary/90 text-black hover:shadow-glow-lg hover:shadow-primary/20' 
-                          : 'bg-primary/90 hover:bg-primary text-black'
+                          ? 'bg-primary text-black' 
+                          : 'bg-primary/90 text-black'
                       } ${addingId === combo.id ? 'bg-green-500 text-white' : ''}`}
                       onClick={(e) => handleAddToCart(combo, e)}
                       disabled={addingId === combo.id}
@@ -541,7 +541,7 @@ export default function CombosPage() {
                     {/* Botón ver detalle */}
                     <Link 
                       href={`/combos/${comboSlug}`}
-                      className="w-full py-3 font-bold text-sm rounded-xl border border-black/[0.12] text-[#222222] hover:bg-black/5 hover:border-black/25 transition-all duration-300 ease-premium block text-center"
+                      className="w-full py-3 font-bold text-sm rounded-xl border border-black/[0.12] text-[#222222] block text-center"
                     >
                       Ver detalle
                     </Link>
@@ -593,7 +593,7 @@ export default function CombosPage() {
           
           <Link
             href="/contacto"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary/90 text-black font-bold rounded-xl transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-black font-bold rounded-xl"
           >
             Crear Mi Combo
             <ArrowRight className="w-5 h-5" />

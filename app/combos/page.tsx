@@ -119,6 +119,17 @@ export default function CombosPage() {
               }
             }
             
+            // Si no hay productos, intentar con ingredients
+            if (productsArr.length === 0 && c.ingredients) {
+              const ing = c.ingredients;
+              try {
+                const parsed = JSON.parse(ing);
+                if (Array.isArray(parsed)) productsArr = parsed;
+              } catch {
+                productsArr = ing.split(/[,\n]/).map(s => s.trim()).filter(Boolean);
+              }
+            }
+            
             const productsWithImages = productsArr.map((name: string) => {
               const productName = name.trim().toLowerCase();
               const normalizedName = productName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -416,14 +427,6 @@ export default function CombosPage() {
                       {!badge && (
                         <div className="absolute top-3 left-3 bg-accent text-white text-sm font-bold px-3 py-1 rounded-full">
                           -{combo.discount || Math.round((1 - combo.price / (combo.originalPrice || combo.price)) * 100)}%
-                        </div>
-                      )}
-
-                      {/* URGENCY: Últimas unidades (solo best seller) */}
-                      {isBestSeller && (
-                        <div className="absolute bottom-3 left-3 bg-red-500/90 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1">
-                          <Timer className="w-3 h-3" />
-                          Últimas unidades
                         </div>
                       )}
 

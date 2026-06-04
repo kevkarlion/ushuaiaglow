@@ -15,6 +15,7 @@ interface ComboProduct {
 
 interface Combo {
   id: string;
+  slug: string;
   title: string;
   subtitle: string;
   description: string;
@@ -35,6 +36,11 @@ interface Combo {
     author: string;
   };
   rating?: number;
+  // Datos adicionales
+  howToUse?: string;
+  ingredients?: string;
+  warnings?: string;
+  weight?: string;
 }
 
 interface PageProps {
@@ -70,6 +76,7 @@ export default function ComboDetailPage({ params }: PageProps) {
         
         // Obtener los nombres de productos incluidos
         const includedNames: string[] = [];
+        // Primero intentar productsIncluded
         const pi = found.productsIncluded as string | undefined;
         if (Array.isArray(pi)) {
           includedNames.push(...pi);
@@ -82,26 +89,80 @@ export default function ComboDetailPage({ params }: PageProps) {
           }
         }
         
+        // Si no hay productos, intentar con ingredients
+        if (includedNames.length === 0 && found.ingredients) {
+          const ing = found.ingredients;
+          try {
+            const parsed = JSON.parse(ing);
+            if (Array.isArray(parsed)) includedNames.push(...parsed);
+          } catch {
+            // ingredients puede ser texto separated by commas or newlines
+            includedNames.push(...ing.split(/[,\n]/).map(s => s.trim()).filter(Boolean));
+          }
+        }
+        
         // Buscar cada producto incluido para obtener su imagen
         const comboProducts: ComboProduct[] = includedNames.map((name: string) => {
           const productName = name.trim().toLowerCase();
+          const normalizedProductName = productName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
           
-          const matched = (allProducts as Product[]).find(p => {
+          // Palabras a ignorar en la búsqueda
+          const stopWords = ['de', 'la', 'el', 'en', 'ml', 'gr', '150ml', '250ml', '50ml', '100ml', 'para', 'facial', 'corp'];
+          
+          // Limpiar el nombre de producto
+          const cleanNameWords = normalizedProductName
+            .split(/\s+/)
+            .filter(w => w.length > 2 && !stopWords.includes(w));
+          
+          // Buscar coincidencia exacta por título o slug
+          let matched = (allProducts as Product[]).find(p => {
             const titleLower = p.title?.toLowerCase() || '';
-            const normalizedName = productName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const slugLower = p.slug?.toLowerCase() || '';
             const normalizedTitle = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const normalizedSlug = slugLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             
-            const nameWords = normalizedName.split(/\s+/);
-            const titleWords = normalizedTitle.split(/\s+/);
-            
-            const hasCommonWord = nameWords.some(nw => 
-              titleWords.some(tw => tw.length > 2 && (nw.includes(tw) || tw.includes(nw)))
-            );
-            
-            return normalizedTitle.includes(normalizedName) || 
-                   normalizedName.includes(normalizedTitle) ||
-                   hasCommonWord;
+            return normalizedTitle === normalizedProductName || 
+                   normalizedSlug === normalizedProductName ||
+                   normalizedProductName === normalizedTitle ||
+                   normalizedProductName === normalizedSlug;
           });
+          
+          // Si no hay coincidencia exacta, buscar por palabras clave principales
+          if (!matched && cleanNameWords.length > 0) {
+            // Ordenar productos por relevancia: priorizar los que tienen más palabras coincidentes
+            const scoredProducts = (allProducts as Product[]).map(p => {
+              const titleLower = p.title?.toLowerCase() || '';
+              const slugLower = p.slug?.toLowerCase() || '';
+              const normalizedTitle = titleLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+              const normalizedSlug = slugLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+              
+              const titleWords = normalizedTitle.split(/\s+/).filter(w => w.length > 2 && !stopWords.includes(w));
+              const slugWords = normalizedSlug.split(/\s+/).filter(w => w.length > 2 && !stopWords.includes(w));
+              
+              // Contar cuántas palabras clave coinciden
+              const matchesInTitle = cleanNameWords.filter(nw => 
+                titleWords.some(tw => tw.includes(nw) || nw.includes(tw))
+              ).length;
+              
+              const matchesInSlug = cleanNameWords.filter(nw => 
+                slugWords.some(tw => tw.includes(nw) || nw.includes(tw))
+              ).length;
+              
+              return { product: p, score: Math.max(matchesInTitle, matchesInSlug) };
+            });
+            
+            // Ordenar por score descendente y tomar el mejor si tiene al menos 1 coincidencia
+            scoredProducts.sort((a, b) => b.score - a.score);
+            if (scoredProducts[0]?.score >= 1) {
+              matched = scoredProducts[0].product;
+            }
+          }
+          
+          // Si encontró un match pero el score es muy bajo, no usar imagen
+          if (!matched) {
+            // Buscar de nuevo con lógica más permisiva solo para mostrar en consola
+            console.log(`Combo product not found: "${productName}"`);
+          }
           
           let image = '';
           if (matched?.images && matched.images.length > 0) {
@@ -123,6 +184,7 @@ export default function ComboDetailPage({ params }: PageProps) {
         
         const comboData: Combo = {
           id: found.id,
+          slug: found.slug || found.id,
           title: found.title,
           subtitle: found.brand || 'Combo Especial',
           description: found.description || '',
@@ -140,6 +202,11 @@ export default function ComboDetailPage({ params }: PageProps) {
           commercialDescription: found.commercialDescription || '',
           featuredReview: found.featuredReview || undefined,
           rating: found.rating || undefined,
+          // Datos adicionales
+          howToUse: found.howToUse || '',
+          ingredients: found.ingredients || '',
+          warnings: found.warnings || '',
+          weight: found.weight || '',
         };
         
         // Agregar benefits y fullDescription según el slug/título
@@ -192,6 +259,7 @@ export default function ComboDetailPage({ params }: PageProps) {
           p => (p.isCombo === true || p.category?.toLowerCase() === 'combo') && p.id !== found.id
         ).slice(0, 4).map(p => ({
           id: p.id,
+          slug: p.slug || p.id,
           title: p.title,
           subtitle: p.brand || 'Combo',
           description: p.description || '',
@@ -220,10 +288,10 @@ export default function ComboDetailPage({ params }: PageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-white/40 text-sm">Cargando combo...</p>
+          <p className="text-[#222222]/40 text-sm">Cargando combo...</p>
         </div>
       </div>
     );
@@ -231,15 +299,15 @@ export default function ComboDetailPage({ params }: PageProps) {
 
   if (!combo) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
         <div className="text-center px-4">
-          <div className="w-20 h-20 mx-auto mb-6 bg-surface-darker rounded-full flex items-center justify-center">
-            <svg className="w-10 h-10 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 mx-auto mb-6 bg-white rounded-full flex items-center justify-center border border-black/[0.06]">
+            <svg className="w-10 h-10 text-[#222222]/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-white mb-3">Combo no encontrado</h1>
-          <p className="text-white/40 mb-6">El combo que buscas no existe o fue removido.</p>
+          <h1 className="text-2xl font-semibold text-[#222222] mb-3">Combo no encontrado</h1>
+          <p className="text-[#222222]/40 mb-6">El combo que buscas no existe o fue removido.</p>
           <a 
             href="/combos" 
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-black font-medium rounded-xl hover:bg-primary/90 transition-colors"
